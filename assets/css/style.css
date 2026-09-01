@@ -677,19 +677,19 @@ h1, h2, h3, h4{
 /* ============ RESPONSIVE ============ */
 @media (max-width: 980px){
   .hero-inner{ grid-template-columns: 1fr; }
-  .hero-mascot img, .hero-ticket-img img{ max-width: 200px; }
+  .hero-mascot img, .hero-ticket-img img{ max-width: 160px; }
   .trust-grid{ grid-template-columns: repeat(2, 1fr); }
 }
 
 /* ---- Mobile-first tuning: keep CTA close to the fold ---- */
 @media (max-width: 767px){
-  .hero{ padding: 28px 0 24px; }
-  .hero-inner{ gap: 2px; }
+  .hero{ padding: 24px 0 20px; }
+  .hero-inner{ gap: 0; }
   .hero-mascot{ order: 1; }
   .hero-copy{ order: 2; }
   .hero-ticket-img{ order: 3; }
-  .hero-mascot img{ max-width: 128px; margin-bottom: -8px; }
-  .hero-ticket-img img{ max-width: 130px; margin-top: 6px; }
+  .hero-mascot img{ max-width: 96px; margin-bottom: -4px; }
+  .hero-ticket-img img{ max-width: 96px; margin-top: 2px; }
   .pill-btn{ margin-bottom: 12px; padding: 9px 18px; font-size: 12px; }
   .hero-title{ font-size: 2.1rem; margin-bottom: .2em; }
   .hero-counter{ font-size: 2.3rem; margin: 4px 0 12px; }
@@ -748,6 +748,8 @@ h1, h2, h3, h4{
 }
 
 @media (max-width: 640px){
+  .hero-mascot img{ max-width: 80px; }
+  .hero-ticket-img img{ max-width: 80px; }
   .hero-title{ font-size: 2.2rem; }
   .hero-counter{ font-size: 2.4rem; }
   .hero-sub{ font-size: 1.25rem; }
