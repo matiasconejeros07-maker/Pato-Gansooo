@@ -1,6 +1,52 @@
 (function () {
   'use strict';
 
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ============ SPARKLE PARTICLES (festive hero background) ============ */
+  var sparkleField = document.getElementById('sparkle-field');
+  if (sparkleField && !reduceMotion) {
+    var SPARKLE_COUNT = 22;
+    for (var i = 0; i < SPARKLE_COUNT; i++) {
+      var s = document.createElement('span');
+      s.className = 'sparkle';
+      s.style.left = (Math.random() * 100) + '%';
+      s.style.top = (Math.random() * 100) + '%';
+      s.style.setProperty('--s', (2 + Math.random() * 3).toFixed(1) + 'px');
+      s.style.setProperty('--dur', (2.2 + Math.random() * 2.6).toFixed(1) + 's');
+      s.style.setProperty('--delay', (Math.random() * 4).toFixed(1) + 's');
+      s.style.setProperty('--peak', (0.5 + Math.random() * 0.5).toFixed(2));
+      sparkleField.appendChild(s);
+    }
+  }
+
+  /* ============ SCROLL REVEAL ============ */
+  /* Content is visible by default (see CSS); only opt into the hidden->
+     reveal animation once we know an observer will actually run it. */
+  var revealEls = document.querySelectorAll('[data-reveal]');
+  if (revealEls.length && !reduceMotion && 'IntersectionObserver' in window) {
+    document.documentElement.classList.add('js-reveal');
+    var revealObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(function (el, idx) {
+      el.style.transitionDelay = Math.min(idx % 4, 3) * 80 + 'ms';
+      revealObserver.observe(el);
+    });
+
+    // Safety net: if anything is somehow never observed as visible
+    // (e.g. an element outside normal scroll flow), don't leave it
+    // permanently hidden.
+    window.setTimeout(function () {
+      revealEls.forEach(function (el) { el.classList.add('is-visible'); });
+    }, 4000);
+  }
+
   /* ============ HEADER: sticky shadow on scroll + scroll-to-top ============ */
   var header = document.getElementById('masthead');
   var scrollTopBtn = document.getElementById('scroll-top');

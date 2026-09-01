@@ -165,16 +165,72 @@ h1, h2, h3, h4{
 .cd-sep{ font-size: 24px; font-weight: 700; color: #fff; opacity: .7; }
 
 /* ============ HERO ============ */
-.hero{ padding: 60px 0 40px; }
+.hero{
+  position: relative;
+  padding: 60px 0 40px;
+  overflow: hidden;
+  background-color: #000;
+  background-image:
+    radial-gradient(ellipse 90% 60% at 50% 100%, rgba(236,196,5,0.16), transparent 70%),
+    url('../img/hero-bg.webp');
+  background-size: cover;
+  background-position: center bottom;
+}
 .hero-inner{
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: .9fr 1.3fr .8fr;
   align-items: center;
   gap: 20px;
 }
-.hero-mascot img{ margin: 0 auto; }
-.hero-ticket-img img{ margin: 0 auto; }
-.hero-copy{ text-align: center; }
+.hero-mascot img{ margin: 0 auto; animation: float-y 4.2s ease-in-out infinite; }
+.hero-ticket-img img{ margin: 0 auto; animation: float-y 4.8s ease-in-out infinite; animation-delay: .4s; }
+
+.hero-copy{
+  position: relative;
+  z-index: 0;
+  text-align: center;
+}
+/* Soft dark scrim behind the headline/CTAs so text stays legible over the
+   busy sparkle background, without hiding the mascots on either side. */
+.hero-copy::before{
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -24px -16px;
+  background: radial-gradient(ellipse 70% 80% at 50% 50%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.28) 55%, transparent 78%);
+  border-radius: 40px;
+}
+
+@keyframes float-y{
+  0%, 100%{ transform: translateY(0); }
+  50%{ transform: translateY(-10px); }
+}
+
+/* Twinkling gold sparkle particles layered over the hero background */
+.sparkle-field{
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.sparkle{
+  position: absolute;
+  width: var(--s, 3px);
+  height: var(--s, 3px);
+  border-radius: 50%;
+  background: var(--gold-bright);
+  box-shadow: 0 0 6px 1px rgba(255,215,0,0.8);
+  opacity: 0;
+  animation: sparkle-twinkle var(--dur, 3s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes sparkle-twinkle{
+  0%, 100%{ opacity: 0; transform: scale(.6); }
+  50%{ opacity: var(--peak, .9); transform: scale(1); }
+}
 
 .pill-btn{
   display: inline-block;
@@ -238,6 +294,14 @@ h1, h2, h3, h4{
 .btn-outline{ background: transparent; color: var(--gold); }
 .btn-outline:hover{ background: var(--gold); color: #000; }
 
+/* Inside the hero, the outline button sits over a busy sparkle background —
+   give it a solid backdrop so the gold text stays readable against it. */
+.hero .btn-outline{
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(3px);
+}
+.hero .btn-outline:hover{ background: var(--gold); color: #000; }
+
 /* ============ TRUST BADGES ============ */
 .trust-badges{
   padding: 30px 0;
@@ -255,6 +319,18 @@ h1, h2, h3, h4{
   font-size: 1.05rem;
   margin: 0;
   color: var(--white);
+}
+.badge-emoji{
+  display: inline-block;
+  animation: badge-bounce 2.6s ease-in-out infinite;
+}
+.trust-item:nth-child(1) .badge-emoji{ animation-delay: 0s; }
+.trust-item:nth-child(2) .badge-emoji{ animation-delay: .2s; }
+.trust-item:nth-child(3) .badge-emoji{ animation-delay: .4s; }
+.trust-item:nth-child(4) .badge-emoji{ animation-delay: .6s; }
+@keyframes badge-bounce{
+  0%, 100%{ transform: translateY(0) rotate(0deg); }
+  50%{ transform: translateY(-4px) rotate(-6deg); }
 }
 
 /* ============ SECTION TITLES ============ */
@@ -601,19 +677,19 @@ h1, h2, h3, h4{
 /* ============ RESPONSIVE ============ */
 @media (max-width: 980px){
   .hero-inner{ grid-template-columns: 1fr; }
-  .hero-mascot img, .hero-ticket-img img{ max-width: 260px; }
+  .hero-mascot img, .hero-ticket-img img{ max-width: 200px; }
   .trust-grid{ grid-template-columns: repeat(2, 1fr); }
 }
 
 /* ---- Mobile-first tuning: keep CTA close to the fold ---- */
 @media (max-width: 767px){
-  .hero{ padding: 32px 0 30px; }
-  .hero-inner{ gap: 6px; }
+  .hero{ padding: 28px 0 24px; }
+  .hero-inner{ gap: 2px; }
   .hero-mascot{ order: 1; }
   .hero-copy{ order: 2; }
   .hero-ticket-img{ order: 3; }
-  .hero-mascot img{ max-width: 170px; margin-bottom: -10px; }
-  .hero-ticket-img img{ max-width: 180px; margin-top: 10px; }
+  .hero-mascot img{ max-width: 128px; margin-bottom: -8px; }
+  .hero-ticket-img img{ max-width: 130px; margin-top: 6px; }
   .pill-btn{ margin-bottom: 12px; padding: 9px 18px; font-size: 12px; }
   .hero-title{ font-size: 2.1rem; margin-bottom: .2em; }
   .hero-counter{ font-size: 2.3rem; margin: 4px 0 12px; }
@@ -683,4 +759,34 @@ h1, h2, h3, h4{
   .trust-grid{ grid-template-columns: 1fr 1fr; }
   .card .left h2{ font-size: 18px; }
   .card .left h2 span{ font-size: 24px; }
+}
+
+/* ============ SCROLL REVEAL ============ */
+/* Visible by default — JS opts elements into the hidden->reveal animation
+   via html.js-reveal, so content never depends on JS/observer timing to
+   become visible (progressive enhancement, not a hard requirement). */
+.reveal{
+  transition: opacity .6s ease, transform .6s ease;
+}
+html.js-reveal .reveal{
+  opacity: 0;
+  transform: translateY(22px);
+}
+html.js-reveal .reveal.is-visible{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============ MOTION PREFERENCES ============ */
+@media (prefers-reduced-motion: reduce){
+  .hero-mascot img, .hero-ticket-img img,
+  .badge-emoji, .sparkle{
+    animation: none !important;
+  }
+  .reveal{
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  html{ scroll-behavior: auto; }
 }
