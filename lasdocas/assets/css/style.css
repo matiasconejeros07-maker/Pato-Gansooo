@@ -361,10 +361,16 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* ---------- Pizzas ---------- */
 .pizzas__lead { max-width: 58ch; margin: -18px 0 28px; color: var(--muted); font-size: 18px; }
 .pizzas__foot { display: grid; gap: 22px; margin-top: 30px; justify-items: start; }
+/* Reseñas de pizzas: se apilan en la misma celda y se van alternando */
+.pizzas__quotes { display: grid; padding-left: 18px; border-left: 3px solid var(--brass); }
+.pizzas__quotes > .pizzas__quote { grid-area: 1 / 1; align-self: center; padding-left: 0; border-left: 0; opacity: 0; visibility: hidden; transition: opacity .8s ease, visibility 0s .8s; }
+.pizzas__quotes > .pizzas__quote.is-active { opacity: 1; visibility: visible; transition: opacity .8s ease; }
 .pizzas__quote { margin: 0; padding-left: 18px; border-left: 3px solid var(--brass); }
 .pizzas__quote p { font-family: var(--font-display); font-size: 22px; font-style: italic; line-height: 1.35; }
 .pizzas__quote footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; font-size: 14px; color: var(--muted); }
 .pizzas__quote .stars svg { width: 15px; height: 15px; }
+.pizzas__quotes .pizzas__quote p { font-size: 18px; line-height: 1.45; }
+@media (min-width: 900px) { .pizzas__quotes .pizzas__quote p { font-size: 21px; } }
 @media (min-width: 900px) {
   .pizzas__foot { grid-template-columns: 1fr auto; align-items: center; gap: 40px; }
 }

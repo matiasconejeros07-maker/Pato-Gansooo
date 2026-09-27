@@ -168,6 +168,37 @@
     }
   }
 
+  /* ---------- Reseñas de pizzas (rotan solas) ---------- */
+  var resenasPizzas = (data.resenasPizzas || []).filter(function (r) { return r && r.texto; });
+  var quotesWrap = document.getElementById("pizza-quotes");
+  if (quotesWrap && resenasPizzas.length) {
+    quotesWrap.replaceChildren();
+    var quotes = resenasPizzas.map(function (r, i) {
+      var q = el("blockquote", "pizzas__quote" + (i === 0 ? " is-active" : ""));
+      q.setAttribute("aria-hidden", String(i !== 0));
+      q.appendChild(el("p", null, "“" + String(r.texto).trim() + "”"));
+      var foot = el("footer", null, (r.nombre || "Cliente") + " · " + (r.detalle ? r.detalle + " · " : "") + "Reseña en Google ");
+      var st = el("span", "stars");
+      st.setAttribute("aria-label", "5 de 5 estrellas");
+      st.innerHTML = starsHTML(5);
+      foot.appendChild(st);
+      q.appendChild(foot);
+      quotesWrap.appendChild(q);
+      return q;
+    });
+    if (quotes.length > 1) {
+      var qi = 0;
+      setInterval(function () {
+        if (document.hidden) return;
+        quotes[qi].classList.remove("is-active");
+        quotes[qi].setAttribute("aria-hidden", "true");
+        qi = (qi + 1) % quotes.length;
+        quotes[qi].classList.add("is-active");
+        quotes[qi].setAttribute("aria-hidden", "false");
+      }, 6000);
+    }
+  }
+
   /* ---------- Menú de pizzas ---------- */
   var menuPizzas = (data.menuPizzas || []).filter(function (p) { return p && p.nombre; });
   var menuDialog = document.getElementById("pizza-menu");

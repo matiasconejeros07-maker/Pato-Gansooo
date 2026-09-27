@@ -57,6 +57,15 @@ window.LAS_DOCAS = {
     { src: "assets/fotos/pizza-en-caja.jpg", titulo: "Para llevar", alt: "Pizza napolitana de jamón en su caja, lista para llevar" }
   ],
 
+  // Reseñas de 5 estrellas sobre las pizzas (carrusel automático
+  // en la sección de pizzas). Texto tal como aparece en Google.
+  resenasPizzas: [
+    { nombre: "Rocío Acevedo", texto: "Es el mejor lugar para comer pizza en todo el litoral central" },
+    { nombre: "Sergio Steinmeyer", detalle: "Local Guide", texto: "Pedimos unas pizzas y la verdad es que son de las mejores que hemos probado en el litoral central. Atención muy amable y personalizada, atendido por sus propios dueños. Realmente un imperdible en Las Cruces." },
+    { nombre: "Andres Wong", detalle: "Local Guide", texto: "La pizza estaba deliciosa de masa suave y crujiente, el café estaba muy bueno y los pasteles maravillosos, un 7.0 y los dueños muy simpáticos, muy recomendable." },
+    { nombre: "Rodrigo Roa", texto: "Muy ricas las pizzas, las mejores. Buen café, buenos helados y exquisito el Kuchen de nuez. Excelente atención, volveremos!" }
+  ],
+
   // Menú de pizzas (copiado de la pizarra del local).
   menuPizzasNota: "Tamaño 32 cm · Estilo napolitano",
   menuPizzas: [
