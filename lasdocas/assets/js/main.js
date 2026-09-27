@@ -64,39 +64,127 @@
   /* ---------- Portada y galería ---------- */
   var fotos = (data.fotos || []).filter(function (f) { return f && f.src; });
 
-  if (fotos.length) {
-    var art = document.getElementById("hero-art");
-    var heroImg = el("img", "hero__photo");
-    heroImg.src = fotos[0].src;
-    heroImg.alt = fotos[0].alt || "Las Docas";
-    heroImg.width = 800;
-    heroImg.height = 1000;
-    heroImg.fetchPriority = "high";
-    art.querySelector(".hero__illustration").replaceWith(heroImg);
+  function photoImg(f, className, eager) {
+    var img = el("img", className);
+    img.src = f.src;
+    img.alt = f.alt || f.titulo || "Las Docas";
+    img.decoding = "async";
+    if (!eager) img.loading = "lazy";
+    if (f.pos) img.style.objectPosition = f.pos;
+    return img;
+  }
 
-    // La primera foto queda en la portada; la galería usa el resto.
-    // Mosaico sin huecos: 1 destacada + grupos de 4 (máx. 9 fotos).
-    // Con menos de 5 fotos se usa una grilla simple.
-    var gallery = document.getElementById("gallery");
-    var resto = fotos.length > 1 ? fotos.slice(1) : fotos;
-    var galleryFotos = resto.length >= 5
-      ? resto.slice(0, Math.min(9, 1 + Math.floor((resto.length - 1) / 4) * 4))
-      : resto.slice(0, 4);
-    if (galleryFotos.length < 5) {
-      gallery.classList.add("gallery--simple");
-      gallery.style.setProperty("--cols", galleryFotos.length === 3 ? 3 : Math.min(galleryFotos.length, 2));
-    }
-    galleryFotos.forEach(function (f) {
-      var fig = el("figure", "gallery__item reveal");
-      var img = el("img");
-      img.src = f.src;
-      img.alt = f.alt || "";
-      img.loading = "lazy";
-      img.decoding = "async";
-      fig.appendChild(img);
-      gallery.appendChild(fig);
+  if (fotos.length) {
+    initHeroSlides();
+
+    photoCarousel(fotos, "gallery", "galeria");
+  }
+  photoCarousel((data.pizzas || []).filter(function (f) { return f && f.src; }), "pizzas", "pizzas");
+
+  // Carrusel de fotos con leyenda (galería y pizzas).
+  function photoCarousel(list, prefix, sectionId) {
+    if (!list.length) return;
+    var photoTrack = document.getElementById(prefix + "-track");
+    list.forEach(function (f, i) {
+      var li = el("li", "photo");
+      li.setAttribute("role", "group");
+      li.setAttribute("aria-roledescription", "foto");
+      li.setAttribute("aria-label", (i + 1) + " de " + list.length);
+      var fig = el("figure", "photo__frame");
+      fig.appendChild(photoImg(f, "photo__img"));
+      if (f.titulo) fig.appendChild(el("figcaption", "photo__caption", f.titulo));
+      li.appendChild(fig);
+      photoTrack.appendChild(li);
     });
-    document.getElementById("galeria").hidden = false;
+    document.getElementById(sectionId).hidden = false;
+    initCarousel({
+      carousel: document.getElementById(prefix + "-carousel"),
+      track: photoTrack,
+      dots: document.getElementById(prefix + "-dots"),
+      controls: document.getElementById(prefix + "-controls"),
+      itemLabel: "foto",
+      interval: 5000
+    });
+  }
+
+  // Portada: fotos que se van alternando dentro del arco, con
+  // transición suave, puntos para elegir y deslizamiento con el dedo.
+  function initHeroSlides() {
+    var art = document.getElementById("hero-art");
+    var stage = el("div", "hero__slides");
+    stage.setAttribute("role", "region");
+    stage.setAttribute("aria-roledescription", "carrusel");
+    stage.setAttribute("aria-label", "Fotos de Las Docas");
+    var caption = el("span", "hero__caption");
+    caption.setAttribute("aria-live", "polite");
+    var slides = fotos.map(function (f, i) {
+      var img = photoImg(f, "hero__slide", i === 0);
+      if (i === 0) img.fetchPriority = "high";
+      stage.appendChild(img);
+      return img;
+    });
+    stage.appendChild(caption);
+    art.querySelector(".hero__illustration").replaceWith(stage);
+
+    var navBar = el("div", "hero__nav");
+    var ARROW = function (d) { return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + d + '"/></svg>'; };
+    var prevBtn = el("button", "hero__arrow");
+    prevBtn.type = "button";
+    prevBtn.setAttribute("aria-label", "Foto anterior");
+    prevBtn.innerHTML = ARROW("M15 5l-7 7 7 7");
+    var counter = el("span", "hero__count");
+    var nextBtn = el("button", "hero__arrow");
+    nextBtn.type = "button";
+    nextBtn.setAttribute("aria-label", "Foto siguiente");
+    nextBtn.innerHTML = ARROW("M9 5l7 7-7 7");
+    navBar.append(prevBtn, counter, nextBtn);
+    art.appendChild(navBar);
+    if (slides.length < 2) navBar.hidden = true;
+
+    var current = 0;
+    var pausedUntil = 0;
+    var INTERVAL = 4500;
+
+    prevBtn.addEventListener("click", function () { hold(); show(current - 1); });
+    nextBtn.addEventListener("click", function () { hold(); show(current + 1); });
+
+    function pad(n) { return (n < 10 ? "0" : "") + n; }
+
+    function show(i) {
+      current = (i + slides.length) % slides.length;
+      slides.forEach(function (img, j) {
+        img.classList.toggle("is-active", j === current);
+        img.setAttribute("aria-hidden", String(j !== current));
+      });
+      counter.innerHTML = "<strong>" + pad(current + 1) + "</strong> / " + pad(slides.length);
+      caption.textContent = fotos[current].titulo || "";
+      caption.hidden = !fotos[current].titulo;
+      // Precarga la siguiente para que el cambio sea instantáneo.
+      var next = slides[(current + 1) % slides.length];
+      if (next.loading === "lazy") next.loading = "eager";
+    }
+
+    function hold() { pausedUntil = Date.now() + INTERVAL * 2; }
+
+    var startX = null;
+    stage.addEventListener("pointerdown", function (e) { startX = e.clientX; hold(); });
+    stage.addEventListener("pointerup", function (e) {
+      if (startX === null) return;
+      var dx = e.clientX - startX;
+      startX = null;
+      if (Math.abs(dx) > 40) show(current + (dx < 0 ? 1 : -1));
+    });
+    stage.addEventListener("pointercancel", function () { startX = null; });
+    art.addEventListener("mouseenter", function () { pausedUntil = Infinity; });
+    art.addEventListener("mouseleave", function () { pausedUntil = Date.now() + 1500; });
+
+    show(0);
+    if (!reduceMotion && slides.length > 1) {
+      setInterval(function () {
+        if (document.hidden || Date.now() < pausedUntil) return;
+        show(current + 1);
+      }, INTERVAL);
+    }
   }
 
   /* ---------- Visítanos ---------- */
@@ -220,23 +308,55 @@
       moreWrap.hidden = false;
     }
 
-    initCarousel();
+    var reviewsCarousel = initCarousel({
+      carousel: document.getElementById("carousel"),
+      track: track,
+      dots: document.getElementById("carousel-dots"),
+      controls: document.getElementById("carousel-controls"),
+      itemLabel: "reseña",
+      interval: 6000,
+      onMeasure: checkClamps
+    });
+
+    // "Leer más": solo aparece si el texto realmente se corta.
+    function checkClamps() {
+      track.querySelectorAll(".review").forEach(function (card) {
+        var text = card.querySelector(".review__text");
+        var btn = card.querySelector(".review__more");
+        if (btn.getAttribute("aria-expanded") === "true") return;
+        btn.hidden = text.scrollHeight <= text.clientHeight + 2;
+      });
+    }
+
+    track.addEventListener("click", function (e) {
+      var btn = e.target.closest(".review__more");
+      if (!btn) return;
+      var text = document.getElementById(btn.getAttribute("aria-controls"));
+      var open = btn.getAttribute("aria-expanded") !== "true";
+      text.classList.toggle("is-clamped", !open);
+      btn.setAttribute("aria-expanded", String(open));
+      btn.textContent = open ? "Leer menos" : "Leer más";
+      reviewsCarousel.hold(open);
+      if (!open) checkClamps();
+    });
   }
 
-  function initCarousel() {
-    var carousel = document.getElementById("carousel");
-    var dotsWrap = document.getElementById("carousel-dots");
-    var controls = document.getElementById("carousel-controls");
+  // Carrusel deslizable (galería y reseñas): flechas, puntos, teclado
+  // y avance automático que se pausa cuando la persona interactúa.
+  function initCarousel(o) {
+    var carousel = o.carousel;
+    var track = o.track;
+    var dotsWrap = o.dots;
+    var controls = o.controls;
     var prev = controls.querySelector('[data-dir="-1"]');
     var next = controls.querySelector('[data-dir="1"]');
     var cards = Array.prototype.slice.call(track.children);
     var stops = [];
     var active = 0;
-    var timer = null;
     var pausedUntil = 0;
     var hovering = false;
     var inView = false;
-    var INTERVAL = 6000;
+    var INTERVAL = o.interval || 6000;
 
     track.style.position = "relative";
 
@@ -252,7 +372,7 @@
       });
       buildDots();
       updateActive();
-      checkClamps();
+      if (o.onMeasure) o.onMeasure();
     }
 
     function buildDots() {
@@ -265,7 +385,7 @@
         var dot = el("button", "carousel__dot");
         dot.type = "button";
         dot.setAttribute("role", "tab");
-        dot.setAttribute("aria-label", "Ir a la reseña " + (i + 1));
+        dot.setAttribute("aria-label", "Ir a la " + (o.itemLabel || "diapositiva") + " " + (i + 1));
         dot.addEventListener("click", function () { userPause(); goTo(i); });
         dotsWrap.appendChild(dot);
       });
@@ -318,29 +438,6 @@
       }
     });
 
-    // "Leer más": solo aparece si el texto realmente se corta.
-    function checkClamps() {
-      track.querySelectorAll(".review").forEach(function (card) {
-        var text = card.querySelector(".review__text");
-        var btn = card.querySelector(".review__more");
-        if (btn.getAttribute("aria-expanded") === "true") return;
-        btn.hidden = text.scrollHeight <= text.clientHeight + 2;
-      });
-    }
-
-    track.addEventListener("click", function (e) {
-      var btn = e.target.closest(".review__more");
-      if (!btn) return;
-      var text = document.getElementById(btn.getAttribute("aria-controls"));
-      var open = btn.getAttribute("aria-expanded") !== "true";
-      text.classList.toggle("is-clamped", !open);
-      btn.setAttribute("aria-expanded", String(open));
-      btn.textContent = open ? "Leer menos" : "Leer más";
-      if (open) pausedUntil = Infinity;
-      else pausedUntil = Date.now() + INTERVAL;
-      if (!open) checkClamps();
-    });
-
     // Avance automático: se pausa al tocar, al pasar el mouse, con foco
     // dentro del carrusel, fuera de pantalla o con la pestaña oculta.
     function userPause() { pausedUntil = Math.max(pausedUntil, Date.now() + INTERVAL * 2); }
@@ -365,7 +462,7 @@
       inView = true;
     }
 
-    if (!reduceMotion) timer = setInterval(tick, INTERVAL);
+    if (!reduceMotion) setInterval(tick, INTERVAL);
 
     var resizeTimer;
     window.addEventListener("resize", function () {
@@ -374,7 +471,9 @@
     });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
     measure();
-    return timer;
+    return {
+      hold: function (on) { pausedUntil = on ? Infinity : Date.now() + INTERVAL; }
+    };
   }
 
   /* ---------- Scroll: barra y aparición ---------- */
@@ -385,7 +484,7 @@
   onScroll();
 
   var revealTargets = document.querySelectorAll(
-    ".section__head, .split, .value, .offer__item, .ig-card, .reviews__more, .gallery__item, .visit__card"
+    ".section__head, .split, .value, .offer__item, .board, .order, .ig-card, .reviews__more, .visit__card"
   );
   if ("IntersectionObserver" in window && !reduceMotion) {
     var io = new IntersectionObserver(function (entries) {
