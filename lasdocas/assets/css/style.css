@@ -242,17 +242,6 @@ ul { margin: 0; padding: 0; list-style: none; }
   -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
   font-size: 13px; font-weight: 600; letter-spacing: .02em;
 }
-.hero__nav { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 18px; }
-.hero__arrow {
-  display: inline-grid; place-items: center; width: 44px; height: 44px; padding: 0;
-  border: 1.5px solid rgba(24, 35, 46, .18); border-radius: 50%;
-  background: transparent; color: var(--ink); cursor: pointer;
-  transition: background-color .2s, border-color .2s;
-}
-.hero__arrow:hover { background: rgba(24, 35, 46, .05); border-color: var(--ink); }
-.hero__arrow svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.hero__count { min-width: 64px; text-align: center; font-size: 14px; letter-spacing: .08em; color: var(--muted); font-variant-numeric: tabular-nums; }
-.hero__count strong { color: var(--ink); font-weight: 700; }
 .hero__badge {
   position: absolute; left: -4%; bottom: -5%;
   width: 36%; aspect-ratio: 1; border-radius: 50%;
@@ -276,24 +265,23 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 
 /* ---------- Lo esencial (bio) ---------- */
-.highlights { background: var(--cream); color: var(--ink); padding: 22px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.highlights__list {
-  display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
-  gap: 10px 26px; text-align: center;
+.highlights { background: var(--cream); color: var(--ink); padding: 26px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.highlights__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; }
+.highlight, .highlight__link { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.highlight__icon {
+  flex: none; width: 40px; height: 40px; padding: 10px; border-radius: 12px;
+  background: var(--paper); color: var(--brass-deep); box-shadow: 0 0 0 1px var(--line);
 }
-.highlight { display: inline-flex; align-items: center; gap: 10px; }
-.highlight::before {
-  content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--brass);
+.highlight__label { font-size: 15px; font-weight: 600; line-height: 1.3; color: var(--ink); }
+.highlight__label small { display: block; font-size: 13px; font-weight: 500; color: var(--muted); }
+.highlight__link { color: inherit; text-decoration: none; min-height: 44px; }
+.highlight__link:hover .highlight__label { color: var(--brass-deep); text-decoration: underline; text-underline-offset: 3px; }
+@media (min-width: 768px) {
+  .highlights__list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 32px; }
 }
-.highlight, .highlight__link {
-  font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-}
-.highlight__link { color: inherit; text-decoration: none; display: inline-flex; align-items: center; min-height: 32px; }
-.highlight__link:hover { color: var(--brass-deep); }
-@media (min-width: 900px) {
-  .highlights { padding: 26px 0; }
-  .highlights__list { justify-content: center; gap: 12px 22px; }
-  .highlight, .highlight__link { font-size: 12px; letter-spacing: .08em; }
+@media (min-width: 1100px) {
+  .highlights { padding: 30px 0; }
+  .highlights__list { grid-template-columns: repeat(6, auto); justify-content: space-between; gap: 16px 24px; }
 }
 
 /* ---------- Nosotros ---------- */

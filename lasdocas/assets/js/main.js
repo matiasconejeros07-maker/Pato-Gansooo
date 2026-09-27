@@ -107,8 +107,8 @@
     });
   }
 
-  // Portada: fotos que se van alternando dentro del arco, con
-  // transición suave, puntos para elegir y deslizamiento con el dedo.
+  // Portada: carrusel automático dentro del arco (una foto cada 3,5 s,
+  // con transición suave). También se puede deslizar con el dedo.
   function initHeroSlides() {
     var art = document.getElementById("hero-art");
     var stage = el("div", "hero__slides");
@@ -126,29 +126,9 @@
     stage.appendChild(caption);
     art.querySelector(".hero__illustration").replaceWith(stage);
 
-    var navBar = el("div", "hero__nav");
-    var ARROW = function (d) { return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>'; };
-    var prevBtn = el("button", "hero__arrow");
-    prevBtn.type = "button";
-    prevBtn.setAttribute("aria-label", "Foto anterior");
-    prevBtn.innerHTML = ARROW("M15 5l-7 7 7 7");
-    var counter = el("span", "hero__count");
-    var nextBtn = el("button", "hero__arrow");
-    nextBtn.type = "button";
-    nextBtn.setAttribute("aria-label", "Foto siguiente");
-    nextBtn.innerHTML = ARROW("M9 5l7 7-7 7");
-    navBar.append(prevBtn, counter, nextBtn);
-    art.appendChild(navBar);
-    if (slides.length < 2) navBar.hidden = true;
-
     var current = 0;
     var pausedUntil = 0;
-    var INTERVAL = 4500;
-
-    prevBtn.addEventListener("click", function () { hold(); show(current - 1); });
-    nextBtn.addEventListener("click", function () { hold(); show(current + 1); });
-
-    function pad(n) { return (n < 10 ? "0" : "") + n; }
+    var INTERVAL = 3500;
 
     function show(i) {
       current = (i + slides.length) % slides.length;
@@ -156,7 +136,6 @@
         img.classList.toggle("is-active", j === current);
         img.setAttribute("aria-hidden", String(j !== current));
       });
-      counter.innerHTML = "<strong>" + pad(current + 1) + "</strong> / " + pad(slides.length);
       caption.textContent = fotos[current].titulo || "";
       caption.hidden = !fotos[current].titulo;
       // Precarga la siguiente para que el cambio sea instantáneo.
