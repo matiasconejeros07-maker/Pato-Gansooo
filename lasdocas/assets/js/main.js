@@ -207,7 +207,7 @@
       author.appendChild(el("span", "review__avatar", initials(r.nombre)));
       var who = el("div");
       who.appendChild(el("p", "review__name", r.nombre || "Cliente"));
-      who.appendChild(el("p", "review__meta", r.fecha ? "Google · " + r.fecha : "Reseña en Google"));
+      who.appendChild(el("p", "review__meta", r.detalle ? r.detalle + " · Google" : "Reseña en Google"));
       author.appendChild(who);
       li.appendChild(author);
 
