@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<title>Tarjeta QR · Las Docas</title>
+<link rel="stylesheet" href="../assets/css/fonts.css">
+<style>
+  @page { size: 105mm 148mm; margin: 0; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 105mm; height: 148mm; background: #F2ECE1; }
+  body {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 10mm; text-align: center; color: #18232E;
+    font-family: "DM Sans", sans-serif;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .frame { position: absolute; inset: 5mm; border: .35mm solid rgba(24,35,46,.35); border-radius: 3mm; pointer-events: none; }
+  .name { font: 600 11mm/1 "Fraunces", serif; letter-spacing: -.01em; }
+  .tag { margin-top: 2.5mm; font-size: 3mm; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #7F5F2E; }
+  .qr { margin-top: 8mm; padding: 3mm; border-radius: 4mm; background: #fff; box-shadow: 0 1mm 4mm rgba(24,35,46,.12); }
+  .qr img { display: block; width: 60mm; height: 60mm; }
+  .cta { margin-top: 7mm; font: italic 500 6.4mm/1.2 "Fraunces", serif; }
+  .handle { margin-top: 2mm; font-size: 4.2mm; font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="frame"></div>
+  <p class="name">Las Docas</p>
+  <p class="tag">Cafetería · Las Cruces</p>
+  <div class="qr"><img src="qr-instagram-lasdocas.png" alt="Código QR al Instagram de Las Docas"></div>
+  <p class="cta">Escanéanos y síguenos</p>
+  <p class="handle">Instagram @lasdocas</p>
+</body>
+</html>
