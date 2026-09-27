@@ -6,8 +6,8 @@
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   root.classList.add("js");
 
-  var STAR = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.6 7.7l5.8-.8L10 1.6Z"/></svg>';
-  var QUOTE = '<svg class="review__quote" viewBox="0 0 40 40" aria-hidden="true"><path d="M17 10C9.7 12 6 17.3 6 25.4V32h11V21h-5.5c.3-4.5 2.3-7.3 6.2-8.7L17 10Zm17 0c-7.3 2-11 7.3-11 15.4V32h11V21h-5.5c.3-4.5 2.3-7.3 6.2-8.7L34 10Z"/></svg>';
+  var STAR = '<svg viewBox="0 0 20 20" width="18" height="18" fill="#D6AE63" aria-hidden="true"><path d="M10 1.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.6 7.7l5.8-.8L10 1.6Z"/></svg>';
+  var QUOTE = '<svg class="review__quote" viewBox="0 0 40 40" width="40" height="40" fill="#E5DBCB" aria-hidden="true"><path d="M17 10C9.7 12 6 17.3 6 25.4V32h11V21h-5.5c.3-4.5 2.3-7.3 6.2-8.7L17 10Zm17 0c-7.3 2-11 7.3-11 15.4V32h11V21h-5.5c.3-4.5 2.3-7.3 6.2-8.7L34 10Z"/></svg>';
 
   function el(tag, className, text) {
     var node = document.createElement(tag);
@@ -127,7 +127,7 @@
     art.querySelector(".hero__illustration").replaceWith(stage);
 
     var navBar = el("div", "hero__nav");
-    var ARROW = function (d) { return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + d + '"/></svg>'; };
+    var ARROW = function (d) { return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>'; };
     var prevBtn = el("button", "hero__arrow");
     prevBtn.type = "button";
     prevBtn.setAttribute("aria-label", "Foto anterior");
