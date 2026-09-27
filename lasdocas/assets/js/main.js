@@ -77,24 +77,31 @@
   if (fotos.length) {
     initHeroSlides();
 
-    var galleryTrack = document.getElementById("gallery-track");
-    fotos.forEach(function (f, i) {
+    photoCarousel(fotos, "gallery", "galeria");
+  }
+  photoCarousel((data.pizzas || []).filter(function (f) { return f && f.src; }), "pizzas", "pizzas");
+
+  // Carrusel de fotos con leyenda (galería y pizzas).
+  function photoCarousel(list, prefix, sectionId) {
+    if (!list.length) return;
+    var photoTrack = document.getElementById(prefix + "-track");
+    list.forEach(function (f, i) {
       var li = el("li", "photo");
       li.setAttribute("role", "group");
       li.setAttribute("aria-roledescription", "foto");
-      li.setAttribute("aria-label", (i + 1) + " de " + fotos.length);
+      li.setAttribute("aria-label", (i + 1) + " de " + list.length);
       var fig = el("figure", "photo__frame");
       fig.appendChild(photoImg(f, "photo__img"));
       if (f.titulo) fig.appendChild(el("figcaption", "photo__caption", f.titulo));
       li.appendChild(fig);
-      galleryTrack.appendChild(li);
+      photoTrack.appendChild(li);
     });
-    document.getElementById("galeria").hidden = false;
+    document.getElementById(sectionId).hidden = false;
     initCarousel({
-      carousel: document.getElementById("gallery-carousel"),
-      track: galleryTrack,
-      dots: document.getElementById("gallery-dots"),
-      controls: document.getElementById("gallery-controls"),
+      carousel: document.getElementById(prefix + "-carousel"),
+      track: photoTrack,
+      dots: document.getElementById(prefix + "-dots"),
+      controls: document.getElementById(prefix + "-controls"),
       itemLabel: "foto",
       interval: 5000
     });

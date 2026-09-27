@@ -33,7 +33,7 @@
     <nav class="nav__menu" id="menu" aria-label="Principal">
       <a href="#nosotros">Nosotros</a>
       <a href="#carta">Carta</a>
-      <a href="#encargos">Encargos</a>
+      <a href="#pizzas">Pizzas</a>
       <a href="#galeria" data-requires="fotos">Galería</a>
       <a href="#resenas">Reseñas</a>
       <a href="#visitanos" data-requires="contacto">Visítanos</a>
@@ -230,8 +230,42 @@
     </div>
   </section>
 
+  <!-- PIZZAS NAPOLITANAS -->
+  <section class="section pizzas" id="pizzas" hidden>
+    <div class="container">
+      <header class="section__head carousel__head">
+        <div>
+          <p class="eyebrow">Pizzas napolitanas</p>
+          <h2 class="section__title">Masa artesanal, <em>hecha en casa</em></h2>
+        </div>
+        <div class="carousel__controls carousel__controls--light" id="pizzas-controls">
+          <button class="carousel__arrow" type="button" data-dir="-1" aria-label="Pizza anterior">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <button class="carousel__arrow" type="button" data-dir="1" aria-label="Pizza siguiente">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </header>
+      <p class="pizzas__lead">Nuestra masa es 100% artesanal y hecha en casa, con productos naturales y ese borde inflado y tostado de la pizza napolitana. Para compartir en la mesa o llevar a casa.</p>
+
+      <div class="carousel" id="pizzas-carousel" role="region" aria-roledescription="carrusel" aria-label="Fotos de nuestras pizzas">
+        <ul class="carousel__track" id="pizzas-track"></ul>
+      </div>
+      <div class="carousel__dots carousel__dots--light" id="pizzas-dots" role="tablist" aria-label="Elegir pizza"></div>
+
+      <div class="pizzas__foot">
+        <blockquote class="pizzas__quote">
+          <p>“Es el mejor lugar para comer pizza en todo el litoral central”</p>
+          <footer>Rocío Acevedo · Reseña en Google <span class="stars" aria-label="5 de 5 estrellas"></span></footer>
+        </blockquote>
+        <a class="btn btn--primary" href="https://wa.me/56934578219?text=Hola%20Las%20Docas%2C%20quiero%20pedir%20una%20pizza" target="_blank" rel="noopener">Pedir por WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
   <!-- POR ENCARGO -->
-  <section class="section" id="encargos">
+  <section class="section section--tint" id="encargos">
     <div class="container">
       <div class="order">
         <figure class="order__media">

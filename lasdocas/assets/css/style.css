@@ -371,6 +371,17 @@ ul { margin: 0; padding: 0; list-style: none; }
   .order__media { aspect-ratio: 4 / 5; }
 }
 
+/* ---------- Pizzas ---------- */
+.pizzas__lead { max-width: 58ch; margin: -18px 0 28px; color: var(--muted); font-size: 18px; }
+.pizzas__foot { display: grid; gap: 22px; margin-top: 30px; justify-items: start; }
+.pizzas__quote { margin: 0; padding-left: 18px; border-left: 3px solid var(--brass); }
+.pizzas__quote p { font-family: var(--font-display); font-size: 22px; font-style: italic; line-height: 1.35; }
+.pizzas__quote footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; font-size: 14px; color: var(--muted); }
+.pizzas__quote .stars svg { width: 15px; height: 15px; }
+@media (min-width: 900px) {
+  .pizzas__foot { grid-template-columns: 1fr auto; align-items: center; gap: 40px; }
+}
+
 /* ---------- Galería (carrusel) ---------- */
 .photo { flex: 0 0 80%; scroll-snap-align: start; }
 .photo__frame { position: relative; margin: 0; overflow: hidden; border-radius: var(--radius); aspect-ratio: 4 / 5; background: var(--sand); }
@@ -475,6 +486,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   transition: width .3s, background-color .3s;
 }
 .carousel__dot[aria-selected="true"]::before { width: 24px; background: var(--gold); }
+/* Con muchas diapositivas los puntos se achican para caber en una fila */
+.carousel__dots:has(> :nth-child(11)) .carousel__dot { width: 20px; }
 .carousel__dots--light .carousel__dot::before { background: rgba(24, 35, 46, .22); }
 .carousel__dots--light .carousel__dot[aria-selected="true"]::before { background: var(--brass); }
 
