@@ -30,28 +30,45 @@ window.LAS_DOCAS = {
   // `titulo` es la leyenda; `pos` (opcional) elige qué parte de la
   // foto queda visible cuando se recorta, ej: "30% 50%".
   fotos: [
-    { src: "assets/fotos/torta-de-flores-playa.jpg", titulo: "Torta de flores", alt: "Torta de flores de Las Docas frente al mar de Las Cruces" },
+    // Primero el local…
     { src: "assets/fotos/paraguas-cielo.jpg", titulo: "Nuestra terraza", alt: "Paraguas de colores colgados sobre la terraza de Las Docas" },
+    { src: "assets/fotos/terraza-mesas.jpg", titulo: "Mesas al sol", alt: "Mesas con manteles floreados bajo los paraguas de colores, rodeadas de plantas" },
+    { src: "assets/fotos/terraza-paraguas.jpg", titulo: "El mesón", pos: "32% 50%", alt: "Mesón de Las Docas con la gatita anfitriona, paraguas de colores y la pizarra del menú" },
+    { src: "assets/fotos/meson-helados-pizza.jpg", titulo: "Helados y pizzas", alt: "Mesón de helados artesanales junto al letrero de pizza" },
+    { src: "assets/fotos/fachada-cafeteria-noche.jpg", titulo: "Al caer la tarde", alt: "Fachada iluminada de la Cafetería Las Docas al anochecer" },
+    // …y después las delicias.
+    { src: "assets/fotos/torta-de-flores-playa.jpg", titulo: "Torta de flores", alt: "Torta de flores de Las Docas frente al mar de Las Cruces" },
     { src: "assets/fotos/pizza-jamon-tabla.jpg", titulo: "Pizza napolitana", alt: "Pizza napolitana de jamón y mozzarella recién salida del horno, sobre una tabla de madera" },
     { src: "assets/fotos/donas-y-brownie.jpg", titulo: "Café, donas y brownie", alt: "Cafés con leche, donas glaseadas y brownie con nueces" },
-    { src: "assets/fotos/terraza-mesas.jpg", titulo: "Mesas al sol", alt: "Mesas con manteles floreados bajo los paraguas de colores, rodeadas de plantas" },
     { src: "assets/fotos/cafe-y-cheesecake.jpg", titulo: "Cheesecake de frambuesa", alt: "Capuchino con arte latte y cheesecake de frambuesa" },
-    { src: "assets/fotos/meson-helados-pizza.jpg", titulo: "Helados y pizzas", alt: "Mesón de helados artesanales junto al letrero de pizza" },
-    { src: "assets/fotos/pizza-albahaca-pesto.jpg", titulo: "Albahaca y pesto", alt: "Pizza con mozzarella gratinada, pesto y hojas de albahaca fresca" },
+    { src: "assets/fotos/pizza-albahaca-pesto.jpg", titulo: "Pizza Margarita", alt: "Pizza Margarita con mozzarella gratinada, pesto y hojas de albahaca fresca" },
     { src: "assets/fotos/pie-de-limon.jpg", titulo: "Pie de limón", alt: "Pie de limón con merengue de Las Docas" },
-    { src: "assets/fotos/terraza-paraguas.jpg", titulo: "El mesón", pos: "32% 50%", alt: "Mesón de Las Docas con la gatita anfitriona, paraguas de colores y la pizarra del menú" },
     { src: "assets/fotos/cheesecake-frutos-rojos.jpg", titulo: "Cheesecake de frutos rojos", alt: "Cheesecake entero cubierto de frutos rojos" },
-    { src: "assets/fotos/fachada-cafeteria-noche.jpg", titulo: "Al caer la tarde", alt: "Fachada iluminada de la Cafetería Las Docas al anochecer" },
     { src: "assets/fotos/cupcakes-de-flores.jpg", titulo: "Cupcakes de flores", alt: "Caja de cupcakes decorados con flores en la playa" }
   ],
+
 
 
   // Fotos para la sección de pizzas napolitanas (carrusel propio).
   pizzas: [
     { src: "assets/fotos/pizza-jamon-tabla.jpg", titulo: "Jamón y mozzarella", alt: "Pizza napolitana de jamón y mozzarella con borde inflado y tostado" },
-    { src: "assets/fotos/pizza-albahaca-pesto.jpg", titulo: "Albahaca y pesto", alt: "Pizza con pesto casero y hojas de albahaca fresca" },
-    { src: "assets/fotos/pizzas-para-llevar.jpg", titulo: "Jamón y piña", alt: "Dos pizzas napolitanas en sus cajas, una de jamón y otra de jamón con piña" },
+    { src: "assets/fotos/pizza-albahaca-pesto.jpg", titulo: "Margarita", alt: "Pizza Margarita con pesto casero y hojas de albahaca fresca" },
+    { src: "assets/fotos/pizzas-para-llevar.jpg", titulo: "Hawaiana", alt: "Dos pizzas napolitanas en sus cajas, una de jamón y otra de jamón con piña" },
     { src: "assets/fotos/pizza-en-caja.jpg", titulo: "Para llevar", alt: "Pizza napolitana de jamón en su caja, lista para llevar" }
+  ],
+
+  // Menú de pizzas (copiado de la pizarra del local).
+  menuPizzasNota: "Tamaño 32 cm · Estilo napolitano",
+  menuPizzas: [
+    { nombre: "Margarita", ingredientes: "Salsa pomodoro, mozzarella y pesto" },
+    { nombre: "Pepperoni", ingredientes: "Salsa pomodoro, mozzarella y pepperoni" },
+    { nombre: "Teresita", ingredientes: "Salsa pomodoro, mozzarella, pepperoni y jamón" },
+    { nombre: "Clemente", ingredientes: "Salsa pomodoro, mozzarella, jamón y tocino" },
+    { nombre: "Alvarito", ingredientes: "Salsa pomodoro, mozzarella, pepperoni, jamón, tocino y aceitunas" },
+    { nombre: "Vegetariana", ingredientes: "Salsa pomodoro, mozzarella, choclo, tomate y aceitunas" },
+    { nombre: "Hawaiana", ingredientes: "Crema, mozzarella, piña y tocino" },
+    { nombre: "La Negra", ingredientes: "Salsa pomodoro, mozzarella, cebolla caramelizada y camarones" },
+    { nombre: "Lorelai", ingredientes: "Salsa pomodoro, crema, mozzarella, zucchinis y tocino" }
   ],
 
   // Reseñas de clientes, copiadas tal cual desde Google Maps.

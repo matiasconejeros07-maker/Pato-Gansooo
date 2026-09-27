@@ -175,16 +175,50 @@
       if (Math.abs(dx) > 40) show(current + (dx < 0 ? 1 : -1));
     });
     stage.addEventListener("pointercancel", function () { startX = null; });
-    art.addEventListener("mouseenter", function () { pausedUntil = Infinity; });
-    art.addEventListener("mouseleave", function () { pausedUntil = Date.now() + 1500; });
+    // En celulares el toque simula "mouse encima" y nunca sale, por eso
+    // la pausa al pasar el cursor aplica solo a un mouse real.
+    art.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse") pausedUntil = Infinity; });
+    art.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") pausedUntil = Date.now() + 1500; });
 
     show(0);
-    if (!reduceMotion && slides.length > 1) {
+    if (slides.length > 1) {
       setInterval(function () {
         if (document.hidden || Date.now() < pausedUntil) return;
         show(current + 1);
       }, INTERVAL);
     }
+  }
+
+  /* ---------- Menú de pizzas ---------- */
+  var menuPizzas = (data.menuPizzas || []).filter(function (p) { return p && p.nombre; });
+  var menuDialog = document.getElementById("pizza-menu");
+  var menuOpeners = document.querySelectorAll("[data-open-pizza-menu]");
+
+  if (menuPizzas.length && menuDialog && menuDialog.showModal) {
+    var menuList = document.getElementById("pizza-menu-list");
+    menuPizzas.forEach(function (p) {
+      var li = el("li", "menu-list__item");
+      li.appendChild(el("h3", "menu-list__name", p.nombre));
+      if (p.ingredientes) li.appendChild(el("p", "menu-list__desc", p.ingredientes));
+      menuList.appendChild(li);
+    });
+    var nota = document.getElementById("pizza-menu-note");
+    if (data.menuPizzasNota) nota.textContent = data.menuPizzasNota;
+    else nota.hidden = true;
+
+    menuOpeners.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        menuDialog.showModal();
+        root.classList.add("has-dialog");
+      });
+    });
+    menuDialog.addEventListener("close", function () { root.classList.remove("has-dialog"); });
+    menuDialog.addEventListener("click", function (e) {
+      // Cierra al tocar fuera de la tarjeta o en el botón de cerrar.
+      if (e.target === menuDialog || e.target.closest("[data-close-dialog]")) menuDialog.close();
+    });
+  } else {
+    menuOpeners.forEach(function (btn) { btn.hidden = true; });
   }
 
   /* ---------- Visítanos ---------- */
@@ -451,8 +485,8 @@
     carousel.addEventListener("pointerdown", userPause, { passive: true });
     carousel.addEventListener("touchstart", userPause, { passive: true });
     carousel.addEventListener("wheel", userPause, { passive: true });
-    carousel.addEventListener("mouseenter", function () { hovering = true; });
-    carousel.addEventListener("mouseleave", function () { hovering = false; });
+    carousel.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse") hovering = true; });
+    carousel.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") hovering = false; });
 
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (entries) {
@@ -462,7 +496,7 @@
       inView = true;
     }
 
-    if (!reduceMotion) setInterval(tick, INTERVAL);
+    setInterval(tick, INTERVAL);
 
     var resizeTimer;
     window.addEventListener("resize", function () {
