@@ -205,6 +205,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   display: inline-flex; flex-wrap: wrap; justify-content: center; align-items: center; column-gap: 10px; row-gap: 2px; min-height: 44px; margin-top: 18px;
   font-size: 15px; font-weight: 500; color: var(--muted); text-decoration: none;
 }
+.hero__proof strong { color: var(--ink); font-weight: 700; }
 .hero__proof:hover span:last-child { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 
 .stars { display: inline-flex; gap: 2px; color: var(--gold); }
@@ -442,6 +443,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .visit__hours li:last-child { border-bottom: 0; padding-bottom: 0; }
 .visit__hours strong { font-weight: 600; color: var(--ink); white-space: nowrap; }
 .visit__card .btn { margin-top: 18px; }
+.visit__tel { display: flex; width: fit-content; align-items: center; min-height: 44px; margin-top: 6px; color: var(--brass-deep); font-weight: 600; text-underline-offset: 3px; }
 @media (min-width: 768px) { .visit { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; } }
 
 /* ---------- Footer ---------- */

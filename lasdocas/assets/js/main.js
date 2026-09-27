@@ -74,12 +74,14 @@
     heroImg.fetchPriority = "high";
     art.querySelector(".hero__illustration").replaceWith(heroImg);
 
+    // La primera foto queda en la portada; la galería usa el resto.
     // Mosaico sin huecos: 1 destacada + grupos de 4 (máx. 9 fotos).
     // Con menos de 5 fotos se usa una grilla simple.
     var gallery = document.getElementById("gallery");
-    var galleryFotos = fotos.length >= 5
-      ? fotos.slice(0, Math.min(9, 1 + Math.floor((fotos.length - 1) / 4) * 4))
-      : fotos.slice(0, 4);
+    var resto = fotos.length > 1 ? fotos.slice(1) : fotos;
+    var galleryFotos = resto.length >= 5
+      ? resto.slice(0, Math.min(9, 1 + Math.floor((resto.length - 1) / 4) * 4))
+      : resto.slice(0, 4);
     if (galleryFotos.length < 5) {
       gallery.classList.add("gallery--simple");
       gallery.style.setProperty("--cols", galleryFotos.length === 3 ? 3 : Math.min(galleryFotos.length, 2));
@@ -120,7 +122,7 @@
 
     if (horario.length) {
       var hrs = el("div", "visit__card reveal");
-      hrs.appendChild(el("h3", null, "Horario"));
+      hrs.appendChild(el("h3", null, data.horarioTitulo || "Horario"));
       var list = el("ul", "visit__hours");
       horario.forEach(function (h) {
         var li = el("li");
@@ -141,11 +143,21 @@
       waBtn.target = "_blank";
       waBtn.rel = "noopener";
       wa.appendChild(waBtn);
+      if (data.telefono) {
+        var tel = el("a", "visit__tel", "o llama al " + data.telefono);
+        tel.href = "tel:" + String(data.telefono).replace(/[^\d+]/g, "");
+        wa.appendChild(tel);
+      }
       visit.appendChild(wa);
     }
 
     document.getElementById("visitanos").hidden = false;
   }
+
+  document.querySelectorAll("[data-nota-google]").forEach(function (node) {
+    if (data.notaGoogle) node.textContent = data.notaGoogle;
+    else node.closest("[data-nota-wrap]").hidden = true;
+  });
 
   document.querySelectorAll("[data-requires]").forEach(function (link) {
     var need = link.getAttribute("data-requires");
