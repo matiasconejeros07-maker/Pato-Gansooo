@@ -32,7 +32,8 @@
 
     <nav class="nav__menu" id="menu" aria-label="Principal">
       <a href="#nosotros">Nosotros</a>
-      <a href="#carta">Qué ofrecemos</a>
+      <a href="#carta">Carta</a>
+      <a href="#encargos">Encargos</a>
       <a href="#galeria" data-requires="fotos">Galería</a>
       <a href="#resenas">Reseñas</a>
       <a href="#visitanos" data-requires="contacto">Visítanos</a>
@@ -115,6 +116,18 @@
     </div>
   </section>
 
+  <!-- LO ESENCIAL (bio de Instagram) -->
+  <section class="highlights" aria-label="Lo esencial de Las Docas">
+    <ul class="container highlights__list">
+        <li class="highlight"><span class="highlight__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h13v5a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6V9Z"/><path d="M17 11h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M8 3.5c-.8 1 .8 1.8 0 3M12 3.5c-.8 1 .8 1.8 0 3"/></svg></span><span class="highlight__label">Cafetería familiar</span></li>
+        <li class="highlight"><span class="highlight__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21 3.5 6.5A15 15 0 0 1 20.5 6.5L12 21Z"/><path d="M4.8 8.8a12.5 12.5 0 0 1 14.4 0"/><circle cx="11" cy="11.5" r="1.2"/><circle cx="13.5" cy="15" r="1"/></svg></span><span class="highlight__label">Pizzas napolitanas</span></li>
+        <li class="highlight"><span class="highlight__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 11 12 21l4-10"/><path d="M7.5 11a4.5 4.5 0 1 1 9 0Z"/><path d="M9.5 6.8a3 3 0 0 1 5 0"/></svg></span><span class="highlight__label">Helados artesanales</span></li>
+        <li class="highlight"><span class="highlight__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h18v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3Z"/><path d="M3 13c0-3.5 4-6.5 9-6.5s9 3 9 6.5"/><path d="M9 9.5l1 2M14 9.5l-1 2M12 4v2.5"/></svg></span><span class="highlight__label">Pastelería</span></li>
+        <li class="highlight"><span class="highlight__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="11" r="1.8"/><circle cx="9.5" cy="6.8" r="1.8"/><circle cx="14.5" cy="6.8" r="1.8"/><circle cx="18" cy="11" r="1.8"/><path d="M12 12c-3 0-5.5 3.2-5.5 5.4 0 1.6 1.2 2.6 2.7 2.6 1.1 0 1.8-.5 2.8-.5s1.7.5 2.8.5c1.5 0 2.7-1 2.7-2.6C17.5 15.2 15 12 12 12Z"/></svg></span><span class="highlight__label">Pet friendly</span></li>
+        <li class="highlight"><a class="highlight__link" href="https://www.google.com/maps/search/?api=1&amp;query=Las+Docas+Cafeteria&amp;query_place_id=ChIJXWRlz2g_YpYR1PK-apgdmAw" target="_blank" rel="noopener"><span class="highlight__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.4"/></svg></span><span class="highlight__label">Gabriela Mistral 1283 · Las Cruces</span></a></li>
+    </ul>
+  </section>
+
   <!-- NOSOTROS -->
   <section class="section" id="nosotros">
     <div class="container">
@@ -125,7 +138,7 @@
         </div>
         <div class="split__body">
           <p>Las Docas es un rincón que hemos construido en familia y con mucho cariño en Las&nbsp;Cruces. Detrás del mesón hay una historia familiar que puedes conocer en nuestro rincón de recuerdos, y eso se nota en cada detalle.</p>
-          <p>Tenemos un espacio cerrado y calefaccionado con vista a nuestro jardín: ideal para una conversación larga, leer o instalarte a trabajar con un café en la mano, en cualquier época del año.</p>
+          <p>Tenemos un espacio cerrado y calefaccionado con vista a nuestro jardín: ideal para una conversación larga, leer o instalarte a trabajar con un café en la mano, en cualquier época del año. Somos pet friendly y nuestra gatita anfitriona siempre sale a saludar.</p>
         </div>
       </div>
 
@@ -143,7 +156,7 @@
         <li class="value">
           <span class="value__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 11c0-3 4-6 9-6s9 3 9 6"/><path d="M3 11h18l-1.5 7.5a2 2 0 0 1-2 1.5h-11a2 2 0 0 1-2-1.5L3 11Z"/><path d="M9 11v9M15 11v9"/></svg></span>
           <h3>Hecho a mano</h3>
-          <p>Gastronomía artesanal: tortas, pies y helados preparados por nosotros.</p>
+          <p>Pizzas artesanales con masa hecha en casa, tortas, pies y helados preparados por nosotros.</p>
         </li>
       </ul>
     </div>
@@ -160,43 +173,115 @@
         <li class="offer__item">
           <span class="offer__num">01</span>
           <h3>Café de grano</h3>
-          <p>Para empezar el día: americano con Barros Jarpa y refill de café por $1.000.</p>
+          <p>Espresso, capuchino, latte y café helado, con leche sin lactosa o vegetal. Para partir el día: americano + Barros Jarpa a $3.900, con refill de café.</p>
         </li>
         <li class="offer__item">
           <span class="offer__num">02</span>
-          <h3>Pastelería chilena</h3>
-          <p>Pie de limón, tortas y cupcakes de flores. Tortas por encargo con pedido anticipado.</p>
+          <h3>Desayunos y brunch</h3>
+          <p>Pan, huevos, palta y jugos naturales para empezar la mañana con calma.</p>
         </li>
         <li class="offer__item">
           <span class="offer__num">03</span>
-          <h3>Pizzas napolitanas</h3>
-          <p>Para compartir en familia o con amigos, recién salidas del horno.</p>
+          <h3>Menú de almuerzo</h3>
+          <p>Menú completo de almuerzo casero, preparado por nosotros.</p>
         </li>
         <li class="offer__item">
           <span class="offer__num">04</span>
+          <h3>Pizzas napolitanas</h3>
+          <p>Masa 100% artesanal hecha en casa y productos naturales, recién salidas del horno.</p>
+        </li>
+        <li class="offer__item">
+          <span class="offer__num">05</span>
+          <h3>Pastelería chilena</h3>
+          <p>Pie de limón, cheesecake de frambuesa, torta de zanahoria y cupcakes de flores.</p>
+        </li>
+        <li class="offer__item">
+          <span class="offer__num">06</span>
           <h3>Helados artesanales</h3>
           <p>Para acompañar el café o disfrutar después de la playa.</p>
         </li>
       </ul>
+
+      <div class="board">
+        <div class="board__head">
+          <p class="board__eyebrow">Nuestra pizarra</p>
+          <h3 class="board__title">Para tomar</h3>
+        </div>
+        <div class="board__grid">
+          <div class="board__group">
+            <h4>Café</h4>
+            <ul><li>Espresso</li><li>Americano</li><li>Capuchino</li><li>Macchiato</li><li>Latte</li><li>Cortado</li></ul>
+          </div>
+          <div class="board__group">
+            <h4>Especiales</h4>
+            <ul><li>Vainilla</li><li>Mochaccino</li><li>Chai latte</li><li>Matcha latte</li></ul>
+          </div>
+          <div class="board__group">
+            <h4>Café frío</h4>
+            <ul><li>Café helado</li><li>Iced specialty</li><li>Affogato</li></ul>
+          </div>
+          <div class="board__group">
+            <h4>Té y otros</h4>
+            <ul><li>Té aromático</li><li>Chocolate caliente</li><li>Jugos naturales</li><li>Kombuchas</li></ul>
+          </div>
+        </div>
+      </div>
       <p class="offer__note">Revisa las novedades del día en <a href="https://www.instagram.com/lasdocas/" target="_blank" rel="noopener">nuestro Instagram</a> o haz tu pedido por <a href="https://wa.me/56934578219" target="_blank" rel="noopener">WhatsApp</a>.</p>
+    </div>
+  </section>
+
+  <!-- POR ENCARGO -->
+  <section class="section" id="encargos">
+    <div class="container">
+      <div class="order">
+        <figure class="order__media">
+          <img src="assets/fotos/cupcakes-de-flores.jpg" width="896" height="1110" alt="Caja de cupcakes decorados con flores" loading="lazy" decoding="async">
+        </figure>
+        <div class="order__copy">
+          <p class="eyebrow">Por encargo</p>
+          <h2 class="section__title">Tortas para <em>celebrar</em></h2>
+          <ul class="order__list">
+            <li><strong>Torta de flores</strong> para compartir en familia (10 porciones).</li>
+            <li><strong>Cupcakes</strong> individuales y en packs de regalo.</li>
+            <li>Todas nuestras tortas son <strong>solo con pedido anticipado</strong>.</li>
+          </ul>
+          <a class="btn btn--primary" href="https://wa.me/56934578219?text=Hola%20Las%20Docas%2C%20quiero%20encargar%20una%20torta" target="_blank" rel="noopener">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.8a8.5 8.5 0 0 1-12.6 7.4L3.5 20.5l1.3-4.2A8.5 8.5 0 1 1 20.5 11.8Z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.5-2-1-1 1a4 4 0 0 1-2-2l1-1-1-2L9 8.5Z" class="dot"/></svg>
+            Encargar por WhatsApp
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- GALERÍA (se muestra cuando hay fotos en contenido.js) -->
   <section class="section" id="galeria" hidden>
     <div class="container">
-      <header class="section__head">
-        <p class="eyebrow">Galería</p>
-        <h2 class="section__title">Un vistazo a <em>Las Docas</em></h2>
+      <header class="section__head carousel__head">
+        <div>
+          <p class="eyebrow">Galería</p>
+          <h2 class="section__title">Un vistazo a <em>Las Docas</em></h2>
+        </div>
+        <div class="carousel__controls carousel__controls--light" id="gallery-controls">
+          <button class="carousel__arrow" type="button" data-dir="-1" aria-label="Foto anterior">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <button class="carousel__arrow" type="button" data-dir="1" aria-label="Foto siguiente">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
       </header>
-      <div class="gallery" id="gallery"></div>
+      <div class="carousel" id="gallery-carousel" role="region" aria-roledescription="carrusel" aria-label="Fotos de Las Docas">
+        <ul class="carousel__track" id="gallery-track"></ul>
+      </div>
+      <div class="carousel__dots carousel__dots--light" id="gallery-dots" role="tablist" aria-label="Elegir foto"></div>
     </div>
   </section>
 
   <!-- RESEÑAS -->
   <section class="section section--dark" id="resenas">
     <div class="container">
-      <header class="section__head reviews__head">
+      <header class="section__head carousel__head">
         <div>
           <p class="eyebrow eyebrow--light">Reseñas</p>
           <h2 class="section__title">Lo que dicen <em>nuestros clientes</em></h2>
