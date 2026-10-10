@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Dinero Volador</title>
+<style>
+  :root {
+    --bg: #fff7c2;
+    --ink: #111;
+    --score: #a3a07a;
+    --ghost: rgba(140, 130, 50, .38);
+    --win: #2f8f4e;
+    --lose: #c0392b;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; height: 100%; background: var(--bg); color: var(--ink);
+    font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden; overscroll-behavior: none;
+    -webkit-user-select: none; user-select: none; touch-action: manipulation;
+  }
+  #app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+
+  /* ---------- barra superior ---------- */
+  header {
+    position: relative; z-index: 3;
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    padding: calc(env(safe-area-inset-top) + 28px) 16px 0;
+    height: calc(env(safe-area-inset-top) + 110px);
+  }
+  #close {
+    position: absolute; left: 20px; top: calc(env(safe-area-inset-top) + 34px);
+    width: 40px; height: 40px; border: 0; background: none; cursor: pointer; padding: 8px;
+  }
+  #close svg { width: 100%; height: 100%; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; }
+  .num {
+    min-width: 3ch; font-size: 28px; font-weight: 800; letter-spacing: .02em;
+    color: var(--score); font-variant-numeric: tabular-nums; text-align: center;
+    transition: color .2s, transform .15s;
+  }
+  .num.bump { transform: scale(1.22); color: #6d6a3d; }
+  .avatars { display: flex; position: relative; }
+  .avatar {
+    position: relative; width: 52px; height: 52px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 28px;
+    border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.15);
+  }
+  .avatar.me { background: radial-gradient(circle at 35% 30%, #4a4a4a, #151515); z-index: 1; }
+  .avatar.bot { background: radial-gradient(circle at 35% 30%, #e8e8e8, #8d8d8d); margin-left: -8px; }
+  .crown {
+    position: absolute; top: -24px; left: 50%; font-size: 30px; line-height: 1;
+    transform: translateX(-50%) scale(0); transition: transform .25s cubic-bezier(.3,1.6,.5,1);
+    pointer-events: none; z-index: 2;
+  }
+  .avatar.lead .crown { transform: translateX(-50%) scale(1); }
+
+  /* ---------- zona de juego ---------- */
+  #arena { position: relative; flex: 1; z-index: 1; }
+  #big {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    font-size: min(46vw, 260px); font-weight: 400; color: var(--ghost);
+    pointer-events: none; z-index: 0;
+    transform: translateY(-4%);
+  }
+  #big.tick { animation: tick .9s ease-out; }
+  @keyframes tick { 0% { transform: translateY(-4%) scale(1.25); opacity: .2; } 100% { transform: translateY(-4%) scale(1); opacity: 1; } }
+
+  #target {
+    position: absolute; left: 0; top: 0; z-index: 2;
+    font-size: 68px; line-height: 1; will-change: transform; pointer-events: none;
+    filter: drop-shadow(0 6px 6px rgba(0,0,0,.12));
+  }
+  #target span { display: inline-block; transition: transform .12s; }
+  #target.hit span { transform: scale(1.45); }
+
+  .pop {
+    position: absolute; z-index: 4; font-weight: 800; font-size: 26px; color: #6d6a3d;
+    pointer-events: none; animation: pop .6s ease-out forwards;
+  }
+  @keyframes pop { from { opacity: 1; transform: translate(-50%, -10px); } to { opacity: 0; transform: translate(-50%, -70px); } }
+  .ripple {
+    position: absolute; z-index: 1; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%;
+    border: 2px solid rgba(0,0,0,.15); pointer-events: none; animation: ripple .4s ease-out forwards;
+  }
+  @keyframes ripple { from { transform: scale(.3); opacity: 1; } to { transform: scale(1.4); opacity: 0; } }
+
+  /* ---------- pantallas (inicio / final) ---------- */
+  .screen {
+    position: absolute; inset: 0; z-index: 5; display: none; flex-direction: column;
+    align-items: center; justify-content: center; gap: 10px; text-align: center; padding: 24px;
+    background: rgba(255, 247, 194, .94);
+  }
+  .screen.show { display: flex; }
+  .screen h1 { margin: 0; font-size: 34px; font-weight: 800; }
+  .screen p { margin: 0; color: #6b6840; font-size: 16px; max-width: 28ch; line-height: 1.4; }
+  .emoji-lg { font-size: 84px; animation: float 2.2s ease-in-out infinite; }
+  @keyframes float { 50% { transform: translateY(-14px) rotate(-6deg); } }
+  .final { font-size: 72px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+  .vs { font-size: 17px; color: #6b6840; font-weight: 600; }
+  .verdict.win { color: var(--win); }
+  .verdict.lose { color: var(--lose); }
+  .btn {
+    margin-top: 14px; border: 0; cursor: pointer; background: #111; color: #fff;
+    font: inherit; font-size: 18px; font-weight: 700; padding: 16px 44px; border-radius: 999px;
+    transition: transform .1s;
+  }
+  .btn:active { transform: scale(.96); }
+  .best { font-size: 14px; color: #8a8658; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <button id="close" aria-label="Salir">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 4 20 20M20 4 4 20"/></svg>
+    </button>
+    <div class="num" id="meNum">000</div>
+    <div class="avatars">
+      <div class="avatar me" id="meAv"><span class="crown">👑</span>😎</div>
+      <div class="avatar bot" id="botAv"><span class="crown">👑</span>🦆</div>
+    </div>
+    <div class="num" id="botNum">000</div>
+  </header>
+
+  <main id="arena">
+    <div id="big"></div>
+    <div id="target"><span>💸</span></div>
+
+    <section class="screen show" id="menu">
+      <div class="emoji-lg">💸</div>
+      <h1>Dinero Volador</h1>
+      <p>Toca el billete antes de que se escape. Tienes 20 segundos para ganarle al Pato.</p>
+      <button class="btn" id="play">Jugar</button>
+      <div class="best" id="bestMenu"></div>
+    </section>
+
+    <section class="screen" id="result">
+      <h1 class="verdict" id="verdict"></h1>
+      <div class="final" id="finalScore">0</div>
+      <div class="vs" id="finalVs"></div>
+      <button class="btn" id="again">Jugar otra vez</button>
+      <div class="best" id="bestResult"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+(() => {
+  const GAME_SECONDS = 20;
+  const HIT_RADIUS = 56;          // zona de toque generosa alrededor del emoji
+  const SIZE = 68;                // tamaño del emoji (px)
+
+  const $ = id => document.getElementById(id);
+  const arena = $('arena'), target = $('target'), big = $('big');
+  const meNum = $('meNum'), botNum = $('botNum'), meAv = $('meAv'), botAv = $('botAv');
+  const menu = $('menu'), result = $('result');
+
+  let state = 'menu';            // menu | countdown | play | over
+  let me = 0, bot = 0, best = 0;
+  let timeLeft = GAME_SECONDS;
+  let W = 0, H = 0;
+  let x = 0, y = 0, vx = 0, vy = 0, nextTurn = 0, last = 0, botNext = 0;
+  let lastSecond = -1;
+  let audio = null;
+
+  try { best = +localStorage.getItem('dinero-volador-best') || 0; } catch (e) {}
+  const pad = n => String(n).padStart(3, '0');
+
+  function measure() { W = arena.clientWidth; H = arena.clientHeight; }
+  addEventListener('resize', measure);
+
+  /* ---------- sonido (opcional, sin archivos) ---------- */
+  function blip(freq = 660, dur = .07) {
+    try {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.type = 'triangle'; o.frequency.value = freq;
+      g.gain.setValueAtTime(.12, audio.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, audio.currentTime + dur);
+      o.connect(g); g.connect(audio.destination);
+      o.start(); o.stop(audio.currentTime + dur);
+    } catch (e) {}
+  }
+
+  /* ---------- puntajes ---------- */
+  function renderScores() {
+    meNum.textContent = pad(me);
+    botNum.textContent = pad(bot);
+    meAv.classList.toggle('lead', me > bot);
+    botAv.classList.toggle('lead', bot > me);
+  }
+  function bump(el) {
+    el.classList.add('bump');
+    setTimeout(() => el.classList.remove('bump'), 140);
+  }
+
+  /* ---------- movimiento del emoji ---------- */
+  function randomDir(speed) {
+    const a = Math.random() * Math.PI * 2;
+    vx = Math.cos(a) * speed; vy = Math.sin(a) * speed;
+  }
+  function speed() { return Math.min(170 + me * 9, 480); }   // sube con el puntaje
+  function relocate() {
+    x = SIZE / 2 + Math.random() * (W - SIZE);
+    y = SIZE / 2 + Math.random() * (H - SIZE - 120);
+    randomDir(speed());
+    nextTurn = .5 + Math.random() * .9;
+  }
+  function draw() {
+    const tilt = Math.max(-18, Math.min(18, vx / 14));
+    target.style.transform = `translate(${x - SIZE / 2}px, ${y - SIZE / 2}px) rotate(${tilt}deg)`;
+  }
+
+  /* ---------- toque ---------- */
+  function spawn(cls, px, py, text) {
+    const el = document.createElement('div');
+    el.className = cls; el.style.left = px + 'px'; el.style.top = py + 'px';
+    if (text) el.textContent = text;
+    arena.appendChild(el);
+    setTimeout(() => el.remove(), 650);
+  }
+  arena.addEventListener('pointerdown', e => {
+    if (state !== 'play') return;
+    const r = arena.getBoundingClientRect();
+    const px = e.clientX - r.left, py = e.clientY - r.top;
+    if (Math.hypot(px - x, py - y) <= HIT_RADIUS) {
+      me++; renderScores(); bump(meNum);
+      spawn('pop', x, y - 30, '+1');
+      target.classList.add('hit');
+      setTimeout(() => target.classList.remove('hit'), 120);
+      blip(500 + Math.min(me, 30) * 18);
+      if (navigator.vibrate) navigator.vibrate(8);
+      relocate();
+    } else {
+      spawn('ripple', px, py);
+    }
+  });
+
+  /* ---------- flujo de juego ---------- */
+  function show(screen) { menu.classList.remove('show'); result.classList.remove('show'); if (screen) screen.classList.add('show'); }
+  function setBig(t) {
+    big.textContent = t;
+    big.classList.remove('tick'); void big.offsetWidth; big.classList.add('tick');
+  }
+
+  function startCountdown() {
+    measure();
+    me = 0; bot = 0; timeLeft = GAME_SECONDS; lastSecond = -1;
+    renderScores(); show(null);
+    state = 'countdown';
+    target.style.visibility = 'hidden';
+    let n = 3; setBig(n); blip(440, .1);
+    const iv = setInterval(() => {
+      if (state !== 'countdown') { clearInterval(iv); return; }
+      n--;
+      if (n > 0) { setBig(n); blip(440, .1); }
+      else { clearInterval(iv); beginPlay(); }
+    }, 1000);
+  }
+
+  function beginPlay() {
+    state = 'play';
+    relocate(); draw();
+    target.style.visibility = 'visible';
+    botNext = .5 + Math.random() * .6;
+    last = performance.now();
+    blip(880, .2);
+    requestAnimationFrame(loop);
+  }
+
+  function loop(now) {
+    if (state !== 'play') return;
+    const dt = Math.min((now - last) / 1000, .05); last = now;
+
+    // tiempo
+    timeLeft -= dt;
+    const sec = Math.max(0, Math.ceil(timeLeft));
+    if (sec !== lastSecond) { lastSecond = sec; setBig(sec); }
+    if (timeLeft <= 0) return endGame();
+
+    // movimiento con rebote y cambios de rumbo
+    x += vx * dt; y += vy * dt;
+    const half = SIZE / 2;
+    if (x < half) { x = half; vx = Math.abs(vx); }
+    if (x > W - half) { x = W - half; vx = -Math.abs(vx); }
+    if (y < half) { y = half; vy = Math.abs(vy); }
+    if (y > H - half - 20) { y = H - half - 20; vy = -Math.abs(vy); }
+    nextTurn -= dt;
+    if (nextTurn <= 0) { randomDir(speed()); nextTurn = .5 + Math.random() * .9; }
+    draw();
+
+    // rival: el Pato suma de a poco
+    botNext -= dt;
+    if (botNext <= 0) {
+      bot++; renderScores(); bump(botNum);
+      botNext = .45 + Math.random() * .7;
+    }
+    requestAnimationFrame(loop);
+  }
+
+  function endGame() {
+    state = 'over';
+    target.style.visibility = 'hidden';
+    big.textContent = '';
+    const win = me > bot, tie = me === bot;
+    const v = $('verdict');
+    v.textContent = win ? '¡Ganaste! 🏆' : tie ? 'Empate 🤝' : 'Ganó el Pato 🦆';
+    v.className = 'verdict ' + (win ? 'win' : tie ? '' : 'lose');
+    $('finalScore').textContent = me;
+    $('finalVs').textContent = `Tú ${me} · Pato ${bot}`;
+    if (me > best) {
+      best = me;
+      try { localStorage.setItem('dinero-volador-best', String(best)); } catch (e) {}
+      $('bestResult').textContent = '🎉 ¡Nuevo récord!';
+    } else {
+      $('bestResult').textContent = `Mejor puntaje: ${best}`;
+    }
+    blip(win ? 880 : 220, .3);
+    show(result);
+  }
+
+  function backToMenu() {
+    state = 'menu';
+    target.style.visibility = 'hidden';
+    big.textContent = '';
+    me = 0; bot = 0; renderScores();
+    $('bestMenu').textContent = best ? `Mejor puntaje: ${best}` : '';
+    show(menu);
+  }
+
+  $('play').addEventListener('click', startCountdown);
+  $('again').addEventListener('click', startCountdown);
+  $('close').addEventListener('click', backToMenu);
+
+  measure(); renderScores(); target.style.visibility = 'hidden';
+  $('bestMenu').textContent = best ? `Mejor puntaje: ${best}` : '';
+})();
+</script>
+</body>
+</html>
