@@ -61,12 +61,14 @@
   }
   .avatar.lead .crown { transform: translateX(-50%) scale(1); }
 
-  #timebar { position: absolute; left: 0; right: 0; top: calc(env(safe-area-inset-top) + 108px); height: 4px; z-index: 3; opacity: 0; transition: opacity .3s; }
-  #timebar i { display: block; height: 100%; width: 100%; background: rgba(0,0,0,.22); transform-origin: left; border-radius: 0 4px 4px 0; }
-  #timebar.on { opacity: 1; }
-
   /* ---------- zona de juego ---------- */
-  #arena { position: relative; flex: 1; z-index: 1; min-height: 0; }
+  #arena { position: relative; flex: 1; z-index: 1; min-height: 0; touch-action: none; }
+  #paddle {
+    position: absolute; left: 0; top: 0; height: 16px; border-radius: 999px; background: #111; z-index: 2;
+    visibility: hidden; will-change: transform; box-shadow: 0 5px 12px rgba(0,0,0,.22);
+    transition: height .08s, margin-top .08s;
+  }
+  #paddle.hit { height: 11px; margin-top: 3px; }
   #big {
     position: absolute; inset: 0; display: grid; place-items: center;
     font-size: min(46vw, 260px); font-weight: 400; color: var(--ghost);
@@ -82,7 +84,6 @@
     filter: drop-shadow(0 5px 5px rgba(0,0,0,.14));
   }
   #target span { display: inline-block; animation: spin .75s linear infinite; }
-  #target.hit { animation: hit .14s ease-out; }
   @keyframes spin { to { transform: rotate(360deg); } }
   @keyframes hit { 50% { filter: brightness(1.3) drop-shadow(0 5px 5px rgba(0,0,0,.14)); } }
 
@@ -179,17 +180,16 @@
     <div class="num" id="botNum">000</div>
   </header>
 
-  <div id="timebar"><i id="timefill"></i></div>
-
   <main id="arena">
     <div id="big"></div>
     <div id="target"><span>💸</span></div>
+    <div id="paddle" aria-hidden="true"></div>
 
     <!-- inicio: nombre -->
     <section class="screen show" id="menu">
       <div class="emoji-lg">💸</div>
       <h1>Dinero Volador</h1>
-      <p>Toca el billete mientras vuela. Tienes 30 segundos para sumar aciertos y subir en los marcadores.</p>
+      <p>Mueve la barra para que el billete no caiga. Cada rebote suma, y cada vez va más rápido.</p>
       <input id="name" type="text" maxlength="16" placeholder="Tu nombre" autocomplete="off" autocapitalize="words" spellcheck="false" aria-label="Tu nombre">
       <button class="btn" id="play">Jugar</button>
       <button class="btn ghost" id="openBoard">🏆 Marcadores</button>
@@ -199,7 +199,7 @@
     <!-- final de partida -->
     <section class="screen" id="result">
       <div class="rain" id="rain"></div>
-      <div class="final"><span id="finalScore">0</span> <small id="finalLabel">aciertos</small></div>
+      <div class="final"><span id="finalScore">0</span> <small id="finalLabel">rebotes</small></div>
       <div class="status" id="saveStatus"></div>
       <div class="best" id="bestResult"></div>
       <button class="btn" id="again"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Jugar de nuevo</button>
@@ -220,9 +220,10 @@
 <script src="config.js"></script>
 <script>
 (() => {
-  const GAME_SECONDS = 30;
-  const HIT_RADIUS = 54;          // zona de toque generosa alrededor del emoji
   const SIZE = 56;                // tamaño del emoji (px)
+  const R = 24;                   // radio de choque del emoji
+  const PADDLE_H = 16, PADDLE_BOTTOM = 56;
+  const SPEED0 = 300, SPEED_STEP = 20, SPEED_MAX = 860;   // px/s: sube con cada rebote
   const TOP_N = 100;              // cuántos jugadores muestra el marcador
   const REFRESH_MS = 15000;       // el marcador se actualiza solo mientras está abierto
   const STORE_KEY = 'dinero-volador-v2';
@@ -240,10 +241,9 @@
 
   let state = 'menu';            // menu | countdown | play | over
   let me = 0, leader = 0;        // aciertos de esta partida · puntaje del #1 en los marcadores
-  let timeLeft = GAME_SECONDS;
   let W = 0, H = 0;
-  let x = 0, y = 0, vx = 0, vy = 0, nextTurn = 0, last = 0;
-  let lastSecond = -1;
+  let x = 0, y = 0, vx = 0, vy = 0, last = 0;
+  let px = 0, pw = 110, keyDir = 0;   // barra: centro y ancho
   let cdTimer = null;
   let audio = null;
 
@@ -263,7 +263,7 @@
   const pad = n => String(n).padStart(3, '0');
 
   function measure() { W = arena.clientWidth; H = arena.clientHeight; }
-  addEventListener('resize', measure);
+  addEventListener('resize', () => { measure(); if (typeof layout === 'function') layout(); });
 
   /* ---------- sonido (opcional, sin archivos) ---------- */
   function blip(freq = 660, dur = .07) {
@@ -401,47 +401,62 @@
     $('meInit').textContent = player.name ? [...player.name][0].toUpperCase() : '😎';
   }
 
-  /* ---------- movimiento del emoji ---------- */
-  function randomDir(speed) {
-    const a = Math.random() * Math.PI * 2;
-    vx = Math.cos(a) * speed; vy = Math.sin(a) * speed;
+  /* ---------- barra y rebotes ---------- */
+  const paddle = $('paddle');
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const paddleTop = () => H - PADDLE_BOTTOM - PADDLE_H;
+  function ballSpeed() { return Math.min(SPEED0 + me * SPEED_STEP, SPEED_MAX); }
+
+  // Dirección (dx, dy) con la rapidez actual. Nunca casi horizontal, para que no se quede rebotando de lado a lado.
+  function setVel(dx, dy) {
+    const len = Math.hypot(dx, dy) || 1;
+    dx /= len; dy /= len;
+    const minY = .32;
+    if (Math.abs(dy) < minY) { dy = (dy < 0 ? -1 : 1) * minY; dx = (dx < 0 ? -1 : 1) * Math.sqrt(1 - minY * minY); }
+    const sp = ballSpeed();
+    vx = dx * sp; vy = dy * sp;
   }
-  function speed() { return Math.min(230 + me * 8, 520); }   // sube con el puntaje
-  function relocate() {
-    x = SIZE / 2 + Math.random() * (W - SIZE);
-    y = SIZE / 2 + Math.random() * (H - SIZE - 120);
-    randomDir(speed());
-    nextTurn = .5 + Math.random() * .9;
+  function launch() {
+    const a = (Math.random() - .5) * 1.1;
+    x = W * (.3 + Math.random() * .4); y = SIZE;
+    setVel(Math.sin(a), Math.cos(a));
   }
   function draw() {
-    const tilt = Math.max(-18, Math.min(18, vx / 14));
-    target.style.transform = `translate(${x - SIZE / 2}px, ${y - SIZE / 2}px) rotate(${tilt}deg)`;
+    target.style.transform = `translate(${x - SIZE / 2}px, ${y - SIZE / 2}px)`;
+    paddle.style.transform = `translateX(${px - pw / 2}px)`;
+  }
+  function layout() {
+    pw = clamp(W * .3, 92, 140);
+    paddle.style.width = pw + 'px';
+    paddle.style.top = paddleTop() + 'px';
+    px = clamp(px || W / 2, pw / 2, W - pw / 2);
   }
 
-  /* ---------- toque ---------- */
-  function spawn(cls, px, py, text) {
+  /* ---------- control: arrastrar el dedo / mouse, o flechas ---------- */
+  function movePaddle(e) {
+    if (state !== 'play' && state !== 'countdown') return;
+    const r = arena.getBoundingClientRect();
+    px = clamp(e.clientX - r.left, pw / 2, W - pw / 2);
+    if (state === 'countdown') draw();
+  }
+  arena.addEventListener('pointerdown', movePaddle);
+  arena.addEventListener('pointermove', movePaddle);
+  addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft' || e.key === 'a') keyDir = -1;
+    else if (e.key === 'ArrowRight' || e.key === 'd') keyDir = 1;
+  });
+  addEventListener('keyup', e => {
+    if ((e.key === 'ArrowLeft' || e.key === 'a') && keyDir < 0) keyDir = 0;
+    if ((e.key === 'ArrowRight' || e.key === 'd') && keyDir > 0) keyDir = 0;
+  });
+
+  function spawn(cls, sx, sy, text) {
     const el = document.createElement('div');
-    el.className = cls; el.style.left = px + 'px'; el.style.top = py + 'px';
+    el.className = cls; el.style.left = sx + 'px'; el.style.top = sy + 'px';
     if (text) el.textContent = text;
     arena.appendChild(el);
     setTimeout(() => el.remove(), 650);
   }
-  arena.addEventListener('pointerdown', e => {
-    if (state !== 'play') return;
-    const r = arena.getBoundingClientRect();
-    const px = e.clientX - r.left, py = e.clientY - r.top;
-    if (Math.hypot(px - x, py - y) <= HIT_RADIUS) {
-      me++; renderScores(); bump(meNum); setBig(me); setBg(me);
-      spawn('pop', x, y - 30, '+1');
-      target.classList.add('hit');
-      setTimeout(() => target.classList.remove('hit'), 120);
-      blip(500 + Math.min(me, 30) * 18);
-      if (navigator.vibrate) navigator.vibrate(8);
-      relocate();
-    } else {
-      spawn('ripple', px, py);
-    }
-  });
 
   /* ---------- flujo de juego ---------- */
   function show(name) {
@@ -461,12 +476,13 @@
     if (name !== player.name) { player.name = name; if (player.best > 0) player.dirty = true; savePlayer(); }
     nameInput.value = name; nameInput.blur(); setInitial();
 
-    measure();
-    me = 0; timeLeft = GAME_SECONDS;
+    measure(); layout();
+    me = 0; keyDir = 0;
     $('rain').textContent = ''; setEnd(false); setBg(0);
     renderScores(); show(null);
     state = 'countdown';
     target.style.visibility = 'hidden';
+    paddle.style.visibility = 'visible'; px = W / 2; draw();
     let n = 3; setBig(n); blip(440, .1);
     clearInterval(cdTimer);
     cdTimer = setInterval(() => {
@@ -478,34 +494,47 @@
 
   function beginPlay() {
     state = 'play';
-    relocate(); draw();
+    launch(); draw();
     target.style.visibility = 'visible';
-    $('timebar').classList.add('on'); $('timefill').style.transform = 'scaleX(1)';
     setBig(0);
     last = performance.now();
     blip(880, .2);
     requestAnimationFrame(loop);
   }
 
+  function wallBounce() { setVel(vx, vy); blip(260, .04); }
+
+  // Un paso corto de física (el billete nunca avanza más de ~10 px, así no atraviesa la barra).
+  function step(h) {
+    const prevY = y;
+    x += vx * h; y += vy * h;
+    if (x < R) { x = R; vx = Math.abs(vx); wallBounce(); }
+    else if (x > W - R) { x = W - R; vx = -Math.abs(vx); wallBounce(); }
+    if (y < R) { y = R; vy = Math.abs(vy); wallBounce(); }
+
+    const top = paddleTop();
+    if (vy > 0 && prevY + R <= top + 2 && y + R >= top && Math.abs(x - px) <= pw / 2 + R * .7) {
+      y = top - R;
+      me++;                                              // ¡un rebote más!
+      const off = clamp((x - px) / (pw / 2 + R * .7), -1, 1);
+      setVel(Math.sin(off * 1.05), -Math.cos(off * 1.05));   // el ángulo depende de dónde pega en la barra
+      renderScores(); bump(meNum); setBig(me); setBg(me);
+      spawn('pop', x, top - 28, '+1');
+      paddle.classList.add('hit'); setTimeout(() => paddle.classList.remove('hit'), 90);
+      blip(500 + Math.min(me, 40) * 14);
+      if (navigator.vibrate) navigator.vibrate(8);
+    }
+    if (y - R > H) endGame();                            // se cayó por abajo
+  }
+
   function loop(now) {
     if (state !== 'play') return;
-    const dt = Math.min((now - last) / 1000, .05); last = now;
-
-    timeLeft -= dt;
-    if (timeLeft <= 0) return endGame();
-    $('timefill').style.transform = `scaleX(${timeLeft / GAME_SECONDS})`;
-
-    // movimiento con rebote y cambios de rumbo
-    x += vx * dt; y += vy * dt;
-    const half = SIZE / 2;
-    if (x < half) { x = half; vx = Math.abs(vx); }
-    if (x > W - half) { x = W - half; vx = -Math.abs(vx); }
-    if (y < half) { y = half; vy = Math.abs(vy); }
-    if (y > H - half - 20) { y = H - half - 20; vy = -Math.abs(vy); }
-    nextTurn -= dt;
-    if (nextTurn <= 0) { randomDir(speed()); nextTurn = .5 + Math.random() * .9; }
+    const dt = Math.min((now - last) / 1000, .034); last = now;
+    if (keyDir) px = clamp(px + keyDir * 760 * dt, pw / 2, W - pw / 2);
+    const n = Math.max(1, Math.ceil(Math.hypot(vx, vy) * dt / 10));
+    for (let i = 0; i < n && state === 'play'; i++) step(dt / n);
     draw();
-    requestAnimationFrame(loop);
+    if (state === 'play') requestAnimationFrame(loop);
   }
 
   function makeRain() {
@@ -524,16 +553,16 @@
   async function endGame() {
     state = 'over';
     target.style.visibility = 'hidden';
-    $('timebar').classList.remove('on');
+    paddle.style.visibility = 'hidden';
     big.textContent = '';
 
     const record = me > player.best;
     if (record) { player.best = me; player.dirty = true; savePlayer(); }
     $('finalScore').textContent = me;
-    $('finalLabel').textContent = me === 1 ? 'acierto' : 'aciertos';
+    $('finalLabel').textContent = me === 1 ? 'rebote' : 'rebotes';
     $('bestResult').textContent = record ? '🎉 ¡Nuevo récord!' : `Tu mejor puntaje: ${player.best}`;
     renderScores(); makeRain(); setEnd(true);
-    blip(me >= 20 ? 880 : 330, .3);
+    blip(me >= 15 ? 880 : 260, .3);
     show('result');
 
     const st = $('saveStatus');
@@ -551,7 +580,7 @@
     clearInterval(boardTimer); boardTimer = null;
     state = 'menu';
     target.style.visibility = 'hidden';
-    $('timebar').classList.remove('on');
+    paddle.style.visibility = 'hidden';
     big.textContent = '';
     setEnd(false); document.body.style.backgroundColor = '';
     me = 0; renderScores(); fetchLeader();
@@ -569,7 +598,7 @@
   nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') startCountdown(); });
 
   nameInput.value = player.name;
-  measure(); renderScores(); setInitial();
+  measure(); layout(); renderScores(); setInitial();
   target.style.visibility = 'hidden';
   $('bestMenu').textContent = player.best ? `Tu mejor puntaje: ${player.best}` : '';
   if (player.dirty) syncBest().then(fetchLeader); else fetchLeader();   // reintenta un puntaje pendiente

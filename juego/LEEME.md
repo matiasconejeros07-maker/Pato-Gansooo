@@ -16,12 +16,12 @@ Firebase Realtime Database (gratis, aguanta miles de jugadores) y toma unos 5 mi
 
 - Cada dispositivo tiene un identificador propio y guarda **solo su mejor puntaje** (si juega mejor, se actualiza; si juega peor, no baja).
 - Muestra el Top 100 ordenado por puntaje (en empate, quien llegó primero).
-- Las reglas de `firebase-rules.json` solo permiten guardar nombres de 1 a 16 caracteres, puntajes enteros de 0 a 250,
+- Las reglas de `firebase-rules.json` solo permiten guardar nombres de 1 a 16 caracteres, puntajes enteros de 0 a 1000,
   y que un puntaje nunca baje.
 
 ## Límites que conviene saber
 
 - Es un juego sin cuentas: como cualquier marcador abierto en una página web, una persona con conocimientos técnicos
-  podría enviar un puntaje falso (hasta el máximo de 250). Para un juego entre conocidos o un evento es suficiente.
+  podría enviar un puntaje falso (hasta el máximo de 1000). Para un juego entre conocidos o un evento es suficiente.
 - El plan gratuito (Spark) de Firebase alcanza de sobra para 1.000+ jugadores: cada partida son unos pocos bytes y el
   marcador se descarga solo mientras alguien lo tiene abierto.
