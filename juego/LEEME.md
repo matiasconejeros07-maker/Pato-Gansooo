@@ -5,24 +5,37 @@ Para que **todos los jugadores compitan en un mismo marcador**, el juego necesit
 Firebase Realtime Database (gratis, aguanta miles de jugadores) y toma unos 5 minutos:
 
 1. Entra a https://console.firebase.google.com con tu cuenta de Google y crea un proyecto (puedes desactivar Analytics).
-2. En el menú **Build → Realtime Database** aprieta **Create Database**, elige cualquier región y el modo **bloqueado** (locked mode).
-3. Abre la pestaña **Rules**, borra lo que hay, pega el contenido de `firebase-rules.json` (está en esta carpeta) y aprieta **Publish**.
-4. Copia la dirección que aparece arriba en la pestaña **Data**, parecida a `https://mi-proyecto-default-rtdb.firebaseio.com`.
-5. Abre `config.js`, pégala dentro de las comillas y guarda:
+2. En **Compilación → Realtime Database** aprieta **Crear base de datos**, elige cualquier región y el modo **bloqueado**.
+3. En **Compilación → Authentication** aprieta **Comenzar**, abre **Método de acceso**, elige **Correo electrónico/contraseña**,
+   actívalo (solo la primera opción) y guarda. Es lo que permite las cuentas con nombre y contraseña.
+4. En Realtime Database, pestaña **Reglas**: borra lo que hay, pega el contenido de `firebase-rules.json` (está en esta carpeta) y aprieta **Publicar**.
+5. En **Configuración del proyecto** (el engranaje ⚙ de la izquierda) → pestaña **General**, copia la **Clave de API web**.
+6. Abre `config.js` y completa las dos líneas (la dirección de la base de datos está en la pestaña **Datos**):
    `window.DINERO_DB_URL = 'https://mi-proyecto-default-rtdb.firebaseio.com';`
-6. Sube el cambio al repositorio. Listo: el marcador muestra el Top 100 y se actualiza solo.
+   `window.FIREBASE_API_KEY = 'AIza...';`
+7. Sube el cambio al repositorio. Listo: para jugar hay que crear una cuenta o iniciar sesión, y el marcador muestra el Top 100.
+
+## Cuentas (nombre y contraseña)
+
+- Para jugar hay que **crear una cuenta** (nombre + contraseña de al menos 6 caracteres) o **entrar** con una existente.
+  La sesión queda guardada en el celular: no hay que volver a escribir la contraseña. Con la misma cuenta se puede entrar desde otro celular y se recupera el mejor puntaje.
+- Las contraseñas las guarda Firebase Authentication (cifradas en los servidores de Google); el juego nunca las guarda.
+- El nombre no distingue mayúsculas ni tildes: «Matías» y «matias» son la misma cuenta, y dos personas no pueden usar el mismo nombre.
+- Como las cuentas no usan un correo real, **no hay recuperación de contraseña**: quien la olvide tendrá que crear otra cuenta con otro nombre.
+  Se puede borrar o restablecer una cuenta a mano en Firebase → Authentication → Usuarios.
+- Si `FIREBASE_API_KEY` queda vacía, el juego funciona en modo local (solo pide un nombre, sin contraseña y sin cuentas).
 
 ## Qué hace el marcador
 
-- Cada dispositivo tiene un identificador propio y guarda **solo su mejor puntaje** (si rebota más veces, se actualiza; si rebota menos, no baja). El puntaje son los rebotes: cada vez que la barra toca el billete suma uno. Gana quien más rebotes aguante contra el Tío Pato.
+- Cada cuenta guarda **solo su mejor puntaje** (si rebota más veces, se actualiza; si rebota menos, no baja). El puntaje son los rebotes: cada vez que la barra toca el billete suma uno. Gana quien más rebotes aguante contra el Tío Pato.
 - Muestra el Top 100 ordenado por rebotes (en empate, quien llegó primero).
-- Las reglas de `firebase-rules.json` solo permiten guardar nombres de 1 a 16 caracteres, puntajes enteros de 0 a 100000
-  y que un puntaje nunca baje.
+- Las reglas de `firebase-rules.json` solo dejan que cada cuenta escriba **su propio** registro (con su sesión iniciada), con nombres de 1 a 16
+  caracteres, puntajes enteros de 0 a 100000 y sin que un puntaje baje.
 
 ## Límites que conviene saber
 
-- Es un juego sin cuentas: como cualquier marcador abierto en una página web, una persona con conocimientos técnicos
-  podría enviar un puntaje falso (hasta el máximo permitido por las reglas). Para un juego entre conocidos o un evento es suficiente.
+- Las cuentas impiden que alguien escriba en el registro de otra persona, pero no pueden impedir que alguien con conocimientos técnicos
+  envíe un puntaje falso desde su propia cuenta (hasta el máximo permitido por las reglas). Para un juego entre conocidos o un evento es suficiente.
 - El plan gratuito (Spark) de Firebase alcanza de sobra para 1.000+ jugadores: cada partida son unos pocos bytes y el
   marcador se descarga solo mientras alguien lo tiene abierto.
 

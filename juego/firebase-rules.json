@@ -5,10 +5,11 @@
     "scores": {
       ".read": true,
       ".indexOn": ["s"],
-      "$id": {
-        ".write": "$id.matches(/^[a-z0-9]{12,32}$/) && (!data.exists() || newData.child('s').val() >= data.child('s').val())",
-        ".validate": "newData.hasChildren(['n', 's', 't'])",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid && (!data.exists() || newData.child('s').val() >= data.child('s').val())",
+        ".validate": "newData.hasChildren(['n', 'k', 's', 't']) && auth.token.email === newData.child('k').val() + '@tio-pato.invalid'",
         "n": { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 16" },
+        "k": { ".validate": "newData.isString() && newData.val().matches(/^[a-z0-9.]{3,24}$/)" },
         "s": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000 && newData.val() % 1 === 0" },
         "t": { ".validate": "newData.val() === now" },
         "$other": { ".validate": false }

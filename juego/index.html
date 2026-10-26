@@ -178,13 +178,27 @@
   .status { font-size: 14px; color: #6b6840; min-height: 1.3em; }
   .status.err { color: var(--lose); }
 
-  #name {
+  #name, .field {
     width: min(100%, 300px); font: inherit; font-size: 20px; font-weight: 700; text-align: center;
     padding: 14px 16px; border-radius: 16px; border: 2px solid var(--ink); background: #fff; color: var(--ink);
     outline: none; -webkit-user-select: text; user-select: text; margin-top: 6px;
   }
-  #name:focus { box-shadow: 0 0 0 4px rgba(17,17,17,.12); }
-  #name.shake { animation: shake .35s; border-color: var(--lose); }
+  #name:focus, .field:focus { box-shadow: 0 0 0 4px rgba(17,17,17,.12); }
+  #name.shake, .field.shake { animation: shake .35s; border-color: var(--lose); }
+  /* inicio de sesión */
+  .authbox { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+  .authbox[hidden], #userBox[hidden], #logout[hidden], #name[hidden], #play[hidden] { display: none; }
+  .seg { display: flex; width: min(100%, 300px); background: rgba(0,0,0,.07); border-radius: 999px; padding: 3px; }
+  .seg button { flex: 1; border: 0; background: none; font: inherit; font-size: 15px; font-weight: 700; color: var(--ink); padding: 9px 6px; border-radius: 999px; cursor: pointer; }
+  .seg button.on { background: #111; color: #fff; }
+  .pw { position: relative; width: min(100%, 300px); }
+  .pw .field { width: 100%; padding-right: 52px; }
+  #eye { position: absolute; right: 6px; top: calc(50% + 3px); transform: translateY(-50%); width: 40px; height: 40px; border: 0; background: none; font-size: 20px; cursor: pointer; opacity: .65; }
+  .authbox .btn { margin-top: 4px; width: min(100%, 300px); }
+  .authbox .btn:disabled { opacity: .55; }
+  #authMsg { min-height: 1.3em; max-width: 32ch; text-align: center; }
+  .hello { font-size: 20px; font-weight: 800; }
+  .link { background: none; border: 0; font: inherit; font-size: 14px; font-weight: 600; color: #6b6840; cursor: pointer; padding: 6px; text-decoration: underline; }
   @keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
 
   /* final: pantalla morada con lluvia de billetes */
@@ -289,11 +303,22 @@
       <span class="hero" id="heroBox"><span style="font-size:84px">🦆</span></span>
       <h1>Gánale al Tío Pato</h1>
       <p>El Tío Pato siempre te devuelve el billete. Tú solo rebótalo: cada vez que tocas el billete con la barra suma un punto. Gana quien más rebotes aguante.</p>
+      <!-- con cuentas: inicia sesión o crea tu cuenta (nombre + contraseña) -->
+      <form class="authbox" id="authForm" hidden autocomplete="on" novalidate>
+        <div class="seg" role="tablist"><button type="button" id="tabIn" class="on" role="tab">Entrar</button><button type="button" id="tabUp" role="tab">Crear cuenta</button></div>
+        <input class="field" id="acct" name="username" type="text" maxlength="16" placeholder="Tu nombre" autocomplete="username" autocapitalize="words" spellcheck="false" aria-label="Tu nombre">
+        <div class="pw"><input class="field" id="pass" name="password" type="password" minlength="6" maxlength="64" placeholder="Contraseña" autocomplete="current-password" aria-label="Contraseña"><button type="button" id="eye" aria-label="Mostrar contraseña">👁</button></div>
+        <div class="status err" id="authMsg" role="alert"></div>
+        <button class="btn" id="authGo" type="submit">Entrar</button>
+      </form>
+      <div id="userBox" hidden><div class="hello" id="hello"></div></div>
+      <!-- sin cuentas (modo local): solo el nombre -->
       <input id="name" type="text" maxlength="16" placeholder="Tu nombre" autocomplete="off" autocapitalize="words" spellcheck="false" aria-label="Tu nombre">
       <button class="btn" id="play">Jugar</button>
       <button class="btn ghost" id="openBoard">🏆 Marcadores</button>
       <button class="btn ghost" id="install" hidden>📲 Instalar app</button>
       <div class="best" id="bestMenu"></div>
+      <button class="link" id="logout" hidden>Cerrar sesión</button>
     </section>
 
     <!-- final de partida -->
@@ -355,6 +380,8 @@
 
   const DB = String(window.DINERO_DB_URL || '').trim().replace(/\/+$/, '');
   const ONLINE = DB !== '';
+  const API_KEY = String(window.FIREBASE_API_KEY || '').trim();     // clave web de Firebase (no es secreta): activa las cuentas
+  const AUTH = ONLINE && API_KEY !== '';                           // con cuentas: nombre + contraseña; si no, modo local
   const ART = String(window.PATO_DIR || '').trim();                // carpeta con el arte del Tío Pato ('' = usa un emoji)
   const HAS_ART = ART !== '';
 
@@ -394,9 +421,21 @@
   }
   let player = { id: '', name: '', best: 0, dirty: false };       // best: mayor cantidad de rebotes
   try { Object.assign(player, JSON.parse(localStorage.getItem(STORE_KEY) || '{}')); } catch (e) {}
-  if (!/^[a-z0-9]{12,32}$/.test(player.id)) player.id = newId();
   function savePlayer() { try { localStorage.setItem(STORE_KEY, JSON.stringify(player)); } catch (e) {} }
+
+  /* ---------- cuenta (Firebase Authentication por REST): la sesión queda guardada en el teléfono ---------- */
+  const AUTH_KEY = 'gana-al-tio-pato-sesion';
+  const MAIL = '@tio-pato.invalid';                                // el nombre se convierte en un "correo" interno; nunca se envía nada
+  let session = null;                                              // { uid, name, key, id (token), refresh, exp }
+  if (AUTH) { try { session = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); } catch (e) {} if (!session || !session.uid || !session.refresh) session = null; }
+  const saveSession = () => { try { if (session) localStorage.setItem(AUTH_KEY, JSON.stringify(session)); else localStorage.removeItem(AUTH_KEY); } catch (e) {} };
+  if (AUTH) {
+    if (!session) player = { id: '', name: '', best: 0, dirty: false };
+    else if (player.id !== session.uid) player = { id: session.uid, name: session.name, best: 0, dirty: false };
+  } else if (!/^[a-z0-9]{12,32}$/.test(player.id)) player.id = newId();
   savePlayer();
+  // "Matías Pérez" → "matias.perez": el mismo nombre (sin importar mayúsculas ni tildes) es siempre la misma cuenta
+  const acctKey = n => String(n).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '').slice(0, 24);
 
   const cleanName = s => String(s || '').replace(/\s+/g, ' ').trim().slice(0, 16);
   const pad = n => String(n).padStart(3, '0');
@@ -514,18 +553,57 @@
     finally { clearTimeout(to); }
   }
 
+  const authErr = m => ({
+    EMAIL_EXISTS: 'Ese nombre ya está en uso. Elige otro, o entra con tu contraseña.',
+    INVALID_LOGIN_CREDENTIALS: 'Nombre o contraseña incorrectos.', INVALID_PASSWORD: 'Nombre o contraseña incorrectos.', EMAIL_NOT_FOUND: 'Nombre o contraseña incorrectos.',
+    WEAK_PASSWORD: 'La contraseña debe tener al menos 6 caracteres.',
+    TOO_MANY_ATTEMPTS_TRY_LATER: 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.',
+    OPERATION_NOT_ALLOWED: 'El acceso con contraseña no está activado en Firebase (Authentication → Método de acceso → Correo electrónico/contraseña).',
+    API_KEY_INVALID: 'La clave de Firebase de config.js no es válida.', USER_DISABLED: 'Esta cuenta está deshabilitada.'
+  })[String(m).split(' ')[0]] || (/Failed to fetch|abort|NetworkError/i.test(m) ? 'Sin conexión. Revisa tu internet e inténtalo de nuevo.' : 'No se pudo iniciar sesión (' + m + ').');
+  async function authCall(kind, email, password) {
+    const r = await http(`https://identitytoolkit.googleapis.com/v1/accounts:${kind}?key=${encodeURIComponent(API_KEY)}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password, returnSecureToken: true })
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error((j.error && j.error.message) || 'ERROR');
+    return j;
+  }
+  // Token vigente (se renueva solo con la sesión guardada: no tienes que volver a escribir la contraseña).
+  async function idToken(force = false) {
+    if (!session) throw new Error('SIN_SESION');
+    if (!force && Date.now() < session.exp - 60000) return session.id;
+    const r = await http(`https://securetoken.googleapis.com/v1/token?key=${encodeURIComponent(API_KEY)}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(session.refresh)
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      const m = (j.error && j.error.message) || 'REFRESH';
+      if (/TOKEN_EXPIRED|USER_NOT_FOUND|USER_DISABLED|INVALID_REFRESH_TOKEN|CREDENTIAL_TOO_OLD/.test(m)) logout();   // la cuenta ya no es válida
+      throw new Error(m);
+    }
+    session.id = j.id_token; session.refresh = j.refresh_token || session.refresh; session.exp = Date.now() + (+j.expires_in || 3600) * 1000; saveSession();
+    return session.id;
+  }
+
   // Sube tu récord de rebotes si hay algo pendiente. Devuelve 'ok' | 'local' | 'error'.
   async function syncBest() {
     if (!player.dirty || player.best <= 0) return 'ok';
     if (!ONLINE) { player.dirty = false; savePlayer(); return 'local'; }
+    if (AUTH && !session) return 'error';
     try {
-      const r = await http(`${DB}/scores/${player.id}.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ n: player.name, s: player.best, t: { '.sv': 'timestamp' } })
-      });
-      // 401/403: el servidor ya tiene un récord igual o mayor; no hay nada que reintentar.
-      if (r.ok || r.status === 401 || r.status === 403) { player.dirty = false; savePlayer(); return 'ok'; }
+      const body = JSON.stringify(AUTH ? { n: player.name, k: session.key, s: player.best, t: { '.sv': 'timestamp' } } : { n: player.name, s: player.best, t: { '.sv': 'timestamp' } });
+      const put = async force => http(`${DB}/scores/${player.id}.json` + (AUTH ? `?auth=${encodeURIComponent(await idToken(force))}` : ''), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body });
+      let r = await put(false);
+      if (AUTH && r.status === 401) r = await put(true);          // puede que el token haya vencido: renueva y reintenta una vez
+      if (r.ok) { player.dirty = false; savePlayer(); return 'ok'; }
+      if (r.status === 401 || r.status === 403) {
+        // O el servidor ya tiene un récord igual o mayor (no hay nada que reintentar) o las reglas de Firebase no permiten guardar.
+        const g = await http(`${DB}/scores/${player.id}.json`); const v = g.ok ? await g.json() : null;
+        if (v && typeof v.s === 'number' && v.s >= player.best) { player.dirty = false; savePlayer(); return 'ok'; }
+        return 'denied';
+      }
       return 'error';
     } catch (e) { return 'error'; }
   }
@@ -830,8 +908,55 @@
     big.classList.remove('tick'); void big.offsetWidth; big.classList.add('tick');
   }
 
+  /* ---------- inicio de sesión ---------- */
+  let authMode = 'in';                                             // 'in' = entrar · 'up' = crear cuenta
+  function renderMenu() {
+    const logged = AUTH && !!session;
+    $('authForm').hidden = !AUTH || logged;
+    $('userBox').hidden = !logged; $('logout').hidden = !logged;
+    nameInput.hidden = AUTH; $('play').hidden = AUTH && !logged;
+    if (logged) $('hello').textContent = '¡Hola, ' + (player.name || session.name) + '! 👋';
+    $('bestMenu').textContent = player.best ? `Tu mejor puntaje: ${player.best}` : '';
+  }
+  function setAuthMode(m) {
+    authMode = m; $('tabIn').classList.toggle('on', m === 'in'); $('tabUp').classList.toggle('on', m === 'up');
+    $('authGo').textContent = m === 'in' ? 'Entrar' : 'Crear cuenta'; $('authMsg').textContent = '';
+    $('pass').autocomplete = m === 'in' ? 'current-password' : 'new-password';
+  }
+  async function loadMine() {                                      // tu mejor puntaje guardado en la nube (para cuando entras desde otro celular)
+    try {
+      const r = await http(`${DB}/scores/${player.id}.json`);
+      const v = r.ok ? await r.json() : null;
+      if (v && typeof v.s === 'number' && v.s > player.best) { player.best = v.s; savePlayer(); }
+      if (v && typeof v.n === 'string' && v.n) { player.name = v.n; savePlayer(); }
+    } catch (e) {}
+    leaderBest = Math.max(leaderBest, player.best); renderMenu(); renderScores(); setInitial();
+  }
+  function logout() {
+    session = null; saveSession(); player = { id: '', name: '', best: 0, dirty: false }; savePlayer();
+    leaderBest = 0; setInitial(); renderScores(); renderMenu(); fetchLeader();
+  }
+  async function submitAuth(e) {
+    e.preventDefault();
+    const name = cleanName($('acct').value), pass = $('pass').value, msg = $('authMsg'), key = acctKey(name);
+    msg.textContent = '';
+    if (name.length < 3 || key.length < 3) { msg.textContent = 'El nombre debe tener al menos 3 letras o números.'; $('acct').focus(); return; }
+    if (pass.length < 6) { msg.textContent = 'La contraseña debe tener al menos 6 caracteres.'; $('pass').focus(); return; }
+    const go = $('authGo'); go.disabled = true; const label = go.textContent; go.textContent = 'Un momento…';
+    try {
+      const j = await authCall(authMode === 'up' ? 'signUp' : 'signInWithPassword', key + MAIL, pass);
+      session = { uid: j.localId, name, key, id: j.idToken, refresh: j.refreshToken, exp: Date.now() + (+j.expiresIn || 3600) * 1000 };
+      saveSession();
+      player = { id: j.localId, name, best: 0, dirty: false }; savePlayer();
+      $('pass').value = ''; $('acct').value = '';
+      setInitial(); renderMenu(); await loadMine(); fetchLeader();
+    } catch (err) { msg.textContent = authErr(err.message); }
+    finally { go.disabled = false; go.textContent = authMode === 'in' ? 'Entrar' : 'Crear cuenta'; }
+  }
+
   function startCountdown() {
-    const name = cleanName(nameInput.value);
+    if (AUTH && !session) { renderMenu(); return; }
+    const name = AUTH ? (player.name || session.name) : cleanName(nameInput.value);
     if (!name) {
       nameInput.classList.remove('shake'); void nameInput.offsetWidth; nameInput.classList.add('shake');
       nameInput.focus(); return;
@@ -919,6 +1044,7 @@
     const res = await syncBest();
     if (state !== 'over') return;                                  // ya empezó otra partida
     if (res === 'error') { st.className = 'status err'; st.textContent = 'No se pudo guardar. Se reintentará solo.'; return; }
+    if (res === 'denied') { st.className = 'status err'; st.textContent = 'Firebase no permitió guardar el puntaje (revisa las reglas de la base de datos).'; return; }
     st.textContent = res === 'local' ? 'Puntaje guardado en este dispositivo.' : '✅ Puntaje guardado en los marcadores';
     fetchLeader();
     if (res === 'ok' && ONLINE) {
@@ -936,11 +1062,15 @@
     target.style.visibility = 'hidden'; paddle.style.visibility = 'hidden'; duck.style.visibility = 'hidden';
     $('bubble').classList.remove('on'); big.textContent = ''; clearFx();
     setEnd(false); document.body.classList.remove('hell'); document.body.style.backgroundColor = ''; setTheme('#fff7c2'); unlockScreen();
-    hits = 0; elapsed = 0; duckLook(); renderScores(); fetchLeader();
-    $('bestMenu').textContent = player.best ? `Tu mejor puntaje: ${player.best}` : '';
+    hits = 0; elapsed = 0; duckLook(); renderScores(); fetchLeader(); renderMenu();
     show('menu');
   }
 
+  $('authForm').addEventListener('submit', submitAuth);
+  $('tabIn').addEventListener('click', () => setAuthMode('in'));
+  $('tabUp').addEventListener('click', () => setAuthMode('up'));
+  $('eye').addEventListener('click', () => { const p = $('pass'); const show = p.type === 'password'; p.type = show ? 'text' : 'password'; $('eye').textContent = show ? '🙈' : '👁'; });
+  $('logout').addEventListener('click', logout);
   $('play').addEventListener('click', startCountdown);
   $('again').addEventListener('click', startCountdown);
   $('close').addEventListener('click', backToMenu);
@@ -972,10 +1102,11 @@
     .forEach(f => { new Image().src = ART + f + '.png'; });           // precarga para que no haya parpadeos
   buildDuck();
   nameInput.value = player.name;
-  measure(); layout(); setInitial(); duckLook();
+  measure(); layout(); setInitial(); duckLook(); renderMenu();
   leaderBest = player.best; renderScores();
   target.style.visibility = 'hidden';
   $('bestMenu').textContent = player.best ? `Tu mejor puntaje: ${player.best}` : '';
+  if (AUTH && session) loadMine();                                    // trae tu mejor puntaje guardado en la cuenta
   if (player.dirty) syncBest().then(fetchLeader); else fetchLeader();   // reintenta un puntaje pendiente
 })();
 </script>
