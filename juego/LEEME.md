@@ -25,6 +25,19 @@ Firebase Realtime Database (gratis, aguanta miles de jugadores) y toma unos 5 mi
   Se puede borrar o restablecer una cuenta a mano en Firebase → Authentication → Usuarios.
 - Si `FIREBASE_API_KEY` queda vacía, el juego funciona en modo local (solo pide un nombre, sin contraseña y sin cuentas).
 
+## Monedas y tienda
+
+- **1 rebote = 1 moneda**: una partida de 86 rebotes da 86 🪙. Las monedas se suman a la cuenta al terminar cada partida.
+- En la **Tienda** (desde el menú o al terminar una partida) se compran **fondos**, **barras** y **billetes**. Lo comprado queda en la cuenta
+  y viaja con ella a cualquier celular. Fondos premium: Atardecer y Cristal (difuminados), Aurora boreal, Galaxia, Holográfico y Synthwave (animados).
+- Las monedas ganadas sin conexión quedan pendientes y se suben solas al volver internet.
+- El catálogo y los precios están en `tienda.js`. Si cambias algo, ejecuta `node juego/herramientas/generar-reglas.js`
+  (regenera `firebase-rules.json`, porque las reglas también validan los precios) y vuelve a pegar las reglas en Firebase → Realtime Database → Reglas → Publicar.
+- Las reglas de Firebase solo dejan a cada cuenta ver y cambiar **su propia** cartera, impiden gastar más de lo ganado, impiden «comprar» sin pagar
+  el precio y impiden llevar puesto algo que no se compró. Límite: nada impide que alguien con conocimientos técnicos se «regale» monedas
+  (hasta 500 por escritura) desde su propia cuenta; son solo adornos, no hay dinero real.
+- Sin cuentas (modo local) las monedas y compras quedan solo en ese celular.
+
 ## Qué hace el marcador
 
 - Cada cuenta guarda **solo su mejor puntaje** (si rebota más veces, se actualiza; si rebota menos, no baja). El puntaje son los rebotes: cada vez que la barra toca el billete suma uno. Gana quien más rebotes aguante contra el Tío Pato.
