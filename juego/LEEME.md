@@ -1,6 +1,6 @@
 # Gánale al Tío Pato · cómo activar los marcadores compartidos
 
-Sin configurar nada, el juego funciona, pero cada persona solo ve su propio mejor tiempo (se guarda en su teléfono).
+Sin configurar nada, el juego funciona, pero cada persona solo ve su propio mejor puntaje (se guarda en su teléfono).
 Para que **todos los jugadores compitan en un mismo marcador**, el juego necesita una base de datos en línea. Se usa
 Firebase Realtime Database (gratis, aguanta miles de jugadores) y toma unos 5 minutos:
 
@@ -14,14 +14,28 @@ Firebase Realtime Database (gratis, aguanta miles de jugadores) y toma unos 5 mi
 
 ## Qué hace el marcador
 
-- Cada dispositivo tiene un identificador propio y guarda **solo su mejor tiempo** (si aguanta más, se actualiza; si aguanta menos, no baja). Gana quien aguante más tiempo contra el Tío Pato.
-- Muestra el Top 100 ordenado por tiempo (en empate, quien llegó primero). El tiempo se guarda en décimas de segundo.
-- Las reglas de `firebase-rules.json` solo permiten guardar nombres de 1 a 16 caracteres, tiempos enteros de 0 a 100000 décimas de segundo
-  (unas 2,7 horas) y que un tiempo nunca baje.
+- Cada dispositivo tiene un identificador propio y guarda **solo su mejor puntaje** (si rebota más veces, se actualiza; si rebota menos, no baja). El puntaje son los rebotes: cada vez que la barra toca el billete suma uno. Gana quien más rebotes aguante contra el Tío Pato.
+- Muestra el Top 100 ordenado por rebotes (en empate, quien llegó primero).
+- Las reglas de `firebase-rules.json` solo permiten guardar nombres de 1 a 16 caracteres, puntajes enteros de 0 a 100000
+  y que un puntaje nunca baje.
 
 ## Límites que conviene saber
 
 - Es un juego sin cuentas: como cualquier marcador abierto en una página web, una persona con conocimientos técnicos
-  podría enviar un tiempo falso (hasta el máximo permitido por las reglas). Para un juego entre conocidos o un evento es suficiente.
+  podría enviar un puntaje falso (hasta el máximo permitido por las reglas). Para un juego entre conocidos o un evento es suficiente.
 - El plan gratuito (Spark) de Firebase alcanza de sobra para 1.000+ jugadores: cada partida son unos pocos bytes y el
   marcador se descarga solo mientras alguien lo tiene abierto.
+
+## El arte del Tío Pato
+
+Las imágenes están en la carpeta `pato/` (capas PNG transparentes del mismo tamaño: 4 caras, alas de ángel y de diablo,
+aureola, cuernos, tridente y cola). El juego las superpone y las anima según los rebotes:
+
+- **0–29 rebotes:** ángel amistoso, con aureola y alas, frases cariñosas.
+- **30–54:** sigue siendo ángel, pero desafiante.
+- **55–69:** se enoja de forma progresiva (se pone rojo, tiembla, la aureola parpadea).
+- **70–79:** se transforma: las alas y la aureola se desvanecen y aparecen cuernos, alas de murciélago, cola y tridente.
+- **80+:** diablo con ojos y aura de fuego.
+
+La barra empieza grande y se achica hasta el 30% mientras el billete acelera. Los valores de dificultad están al inicio
+del código de `index.html` (`SPEED0`, `SPEED_STEP`, `SPEED_MAX`, `SHRINK_RATE`, `P_CHALLENGE`, `P_ANGRY`, `P_DEVIL`).
