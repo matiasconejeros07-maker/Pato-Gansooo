@@ -1,0 +1,41 @@
+# Gánale al Tío Pato · cómo activar los marcadores compartidos
+
+Sin configurar nada, el juego funciona, pero cada persona solo ve su propio mejor puntaje (se guarda en su teléfono).
+Para que **todos los jugadores compitan en un mismo marcador**, el juego necesita una base de datos en línea. Se usa
+Firebase Realtime Database (gratis, aguanta miles de jugadores) y toma unos 5 minutos:
+
+1. Entra a https://console.firebase.google.com con tu cuenta de Google y crea un proyecto (puedes desactivar Analytics).
+2. En el menú **Build → Realtime Database** aprieta **Create Database**, elige cualquier región y el modo **bloqueado** (locked mode).
+3. Abre la pestaña **Rules**, borra lo que hay, pega el contenido de `firebase-rules.json` (está en esta carpeta) y aprieta **Publish**.
+4. Copia la dirección que aparece arriba en la pestaña **Data**, parecida a `https://mi-proyecto-default-rtdb.firebaseio.com`.
+5. Abre `config.js`, pégala dentro de las comillas y guarda:
+   `window.DINERO_DB_URL = 'https://mi-proyecto-default-rtdb.firebaseio.com';`
+6. Sube el cambio al repositorio. Listo: el marcador muestra el Top 100 y se actualiza solo.
+
+## Qué hace el marcador
+
+- Cada dispositivo tiene un identificador propio y guarda **solo su mejor puntaje** (si rebota más veces, se actualiza; si rebota menos, no baja). El puntaje son los rebotes: cada vez que la barra toca el billete suma uno. Gana quien más rebotes aguante contra el Tío Pato.
+- Muestra el Top 100 ordenado por rebotes (en empate, quien llegó primero).
+- Las reglas de `firebase-rules.json` solo permiten guardar nombres de 1 a 16 caracteres, puntajes enteros de 0 a 100000
+  y que un puntaje nunca baje.
+
+## Límites que conviene saber
+
+- Es un juego sin cuentas: como cualquier marcador abierto en una página web, una persona con conocimientos técnicos
+  podría enviar un puntaje falso (hasta el máximo permitido por las reglas). Para un juego entre conocidos o un evento es suficiente.
+- El plan gratuito (Spark) de Firebase alcanza de sobra para 1.000+ jugadores: cada partida son unos pocos bytes y el
+  marcador se descarga solo mientras alguien lo tiene abierto.
+
+## El arte del Tío Pato
+
+Las imágenes están en la carpeta `pato/` (capas PNG transparentes del mismo tamaño: 4 caras, alas de ángel y de diablo,
+aureola, cuernos, tridente y cola). El juego las superpone y las anima según los rebotes:
+
+- **0–29 rebotes:** ángel amistoso, con aureola y alas, frases cariñosas.
+- **30–54:** sigue siendo ángel, pero desafiante.
+- **55 en adelante:** en cuanto se enoja pierde la aureola y las alas de ángel y pasa a su piel de diablo: cuernos, alas de
+  murciélago, cola y tridente rojo. Desde ahí se enoja de forma progresiva (más rojo, más temblor y vapor) y, desde el 58,
+  aparece el aura de fuego, que crece hasta el rebote 80. El fondo pasa a rojo infierno.
+
+La barra empieza grande y se achica hasta el 30% mientras el billete acelera. Los valores de dificultad están al inicio
+del código de `index.html` (`SPEED0`, `SPEED_STEP`, `SPEED_MAX`, `SHRINK_RATE`, `P_CHALLENGE`, `P_ANGRY`).
