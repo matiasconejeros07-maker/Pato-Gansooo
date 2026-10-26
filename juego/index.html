@@ -143,7 +143,6 @@
     transition: height .08s, margin-top .08s;
   }
   #paddle.hit { height: calc(11px * var(--k, 1)); margin-top: calc(3px * var(--k, 1)); }
-  body.hell #paddle { background: #1a0505; box-shadow: 0 0 14px rgba(255, 90, 30, .85), 0 5px 12px rgba(0,0,0,.35); }
 
   .pop {
     position: absolute; z-index: 4; font-weight: 800; font-size: 22px; color: #6d6a3d;
@@ -271,13 +270,117 @@
   @keyframes turn { 0%, 30% { transform: rotate(-90deg); } 60%, 100% { transform: rotate(0); } }
   @media (orientation: landscape) and (max-height: 520px) { #rotate { display: flex; } #rotate[hidden] { display: flex; } }
 
+
+  /* ---------- fondos premium: degradados difuminados, holográficos y animados ---------- */
+  #app { z-index: 1; }
+  .bgx { position: absolute; inset: 0; overflow: hidden; background: var(--b, #fff6c0); }
+  .bgx i { position: absolute; display: block; border-radius: 50%; pointer-events: none; will-change: transform; }
+  #theme { position: fixed; z-index: 0; display: none; }
+  body.themed #theme, body.themed #hellfx { display: block; }
+  body.end #theme, body.end #hellfx { display: none; }
+  /* cuando el Pato se vuelve diablo, el infierno tiñe también los fondos premium */
+  #hellfx { position: fixed; inset: 0; z-index: 0; display: none; pointer-events: none; opacity: 0; transition: opacity 1.4s;
+    background: radial-gradient(130% 90% at 50% 105%, rgba(255,90,20,.72), rgba(160,10,20,.62) 45%, rgba(30,0,6,.82) 100%); }
+  body.hell #hellfx { opacity: 1; }
+  body.dark #close svg { stroke: #fff; }
+  body.dark .num { color: rgba(255,255,255,.8); }
+  body.dark { --ghost: rgba(255,255,255,.12); }
+  body.dark .pop { color: #fff; }
+  body.themed:not(.dark):not(.hell) .num { color: rgba(30,30,60,.55); }
+  body.themed:not(.dark):not(.hell) { --ghost: rgba(30,30,60,.09); }
+  @keyframes drift1 { to { transform: translate(7%, -7%) scale(1.08); } }
+  @keyframes drift2 { to { transform: translate(18%, 14%) scale(1.15); } }
+  @keyframes drift3 { to { transform: translate(-16%, -12%) scale(1.1); } }
+  @keyframes sheen { from { transform: translateX(-55%); } to { transform: translateX(55%); } }
+  @keyframes holoShift { to { background-position: 400% 50%; } }
+  @keyframes glare { 0%, 100% { transform: translateX(-38%) rotate(-20deg); } 50% { transform: translateX(38%) rotate(-20deg); } }
+  @keyframes twinkle { from { opacity: .55; } to { opacity: 1; } }
+  @keyframes gridMove { to { background-position: 0 38px, 0 0; } }
+
+  .bgx[data-bg="atardecer"] { --b: #ffb199; background: linear-gradient(180deg, #ffe6b8 0%, #ffbf9b 32%, #ff8fb6 62%, #8c7dff 100%); }
+  .bgx[data-bg="atardecer"] i:nth-child(1) { width: 78%; aspect-ratio: 1; left: 11%; bottom: 8%; background: radial-gradient(circle, #fffbe4 0%, #ffe09a 42%, rgba(255,196,120,0) 70%); filter: blur(8px); animation: drift1 16s ease-in-out infinite alternate; }
+  .bgx[data-bg="atardecer"] i:nth-child(2) { width: 70%; aspect-ratio: 1; left: -22%; top: -6%; background: #ff9ccf; filter: blur(60px); opacity: .7; animation: drift2 18s ease-in-out infinite alternate; }
+  .bgx[data-bg="atardecer"] i:nth-child(3) { width: 80%; aspect-ratio: 1; right: -30%; bottom: -10%; background: #7a6bff; filter: blur(70px); opacity: .75; animation: drift3 20s ease-in-out infinite alternate; }
+
+  .bgx[data-bg="cristal"] { --b: #dcecff; background: linear-gradient(160deg, #f1f8ff 0%, #d6e9ff 45%, #e6ddff 100%); }
+  .bgx[data-bg="cristal"] i:nth-child(1) { width: 70%; aspect-ratio: 1; left: -15%; top: 4%; background: #9fd6ff; filter: blur(55px); opacity: .65; animation: drift2 17s ease-in-out infinite alternate; }
+  .bgx[data-bg="cristal"] i:nth-child(2) { width: 75%; aspect-ratio: 1; right: -25%; top: 38%; background: #c9b8ff; filter: blur(60px); opacity: .6; animation: drift3 19s ease-in-out infinite alternate; }
+  .bgx[data-bg="cristal"] i:nth-child(3) { width: 60%; aspect-ratio: 1; left: 15%; bottom: -8%; background: #fff; filter: blur(40px); opacity: .9; animation: drift1 15s ease-in-out infinite alternate; }
+  .bgx[data-bg="cristal"]::after { content: ""; position: absolute; inset: -20%; pointer-events: none; background: linear-gradient(115deg, rgba(255,255,255,0) 32%, rgba(255,255,255,.6) 46%, rgba(255,255,255,0) 60%); animation: sheen 9s linear infinite alternate; }
+
+  .bgx[data-bg="aurora"] { --b: #0b1b34; background: linear-gradient(180deg, #050c1c 0%, #0a1a33 55%, #0c2447 100%); }
+  .bgx[data-bg="aurora"] i:nth-child(1) { width: 90%; aspect-ratio: 1; left: -30%; top: -10%; background: #22d3b0; filter: blur(70px); opacity: .55; animation: drift2 16s ease-in-out infinite alternate; }
+  .bgx[data-bg="aurora"] i:nth-child(2) { width: 80%; aspect-ratio: 1; right: -30%; top: 12%; background: #8b5cf6; filter: blur(75px); opacity: .6; animation: drift3 19s ease-in-out infinite alternate; }
+  .bgx[data-bg="aurora"] i:nth-child(3) { width: 90%; aspect-ratio: 1; left: 0; bottom: -30%; background: #f472b6; filter: blur(80px); opacity: .45; animation: drift1 21s ease-in-out infinite alternate; }
+  .bgx[data-bg="aurora"]::after { content: ""; position: absolute; inset: -10% -30%; pointer-events: none; filter: blur(26px); background: linear-gradient(100deg, transparent 20%, rgba(80,255,200,.2) 40%, rgba(160,120,255,.22) 60%, transparent 80%); animation: sheen 12s ease-in-out infinite alternate; }
+
+  .bgx[data-bg="galaxia"] { --b: #0a0a1f; background: radial-gradient(ellipse 80% 55% at 25% 18%, rgba(120,60,200,.75), transparent 70%), radial-gradient(ellipse 70% 50% at 85% 72%, rgba(20,100,200,.6), transparent 70%), radial-gradient(ellipse 60% 40% at 40% 95%, rgba(220,60,160,.4), transparent 70%), #070716; }
+  .bgx[data-bg="galaxia"] i:nth-child(1) { width: 90%; aspect-ratio: 1; left: -20%; top: 28%; background: #7c3aed; filter: blur(80px); opacity: .32; animation: drift1 22s ease-in-out infinite alternate; }
+  .bgx[data-bg="galaxia"] i:nth-child(2) { width: 70%; aspect-ratio: 1; right: -25%; top: -5%; background: #ec4899; filter: blur(80px); opacity: .25; animation: drift3 24s ease-in-out infinite alternate; }
+  .bgx[data-bg="galaxia"] i:nth-child(3) { width: 60%; aspect-ratio: 1; left: 20%; bottom: -15%; background: #3b82f6; filter: blur(70px); opacity: .3; animation: drift2 26s ease-in-out infinite alternate; }
+  .bgx[data-bg="galaxia"]::before { content: ""; position: absolute; inset: 0; pointer-events: none; animation: twinkle 3.5s ease-in-out infinite alternate;
+    background-image: radial-gradient(1.4px 1.4px at 12% 14%, #fff, transparent), radial-gradient(1px 1px at 28% 32%, #cfe4ff, transparent), radial-gradient(1.6px 1.6px at 44% 9%, #fff, transparent), radial-gradient(1px 1px at 63% 21%, #ffd9ff, transparent), radial-gradient(1.4px 1.4px at 82% 12%, #fff, transparent), radial-gradient(1px 1px at 91% 38%, #cfe4ff, transparent), radial-gradient(1.5px 1.5px at 8% 47%, #fff, transparent), radial-gradient(1px 1px at 36% 58%, #fff, transparent), radial-gradient(1.4px 1.4px at 57% 44%, #ffd9ff, transparent), radial-gradient(1px 1px at 76% 61%, #fff, transparent), radial-gradient(1.5px 1.5px at 94% 72%, #cfe4ff, transparent), radial-gradient(1px 1px at 17% 78%, #fff, transparent), radial-gradient(1.4px 1.4px at 48% 84%, #fff, transparent), radial-gradient(1px 1px at 69% 91%, #ffd9ff, transparent), radial-gradient(1.5px 1.5px at 88% 93%, #fff, transparent), radial-gradient(1px 1px at 4% 92%, #cfe4ff, transparent); }
+
+  .bgx[data-bg="holo"] { --b: #e9c8ff; background: linear-gradient(120deg, #ffb8e8, #ffe3b8, #fbffb8, #b8ffdc, #b8e8ff, #d4b8ff, #ffb8e8); background-size: 400% 400%; animation: holoShift 14s linear infinite; }
+  .bgx[data-bg="holo"] i:nth-child(1) { width: 170%; height: 38%; left: -35%; top: 22%; border-radius: 0; background: linear-gradient(100deg, transparent, rgba(255,255,255,.8) 50%, transparent); filter: blur(14px); animation: glare 7s ease-in-out infinite; }
+  .bgx[data-bg="holo"] i:nth-child(2) { width: 70%; aspect-ratio: 1; left: -10%; bottom: -6%; background: rgba(255,255,255,.55); filter: blur(50px); animation: drift1 16s ease-in-out infinite alternate; }
+  .bgx[data-bg="holo"] i:nth-child(3) { width: 60%; aspect-ratio: 1; right: -20%; top: -4%; background: rgba(120,200,255,.5); filter: blur(60px); animation: drift3 18s ease-in-out infinite alternate; }
+
+  .bgx[data-bg="synth"] { --b: #3d0a6b; background: linear-gradient(180deg, #14052e 0%, #3a0b6e 40%, #c8208a 68%, #ff8a3d 82%, #2a0840 82.1%, #12031f 100%); }
+  .bgx[data-bg="synth"] i:nth-child(1) { width: 56%; aspect-ratio: 1; left: 22%; bottom: 18%; background: linear-gradient(180deg, #fff27a, #ff9a3c 45%, #ff2e97); filter: drop-shadow(0 0 24px rgba(255,80,160,.8));
+    -webkit-mask-image: repeating-linear-gradient(180deg, #000 0 11px, transparent 11px 15px); mask-image: repeating-linear-gradient(180deg, #000 0 11px, transparent 11px 15px); }
+  .bgx[data-bg="synth"] i:nth-child(2) { left: -50%; right: -50%; bottom: -22%; height: 40%; border-radius: 0; transform-origin: top; transform: perspective(260px) rotateX(58deg);
+    background: linear-gradient(rgba(255,78,205,.9) 1.5px, transparent 1.5px) 0 0 / 100% 38px, linear-gradient(90deg, rgba(255,78,205,.9) 1.5px, transparent 1.5px) 0 0 / 54px 100%; animation: gridMove 2.4s linear infinite; }
+  .bgx[data-bg="synth"] i:nth-child(3) { left: 0; right: 0; bottom: 16%; height: 5%; border-radius: 0; background: linear-gradient(transparent, rgba(255,140,210,.65), transparent); filter: blur(7px); }
+
+  /* ---------- skins de la barra ---------- */
+  #paddle.p-dorada, .pvbar.p-dorada { background: linear-gradient(180deg, #fff3b0, #f6c84c 45%, #b9831b); box-shadow: 0 0 12px rgba(246,200,76,.7), 0 5px 10px rgba(120,80,0,.35); }
+  #paddle.p-fuego, .pvbar.p-fuego { background: linear-gradient(180deg, #ffe36a, #ff8a1f 50%, #d4200c); box-shadow: 0 0 14px rgba(255,100,20,.85), 0 5px 10px rgba(120,20,0,.4); }
+  #paddle.p-cristal, .pvbar.p-cristal { background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(185,222,255,.5)); border: 1px solid rgba(255,255,255,.95); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); box-shadow: inset 0 1px 0 #fff, 0 6px 14px rgba(70,130,220,.4); }
+  #paddle.p-neon, .pvbar.p-neon { background: linear-gradient(90deg, #00f0ff, #7a5cff); box-shadow: 0 0 8px #00f0ff, 0 0 22px rgba(0,240,255,.75), 0 0 40px rgba(122,92,255,.45); }
+  #paddle.p-holo, .pvbar.p-holo { background: linear-gradient(110deg, #ff9ad5, #ffe39a, #9affc1, #9ad5ff, #c29aff, #ff9ad5); background-size: 300% 100%; animation: holoBar 3s linear infinite; box-shadow: 0 0 14px rgba(190,150,255,.8), 0 5px 10px rgba(80,40,140,.3); }
+  @keyframes holoBar { to { background-position: 300% 0; } }
+  body.dark #paddle.p-clasica { background: #f4f4ff; box-shadow: 0 0 14px rgba(255,255,255,.6), 0 5px 12px rgba(0,0,0,.35); }
+  body.hell #paddle.p-clasica { background: #1a0505; box-shadow: 0 0 14px rgba(255, 90, 30, .85), 0 5px 12px rgba(0,0,0,.35); }
+
+  /* ---------- monedas y tienda ---------- */
+  .coins { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; font-size: 18px; background: #fff; border: 2px solid #111; padding: 5px 14px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+  .coins[hidden] { display: none; }
+  .coinsline { font-size: 22px; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,.3); }
+  #shop { justify-content: flex-start; gap: 8px; overflow: hidden; }
+  #shop::before, #shop::after { display: none; }
+  .shophead { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: min(100%, 460px); }
+  .shophead h1 { font-size: 26px; margin: 0; }
+  #shop .seg { width: min(100%, 460px); }
+  #shopGrid { width: min(100%, 460px); flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-content: start; padding: 4px 3px 10px; }
+  .item { background: #fffdf0; border: 1px solid var(--line); border-radius: 18px; padding: 10px; display: flex; flex-direction: column; gap: 6px; text-align: left; }
+  .item.on { border-color: #111; box-shadow: 0 0 0 2px #111; }
+  .item .pv { position: relative; height: 96px; border-radius: 12px; overflow: hidden; display: grid; place-items: center; }
+  .item .pv:not(.bgx) { background: #f3efc8; }
+  .item .pv.bgx { position: relative; inset: auto; }
+  .item .pvbar { width: 72%; height: 14px; border-radius: 999px; background: #111; box-shadow: 0 4px 8px rgba(0,0,0,.2); }
+  .item .pv .em { font-size: 48px; line-height: 1; animation: spin 2.4s linear infinite; filter: drop-shadow(0 4px 4px rgba(0,0,0,.18)); }
+  .item .nm { font-weight: 800; font-size: 15px; line-height: 1.15; }
+  .item .nt { font-size: 12px; color: #8a8658; min-height: 2.3em; line-height: 1.2; }
+  .item button { border: 0; border-radius: 999px; font: inherit; font-weight: 800; font-size: 14px; padding: 9px 10px; cursor: pointer; background: #111; color: #fff; }
+  .item button.eq { background: transparent; color: #111; border: 2px solid #111; padding: 7px 10px; }
+  .item button.cur { background: #e8e4b8; color: #6b6840; cursor: default; }
+  .item button.lock { background: #ffd84a; color: #111; }
+  .item button.lock.no { background: #eee9c3; color: #8a8658; }
+  #shopMsg { min-height: 1.3em; max-width: 36ch; }
+  #shopMsg.ok { color: var(--win, #2f8f4e); }
+  #shopBack { margin-top: 2px; }
+
   @media (prefers-reduced-motion: reduce) {
+    .bgx, .bgx i, .bgx::before, .bgx::after, #paddle, .item .pv .em { animation: none !important; }
     #duck .wl, #duck .wr, #duck .halo, #duck .trident, #duck .tail, #duck.mad .rig, #steam, #target span, .hero, .rain span, #rotate .ico { animation: none; }
     #arena.jolt { animation: none; }
   }
 </style>
 </head>
 <body>
+<div id="theme" class="bgx" data-bg="clasico" aria-hidden="true"><i></i><i></i><i></i></div>
+<div id="hellfx" aria-hidden="true"></div>
 <div id="app">
   <header>
     <button id="close" aria-label="Salir">
@@ -312,9 +415,11 @@
         <button class="btn" id="authGo" type="submit">Entrar</button>
       </form>
       <div id="userBox" hidden><div class="hello" id="hello"></div></div>
+      <div class="coins" id="coinChip" hidden>🪙 <span id="coinNum">0</span></div>
       <!-- sin cuentas (modo local): solo el nombre -->
       <input id="name" type="text" maxlength="16" placeholder="Tu nombre" autocomplete="off" autocapitalize="words" spellcheck="false" aria-label="Tu nombre">
       <button class="btn" id="play">Jugar</button>
+      <button class="btn ghost" id="openShop">🛍️ Tienda</button>
       <button class="btn ghost" id="openBoard">🏆 Marcadores</button>
       <button class="btn ghost" id="install" hidden>📲 Instalar app</button>
       <div class="best" id="bestMenu"></div>
@@ -328,11 +433,22 @@
       <div class="verdict">Ganó el Tío Pato</div>
       <div class="final"><span id="finalScore">0</span> <small id="finalLabel">rebotes</small></div>
       <div class="sub" id="finalSub"></div>
+      <div class="coinsline" id="coinsLine"></div>
       <div class="status" id="saveStatus"></div>
       <div class="best" id="bestResult"></div>
       <button class="btn" id="again"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Jugar de nuevo</button>
+      <button class="btn ghost" id="openShop2">🛍️ Gastar mis monedas</button>
       <button class="btn ghost" id="openBoard2">🏆 Ver marcadores</button>
       <button class="link" id="backResult">Volver</button>
+    </section>
+
+    <!-- tienda -->
+    <section class="screen" id="shop">
+      <div class="shophead"><h1>🛍️ Tienda</h1><div class="coins">🪙 <span id="shopBal">0</span></div></div>
+      <div class="seg" role="tablist"><button type="button" id="tabBg" class="on">Fondos</button><button type="button" id="tabPad">Barras</button><button type="button" id="tabBall">Billetes</button></div>
+      <div class="status" id="shopMsg" role="status"></div>
+      <div id="shopGrid"></div>
+      <button class="btn ghost" id="shopBack">Volver</button>
     </section>
 
     <!-- marcadores -->
@@ -356,6 +472,7 @@
 </div>
 
 <script src="config.js"></script>
+<script src="tienda.js"></script>
 <script>
 (() => {
   // Medidas de referencia (celular de 390×790 útiles). Todo se escala con K para que el juego se vea igual en cualquier celular.
@@ -389,7 +506,7 @@
   const app = $('app'), arena = $('arena'), target = $('target'), big = $('big'), paddle = $('paddle'), duck = $('duck'), rig = $('rig');
   const meNum = $('meNum'), botNum = $('botNum'), meAv = $('meAv'), botAv = $('botAv');
   const nameInput = $('name');
-  const screens = { menu: $('menu'), result: $('result'), board: $('board') };
+  const screens = { menu: $('menu'), result: $('result'), board: $('board'), shop: $('shop') };
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
   let state = 'menu';            // menu | countdown | play | over
@@ -694,7 +811,7 @@
 
   function openBoard(from) {
     boardFrom = from; delete $('list').dataset.scrolled;
-    setEnd(false); document.body.classList.remove('hell'); document.body.style.backgroundColor = PALETTE[0]; setTheme(PALETTE[0]);
+    setEnd(false); setThemeActive(false); document.body.classList.remove('hell', 'dark'); document.body.style.backgroundColor = PALETTE[0]; setTheme(PALETTE[0]);
     boardLimit = 100; show('board'); refreshBoard();
     clearInterval(boardTimer); boardTimer = setInterval(refreshBoard, REFRESH_MS);
   }
@@ -714,9 +831,14 @@
     botAv.classList.toggle('lead', !beating);
   }
   function setBg() {
+    const hell = hits >= P_ANGRY;
+    document.body.classList.toggle('hell', hell);
+    if (themeActive && themePremium) {                             // fondo premium: lo pinta #theme; el infierno lo tiñe de rojo
+      const base = hell ? '#2a0508' : ((itemOf('bg', wallet.eq.bg) || {}).base || PALETTE[0]);
+      document.body.style.backgroundColor = base; setTheme(base); return;
+    }
     const c = PALETTE[Math.min(Math.floor((hits + 5) / 10), PALETTE.length - 1)];
     document.body.style.backgroundColor = c; setTheme(c);
-    document.body.classList.toggle('hell', hits >= P_ANGRY);
   }
   function setEnd(on) { document.body.classList.toggle('end', on); if (on) setTheme('#8e2bea'); }
   function bump(el) { el.classList.add('bump'); setTimeout(() => el.classList.remove('bump'), 140); }
@@ -908,6 +1030,141 @@
     big.classList.remove('tick'); void big.offsetWidth; big.classList.add('tick');
   }
 
+  /* ---------- monedas, tienda y cosméticos (1 rebote = 1 moneda) ---------- */
+  const CAT = window.TIENDA || { bg: [{ id: 'clasico', n: 'Clásico', price: 0 }], pad: [{ id: 'clasica', n: 'Clásica', price: 0 }], ball: [{ id: 'billete', n: 'Billete volador', price: 0, e: '💸' }] };
+  const DEF = { bg: CAT.bg[0].id, pad: CAT.pad[0].id, ball: CAT.ball[0].id };
+  const themeEl = $('theme');
+  // wallet: c = monedas ganadas (en la nube) · sp = gastadas · pend = ganadas que aún no se suben (partidas sin conexión) · own = compras · eq = lo que llevas puesto
+  let wallet = { c: 0, sp: 0, pend: 0, own: {}, eq: { ...DEF } };
+  const WKEY = () => 'gana-al-tio-pato-monedas-' + (AUTH && session ? session.uid : 'local');
+  const itemOf = (cat, id) => CAT[cat].find(i => i.id === id);
+  const owns = (cat, id) => { const it = itemOf(cat, id); return !!it && (it.price === 0 || wallet.own[cat + '_' + id] === true); };
+  const balance = () => Math.max(0, wallet.c + wallet.pend - wallet.sp);
+  function loadWallet() {
+    wallet = { c: 0, sp: 0, pend: 0, own: {}, eq: { ...DEF } };
+    try {
+      const w = JSON.parse(localStorage.getItem(WKEY()) || 'null');
+      if (w) { wallet.c = +w.c || 0; wallet.sp = +w.sp || 0; wallet.pend = +w.pend || 0; wallet.own = w.own || {}; wallet.eq = { ...DEF, ...(w.eq || {}) }; }
+    } catch (e) {}
+    for (const k in DEF) if (!itemOf(k, wallet.eq[k])) wallet.eq[k] = DEF[k];
+  }
+  const saveWallet = () => { try { localStorage.setItem(WKEY(), JSON.stringify(wallet)); } catch (e) {} };
+  const wurl = async () => `${DB}/wallets/${session.uid}.json?auth=${encodeURIComponent(await idToken())}`;
+  const JSONH = { 'Content-Type': 'application/json' };
+  async function pullWallet() {                                    // trae tus monedas y compras de la nube
+    if (!AUTH || !session) return;
+    try {
+      const r = await http(await wurl());
+      if (!r.ok) return;
+      const v = await r.json();
+      if (v) { wallet.c = +v.c || 0; wallet.sp = +v.sp || 0; wallet.own = v.own || {}; if (v.eq) wallet.eq = { ...DEF, ...v.eq }; }
+      for (const k in DEF) if (!itemOf(k, wallet.eq[k]) || !owns(k, wallet.eq[k])) wallet.eq[k] = DEF[k];
+      saveWallet();
+    } catch (e) {}
+  }
+  let pushing = null;
+  function pushWallet() {                                          // sube las monedas pendientes (Firebase acepta hasta 500 por escritura)
+    if (pushing) return pushing;
+    pushing = (async () => {
+      if (!wallet.pend) return 'ok';
+      if (!AUTH) { wallet.c += wallet.pend; wallet.pend = 0; saveWallet(); return 'ok'; }
+      if (!session) return 'error';
+      try {
+        while (wallet.pend > 0) {
+          const n = Math.min(wallet.pend, 500);
+          const r = await http(await wurl(), { method: 'PATCH', headers: JSONH, body: JSON.stringify({ c: { '.sv': { increment: n } }, sp: { '.sv': { increment: 0 } } }) });
+          if (!r.ok) return r.status === 401 || r.status === 403 ? 'denied' : 'error';
+          wallet.pend -= n; saveWallet();
+        }
+        await pullWallet(); return 'ok';
+      } catch (e) { return 'error'; }
+    })().finally(() => { pushing = null; });
+    return pushing;
+  }
+  function renderCoins() {
+    const b = balance().toLocaleString('es');
+    $('coinNum').textContent = b; $('shopBal').textContent = b;
+  }
+
+  /* aplica lo que llevas puesto: fondo, barra y billete */
+  let themeActive = false, themePremium = false, themeDark = false;
+  function syncTheme() {
+    document.body.classList.toggle('themed', themeActive && themePremium);
+    document.body.classList.toggle('dark', themeActive && themePremium && themeDark);
+  }
+  function setThemeActive(on) { themeActive = on; syncTheme(); }      // el fondo premium solo se ve mientras juegas
+  function applyCosmetics() {
+    const bg = itemOf('bg', wallet.eq.bg) || CAT.bg[0], ball = itemOf('ball', wallet.eq.ball) || CAT.ball[0];
+    themePremium = bg.id !== DEF.bg; themeDark = !!bg.dark; themeEl.dataset.bg = bg.id;
+    paddle.className = (paddle.className.replace(/\bp-\S+/g, '') + ' p-' + wallet.eq.pad).trim();
+    target.firstElementChild.textContent = ball.e || '💸';
+    syncTheme(); renderCoins();
+  }
+
+  /* tienda */
+  let shopTab = 'bg', shopFrom = 'menu', shopBusy = false;
+  function shopMsg(t, ok) { const m = $('shopMsg'); m.textContent = t || ''; m.className = 'status' + (ok ? ' ok' : t ? ' err' : ''); }
+  function renderShop() {
+    renderCoins();
+    for (const [id, k] of [['tabBg', 'bg'], ['tabPad', 'pad'], ['tabBall', 'ball']]) $(id).classList.toggle('on', shopTab === k);
+    const grid = $('shopGrid'); grid.textContent = '';
+    for (const it of CAT[shopTab]) {
+      const card = document.createElement('div'); card.className = 'item' + (wallet.eq[shopTab] === it.id ? ' on' : '');
+      const pv = document.createElement('div');
+      if (shopTab === 'bg') {
+        pv.className = 'pv bgx'; pv.dataset.bg = it.id; pv.innerHTML = '<i></i><i></i><i></i>';
+        if (it.id === DEF.bg) pv.style.background = 'linear-gradient(135deg, #fff6c0 0%, #ffb978 35%, #f478fd 65%, #c2312f 100%)';
+      } else if (shopTab === 'pad') {
+        pv.className = 'pv'; const b = document.createElement('div'); b.className = 'pvbar p-' + it.id; pv.appendChild(b);
+      } else {
+        pv.className = 'pv'; const e = document.createElement('span'); e.className = 'em'; e.textContent = it.e; pv.appendChild(e);
+      }
+      const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = it.n;
+      const nt = document.createElement('div'); nt.className = 'nt'; nt.textContent = it.note || (it.price ? '' : 'Incluido');
+      const btn = document.createElement('button'); btn.type = 'button';
+      if (wallet.eq[shopTab] === it.id) { btn.className = 'cur'; btn.textContent = 'Equipado ✓'; btn.disabled = true; }
+      else if (owns(shopTab, it.id)) { btn.className = 'eq'; btn.textContent = 'Equipar'; btn.onclick = () => equip(shopTab, it.id); }
+      else { btn.className = 'lock' + (balance() < it.price ? ' no' : ''); btn.textContent = `🪙 ${it.price.toLocaleString('es')}`; btn.onclick = () => buyItem(shopTab, it); }
+      card.append(pv, nm, nt, btn); grid.appendChild(card);
+    }
+  }
+  async function equip(cat, id) {
+    if (!owns(cat, id)) return;
+    wallet.eq[cat] = id; saveWallet(); applyCosmetics(); renderShop();
+    if (AUTH && session) { try { await http(await wurl(), { method: 'PATCH', headers: JSONH, body: JSON.stringify({ eq: wallet.eq }) }); } catch (e) {} }
+  }
+  async function buyItem(cat, it) {
+    if (shopBusy) return; shopBusy = true; shopMsg('');
+    try {
+      if (AUTH) {
+        if (!session) return;
+        const p = await pushWallet();                              // primero sube tus monedas ganadas
+        if (p !== 'ok') { shopMsg(p === 'denied' ? 'Firebase no permitió sincronizar tus monedas (revisa las reglas de la base de datos).' : 'No se pudo sincronizar tus monedas. Revisa tu conexión.'); return; }
+      }
+      if (balance() < it.price) { shopMsg(`Te faltan ${(it.price - balance()).toLocaleString('es')} 🪙 para «${it.n}». ¡Sigue jugando!`); return; }
+      if (AUTH) {
+        const body = { sp: { '.sv': { increment: it.price } } }; body['own/' + cat + '_' + it.id] = true;     // la compra es atómica: gasta y entrega a la vez
+        const r = await http(await wurl(), { method: 'PATCH', headers: JSONH, body: JSON.stringify(body) });
+        if (!r.ok) { shopMsg(r.status === 401 || r.status === 403 ? 'Firebase no permitió la compra (revisa que las reglas estén publicadas).' : 'No se pudo comprar. Inténtalo de nuevo.'); return; }
+        await pullWallet();
+      } else { wallet.sp += it.price; wallet.own[cat + '_' + it.id] = true; saveWallet(); }
+      await equip(cat, it.id);
+      shopMsg(`¡Compraste «${it.n}»! Ya lo llevas puesto ✨`, true);
+    } catch (e) { shopMsg('No se pudo comprar. Revisa tu conexión.'); }
+    finally { shopBusy = false; renderShop(); }
+  }
+  function openShop(from) {
+    shopFrom = from; clearInterval(boardTimer); boardTimer = null; shopMsg('');
+    setEnd(false); setThemeActive(false); document.body.classList.remove('hell', 'dark'); document.body.style.backgroundColor = PALETTE[0]; setTheme(PALETTE[0]);
+    show('shop'); renderShop();
+    if (AUTH && session) pullWallet().then(() => { applyCosmetics(); renderShop(); });
+  }
+  function closeShop() { if (shopFrom === 'result') { setEnd(true); show('result'); } else { setTheme('#fff7c2'); document.body.style.backgroundColor = ''; show('menu'); renderMenu(); } }
+  function countUp(el, n, fmt) {
+    const t0 = performance.now(), dur = Math.min(1100, 300 + n * 8);
+    (function tick(now) { const k = clamp((now - t0) / dur, 0, 1); el.textContent = fmt(Math.round(n * (1 - Math.pow(1 - k, 3)))); if (k < 1 && state === 'over') requestAnimationFrame(tick); })(t0);
+  }
+
   /* ---------- inicio de sesión ---------- */
   let authMode = 'in';                                             // 'in' = entrar · 'up' = crear cuenta
   function renderMenu() {
@@ -916,6 +1173,7 @@
     $('userBox').hidden = !logged; $('logout').hidden = !logged;
     nameInput.hidden = AUTH; $('play').hidden = AUTH && !logged;
     if (logged) $('hello').textContent = '¡Hola, ' + (player.name || session.name) + '! 👋';
+    $('coinChip').hidden = AUTH && !logged; $('openShop').hidden = AUTH && !logged; renderCoins();
     $('bestMenu').textContent = player.best ? `Tu mejor puntaje: ${player.best}` : '';
   }
   function setAuthMode(m) {
@@ -934,7 +1192,7 @@
   }
   function logout() {
     session = null; saveSession(); player = { id: '', name: '', best: 0, dirty: false }; savePlayer();
-    leaderBest = 0; setInitial(); renderScores(); renderMenu(); fetchLeader();
+    leaderBest = 0; loadWallet(); applyCosmetics(); setInitial(); renderScores(); renderMenu(); fetchLeader();
   }
   async function submitAuth(e) {
     e.preventDefault();
@@ -949,6 +1207,7 @@
       saveSession();
       player = { id: j.localId, name, best: 0, dirty: false }; savePlayer();
       $('pass').value = ''; $('acct').value = '';
+      loadWallet(); applyCosmetics(); await pullWallet(); applyCosmetics();
       setInitial(); renderMenu(); await loadMine(); fetchLeader();
     } catch (err) { msg.textContent = authErr(err.message); }
     finally { go.disabled = false; go.textContent = authMode === 'in' ? 'Entrar' : 'Crear cuenta'; }
@@ -966,7 +1225,7 @@
 
     measure();
     hits = 0; elapsed = 0; keyDir = 0; dragX = null; lastFace = -1;
-    clearFx(); $('rain').textContent = ''; setEnd(false); setBg();
+    clearFx(); $('rain').textContent = ''; setEnd(false); setThemeActive(true); applyCosmetics(); setBg();
     layout(); duckX = duckShow = W / 2; px = W / 2;
     state = 'countdown'; renderScores(); show(null); lockScreen();
     target.style.visibility = 'hidden';
@@ -1013,7 +1272,7 @@
     const rain = $('rain'); rain.textContent = '';
     for (let i = 0; i < 38; i++) {
       const sp = document.createElement('span');
-      sp.textContent = devil && i % 3 === 0 ? '🔥' : '💸';
+      sp.textContent = devil && i % 3 === 0 ? '🔥' : i % 2 ? '🪙' : '💸';
       sp.style.left = (Math.random() * 96) + '%';
       sp.style.fontSize = (22 + Math.random() * 28) + 'px';
       sp.style.animationDuration = (3.5 + Math.random() * 3.5) + 's';
@@ -1033,7 +1292,12 @@
     $('finalLabel').textContent = hits === 1 ? 'rebote' : 'rebotes';
     $('finalSub').textContent = `Aguantaste ${fmtClock(elapsed)} · el Tío Pato llegó a ${phaseName()}`;
     $('bestResult').textContent = record ? '🎉 ¡Nuevo récord personal!' : `Tu mejor puntaje: ${player.best}`;
-    renderScores(); setHero(); makeRain(hits >= P_DEVIL); setEnd(true); document.body.classList.remove('hell');
+    renderScores(); setHero(); makeRain(hits >= P_DEVIL); setEnd(true); setThemeActive(false); document.body.classList.remove('hell', 'dark');
+    // 1 rebote = 1 moneda: las monedas se suman a tu cuenta (y se suben a la nube si hay conexión)
+    if (hits > 0) { wallet.pend += hits; saveWallet(); }
+    const cl = $('coinsLine'); cl.textContent = hits > 0 ? '' : 'Sin monedas esta vez. ¡Rebota más!';
+    if (hits > 0) countUp(cl, hits, n => `+${n.toLocaleString('es')} 🪙`);
+    pushWallet().then(() => { renderCoins(); if (hits > 0 && state === 'over') cl.textContent = `+${hits.toLocaleString('es')} 🪙 · ahora tienes ${balance().toLocaleString('es')}`; });
     tone(300, .35, 'sawtooth', .1, 120);
     show('result');
 
@@ -1061,7 +1325,7 @@
     state = 'menu';
     target.style.visibility = 'hidden'; paddle.style.visibility = 'hidden'; duck.style.visibility = 'hidden';
     $('bubble').classList.remove('on'); big.textContent = ''; clearFx();
-    setEnd(false); document.body.classList.remove('hell'); document.body.style.backgroundColor = ''; setTheme('#fff7c2'); unlockScreen();
+    setEnd(false); setThemeActive(false); document.body.classList.remove('hell', 'dark'); document.body.style.backgroundColor = ''; setTheme('#fff7c2'); unlockScreen();
     hits = 0; elapsed = 0; duckLook(); renderScores(); fetchLeader(); renderMenu();
     show('menu');
   }
@@ -1071,6 +1335,12 @@
   $('tabUp').addEventListener('click', () => setAuthMode('up'));
   $('eye').addEventListener('click', () => { const p = $('pass'); const show = p.type === 'password'; p.type = show ? 'text' : 'password'; $('eye').textContent = show ? '🙈' : '👁'; });
   $('logout').addEventListener('click', logout);
+  $('openShop').addEventListener('click', () => openShop('menu'));
+  $('openShop2').addEventListener('click', () => openShop('result'));
+  $('shopBack').addEventListener('click', closeShop);
+  $('tabBg').addEventListener('click', () => { shopTab = 'bg'; renderShop(); });
+  $('tabPad').addEventListener('click', () => { shopTab = 'pad'; renderShop(); });
+  $('tabBall').addEventListener('click', () => { shopTab = 'ball'; renderShop(); });
   $('play').addEventListener('click', startCountdown);
   $('again').addEventListener('click', startCountdown);
   $('close').addEventListener('click', backToMenu);
@@ -1102,11 +1372,13 @@
     .forEach(f => { new Image().src = ART + f + '.png'; });           // precarga para que no haya parpadeos
   buildDuck();
   nameInput.value = player.name;
+  loadWallet(); applyCosmetics();
   measure(); layout(); setInitial(); duckLook(); renderMenu();
   leaderBest = player.best; renderScores();
   target.style.visibility = 'hidden';
   $('bestMenu').textContent = player.best ? `Tu mejor puntaje: ${player.best}` : '';
-  if (AUTH && session) loadMine();                                    // trae tu mejor puntaje guardado en la cuenta
+  if (AUTH && session) { loadMine(); pullWallet().then(() => { applyCosmetics(); renderMenu(); return pushWallet(); }).then(renderCoins); }   // trae tu puntaje y tus monedas; sube las pendientes
+  else if (!AUTH) pushWallet();
   if (player.dirty) syncBest().then(fetchLeader); else fetchLeader();   // reintenta un puntaje pendiente
 })();
 </script>

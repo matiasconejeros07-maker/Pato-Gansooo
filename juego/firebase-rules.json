@@ -4,15 +4,107 @@
     ".write": false,
     "scores": {
       ".read": true,
-      ".indexOn": ["s"],
+      ".indexOn": [
+        "s"
+      ],
       "$uid": {
         ".write": "auth != null && auth.uid === $uid && (!data.exists() || newData.child('s').val() >= data.child('s').val())",
         ".validate": "newData.hasChildren(['n', 'k', 's', 't']) && auth.token.email === newData.child('k').val() + '@tio-pato.invalid'",
-        "n": { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 16" },
-        "k": { ".validate": "newData.isString() && newData.val().matches(/^[a-z0-9.]{3,24}$/)" },
-        "s": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000 && newData.val() % 1 === 0" },
-        "t": { ".validate": "newData.val() === now" },
-        "$other": { ".validate": false }
+        "n": {
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 16"
+        },
+        "k": {
+          ".validate": "newData.isString() && newData.val().matches(/^[a-z0-9.]{3,24}$/)"
+        },
+        "s": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000 && newData.val() % 1 === 0"
+        },
+        "t": {
+          ".validate": "newData.val() === now"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "wallets": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['c', 'sp']) && newData.child('sp').val() <= newData.child('c').val()",
+        "c": {
+          ".validate": "newData.isNumber() && newData.val() % 1 === 0 && newData.val() >= 0 && newData.val() <= 10000000 && (!data.exists() ? newData.val() <= 500 : (newData.val() >= data.val() && newData.val() - data.val() <= 500))"
+        },
+        "sp": {
+          ".validate": "newData.isNumber() && newData.val() % 1 === 0 && newData.val() >= 0 && (!data.exists() || newData.val() >= data.val())"
+        },
+        "own": {
+          "bg_atardecer": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 100)"
+          },
+          "bg_cristal": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 120)"
+          },
+          "bg_aurora": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 200)"
+          },
+          "bg_galaxia": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 300)"
+          },
+          "bg_holo": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 350)"
+          },
+          "bg_synth": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 450)"
+          },
+          "pad_dorada": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 120)"
+          },
+          "pad_fuego": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 180)"
+          },
+          "pad_cristal": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 200)"
+          },
+          "pad_neon": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 250)"
+          },
+          "pad_holo": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 400)"
+          },
+          "ball_moneda": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 80)"
+          },
+          "ball_estrella": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 120)"
+          },
+          "ball_diamante": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 200)"
+          },
+          "ball_esfera": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 260)"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "eq": {
+          "bg": {
+            ".validate": "newData.isString() && (newData.val() === 'clasico' || newData.parent().parent().child('own').child('bg_' + newData.val()).val() === true)"
+          },
+          "pad": {
+            ".validate": "newData.isString() && (newData.val() === 'clasica' || newData.parent().parent().child('own').child('pad_' + newData.val()).val() === true)"
+          },
+          "ball": {
+            ".validate": "newData.isString() && (newData.val() === 'billete' || newData.parent().parent().child('own').child('ball_' + newData.val()).val() === true)"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
       }
     }
   }
