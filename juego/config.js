@@ -9,6 +9,6 @@ window.DINERO_DB_URL = 'https://juegotiopato-default-rtdb.firebaseio.com';
 // Mientras esté vacía, el juego funciona en modo local: solo pide un nombre y no hay contraseña.
 window.FIREBASE_API_KEY = 'AIzaSyDbiWooHuwa40mR0-XBsf7hwc6Mdu0HeMQ';
 
-// Carpeta con el arte del Tío Pato (ángel con alas y aureola → diablo con cuernos, tridente y fuego).
-// Si queda vacía, el juego usa un emoji.
+// Interruptor del arte de los personajes (cada uno tiene su carpeta en tienda.js: pato/, patita/).
+// Déjalo con cualquier valor para usar las imágenes; si queda vacío, el juego usa un emoji.
 window.PATO_DIR = 'pato/';

@@ -9,6 +9,7 @@ Firebase Realtime Database (gratis, aguanta miles de jugadores) y toma unos 5 mi
 3. En **Compilación → Authentication** aprieta **Comenzar**, abre **Método de acceso**, elige **Correo electrónico/contraseña**,
    actívalo (solo la primera opción) y guarda. Es lo que permite las cuentas con nombre y contraseña.
 4. En Realtime Database, pestaña **Reglas**: borra lo que hay, pega el contenido de `firebase-rules.json` (está en esta carpeta) y aprieta **Publicar**.
+   **Importante:** hay que volver a pegar y publicar las reglas cada vez que se actualiza el juego con reglas nuevas (esta versión las cambió: partidas verificadas, personajes, pelotas).
 5. En **Configuración del proyecto** (el engranaje ⚙ de la izquierda) → pestaña **General**, copia la **Clave de API web**.
 6. Abre `config.js` y completa las dos líneas (la dirección de la base de datos está en la pestaña **Datos**):
    `window.DINERO_DB_URL = 'https://mi-proyecto-default-rtdb.firebaseio.com';`
@@ -25,43 +26,61 @@ Firebase Realtime Database (gratis, aguanta miles de jugadores) y toma unos 5 mi
   Se puede borrar o restablecer una cuenta a mano en Firebase → Authentication → Usuarios.
 - Si `FIREBASE_API_KEY` queda vacía, el juego funciona en modo local (solo pide un nombre, sin contraseña y sin cuentas).
 
-## Monedas y tienda
+## Pesos y tienda
 
-- **1 rebote = 1 moneda**: una partida de 86 rebotes da 86 🪙. Las monedas se suman a la cuenta al terminar cada partida.
-- En la **Tienda** (desde el menú o al terminar una partida) se compran **fondos**, **barras** y **billetes**. Lo comprado queda en la cuenta
-  y viaja con ella a cualquier celular. Fondos premium: Atardecer y Cristal (difuminados), Aurora boreal, Galaxia, Holográfico y Synthwave (animados).
-- Las monedas ganadas sin conexión quedan pendientes y se suben solas al volver internet.
+- **Cada rebote vale dinero:** del rebote 1 al 99 vale **$1**, del 100 al 199 vale **$2**, del 200 al 299 **$3**, y así sigue. Una partida de 86 rebotes da $86;
+  una de 120 da $141 (99 × $1 + 21 × $2). Al llegar al rebote 100 aparece el aviso animado **«¡Monedas dobles! ×2»** (×3 en el 200…) y una insignia ×N junto al marcador.
+- **Dificultad:** hasta el rebote 99 el juego es ágil pero amable (la pelota acelera poco y la barra se achica poco). Desde el 100 sube de verdad:
+  la pelota acelera mucho más rápido y la barra se achica hasta el 28%. Los valores están al inicio del código de `index.html` (`SPEED0`, `STEP_LO`, `STEP_HI`, `SPEED_MAX`, `SHRINK_LO`, `SHRINK_HI`).
+- **Los golpes del personaje son aleatorios:** cada vez que te devuelve la pelota la manda en una dirección al azar (de casi vertical a muy abierta).
+- En la **Tienda** (desde el menú o al terminar una partida) hay cuatro pestañas. Lo comprado queda en la cuenta y viaja con ella a cualquier celular:
+  - **Personajes:** Tío Pato (incluido) y Tía Patita ($500). Los dos empiezan de ángel y se vuelven demonio igual.
+  - **Fondos:** Atardecer, Cristal, Aurora boreal, Galaxia, Holográfico y Synthwave (difuminados y animados).
+  - **Barras:** Oro líquido, Llamarada, Cristal, Neón, Galaxia, Arcoíris y Holográfica; cada una con su color, brillo, partículas y un anillo de luz en cada rebote.
+  - **Pelotas:** empiezas con la **moneda de $1** (que gira y brilla). Se compran las monedas de $10, $50, $100 y $500 y los billetes de $1.000, $2.000, $5.000, $10.000 y $20.000 (que revolotean). Precio = su valor en pesos.
+- Sin cuentas (modo local) los pesos y compras quedan solo en ese celular.
 - El catálogo y los precios están en `tienda.js`. Si cambias algo, ejecuta `node juego/herramientas/generar-reglas.js`
-  (regenera `firebase-rules.json`, porque las reglas también validan los precios) y vuelve a pegar las reglas en Firebase → Realtime Database → Reglas → Publicar.
-- Las reglas de Firebase solo dejan a cada cuenta ver y cambiar **su propia** cartera, impiden gastar más de lo ganado, impiden «comprar» sin pagar
-  el precio y impiden llevar puesto algo que no se compró. Límite: nada impide que alguien con conocimientos técnicos se «regale» monedas
-  (hasta 500 por escritura) desde su propia cuenta; son solo adornos, no hay dinero real.
-- Sin cuentas (modo local) las monedas y compras quedan solo en ese celular.
+  (regenera `firebase-rules.json`, porque las reglas también validan precios y pesos) y vuelve a pegar las reglas en Firebase → Realtime Database → Reglas → Publicar.
+
+### Cambiar las imágenes de las pelotas
+Están en `skins/` (WebP con fondo transparente). `peso1`, `b1000`, `b10000` y `b20000` son las reales; **`peso10`, `peso50`, `peso100`, `peso500`, `b2000` y `b5000` son provisorias**.
+Para reemplazarlas basta con guardar la imagen nueva con el mismo nombre (monedas cuadradas de ~256 px, billetes de ~420 px de ancho) y subir el número de `VERSION` en `sw.js`
+para que los celulares descarguen lo nuevo. Los ajustes de cada pelota (animación `flip`/`flutter`, tamaño y color de la estela) están en `tienda.js`.
+
+## Anti-trampas: cómo se protege el juego
+
+Todo juego que corre en el teléfono puede ser manipulado por alguien con conocimientos, así que la protección está en **Firebase**, que es lo único que el jugador no controla.
+Las reglas de `firebase-rules.json` hacen esto:
+
+- **Partidas verificadas:** al empezar, el juego anota en Firebase la hora de inicio **del servidor**; al terminar, Firebase pone la hora de fin y solo acepta la partida si los rebotes caben
+  en el tiempo transcurrido (mínimo 0,45 s por rebote, más 3 s de margen) y con un máximo de 500 rebotes. **Los pesos de la partida los calculan las reglas** (no el jugador).
+- **Cobro único:** los pesos y el marcador se escriben en una sola operación atómica y cada partida se cobra una sola vez. No hay forma de escribir «mi saldo es 99999», de subir el
+  puntaje por su cuenta, de repetir una partida ya cobrada ni de borrar lo gastado.
+- **Compras:** cada artículo exige haber gastado su precio exacto y solo se puede llevar puesto lo que se compró.
+- Cada cuenta solo lee y escribe **lo suyo**; no se puede tocar la cartera ni el puntaje de otra persona.
+- Sin conexión no hay partida verificada: se puede jugar, pero esa partida no suma pesos ni marcador. Si se corta internet justo al terminar, la partida queda guardada y se cobra sola al volver la conexión.
+
+**Límite honesto:** un tramposo con un programa (un «bot») que de verdad espere el tiempo real sí puede enviar partidas de pocos o muchos rebotes, porque desde el servidor no se puede saber
+si los rebotes los dio una persona. Lo máximo que logra es ganar a un ritmo acotado (como mucho unos $1.500 por partida de ~4 minutos); no puede inventar cifras ni gastar de más.
+Para un juego entre conocidos o un evento es más que suficiente. Si algún día necesitas más: (1) **Firebase App Check** con reCAPTCHA (gratis) bloquea la mayoría de los bots y las copias
+modificadas del juego; (2) **Cloud Functions** (plan Blaze) permiten registrar los movimientos de la partida y repetirla en el servidor para validarla.
 
 ## Qué hace el marcador
 
-- Cada cuenta guarda **solo su mejor puntaje** (si rebota más veces, se actualiza; si rebota menos, no baja). El puntaje son los rebotes: cada vez que la barra toca el billete suma uno. Gana quien más rebotes aguante contra el Tío Pato.
+- Cada cuenta guarda **solo su mejor puntaje** (si rebota más veces, se actualiza; si rebota menos, no baja). El puntaje son los rebotes: cada vez que la barra toca la pelota suma uno.
+  Gana quien más rebotes aguante contra el personaje. Se guarda junto con los pesos al terminar cada partida.
 - Muestra el Top 100 ordenado por rebotes (en empate, quien llegó primero).
-- Las reglas de `firebase-rules.json` solo dejan que cada cuenta escriba **su propio** registro (con su sesión iniciada), con nombres de 1 a 16
-  caracteres, puntajes enteros de 0 a 100000 y sin que un puntaje baje.
+- El plan gratuito (Spark) de Firebase alcanza de sobra para 1.000+ jugadores: cada partida son unos pocos bytes y el marcador se descarga solo mientras alguien lo tiene abierto.
 
-## Límites que conviene saber
+## El arte de los personajes
 
-- Las cuentas impiden que alguien escriba en el registro de otra persona, pero no pueden impedir que alguien con conocimientos técnicos
-  envíe un puntaje falso desde su propia cuenta (hasta el máximo permitido por las reglas). Para un juego entre conocidos o un evento es suficiente.
-- El plan gratuito (Spark) de Firebase alcanza de sobra para 1.000+ jugadores: cada partida son unos pocos bytes y el
-  marcador se descarga solo mientras alguien lo tiene abierto.
-
-## El arte del Tío Pato
-
-Las imágenes están en la carpeta `pato/` (capas PNG transparentes del mismo tamaño: 4 caras, alas de ángel y de diablo,
-aureola, cuernos, tridente y cola). El juego las superpone y las anima según los rebotes:
+Cada personaje tiene su carpeta (`pato/`, `patita/`) con capas PNG transparentes del mismo tamaño: 4 caras, alas de ángel y de diablo, aureola, cuernos, tridente, cola y 3 retratos (`hero_*`).
+El juego las superpone y las anima según los rebotes:
 
 - **0–29 rebotes:** ángel amistoso, con aureola y alas, frases cariñosas.
 - **30–54:** sigue siendo ángel, pero desafiante.
-- **55 en adelante:** en cuanto se enoja pierde la aureola y las alas de ángel y pasa a su piel de diablo: cuernos, alas de
-  murciélago, cola y tridente rojo. Desde ahí se enoja de forma progresiva (más rojo, más temblor y vapor) y, desde el 58,
-  aparece el aura de fuego, que crece hasta el rebote 80. El fondo pasa a rojo infierno.
+- **55 en adelante:** en cuanto se enoja pierde la aureola y las alas de ángel y pasa a su piel de diablo: cuernos, alas de murciélago, cola y tridente rojo. Desde ahí se enoja de forma
+  progresiva (más rojo, más temblor y vapor) y, desde el 58, aparece el aura de fuego, que crece hasta el rebote 80. El fondo pasa a rojo infierno.
 
-La barra empieza grande y se achica hasta el 30% mientras el billete acelera. Los valores de dificultad están al inicio
-del código de `index.html` (`SPEED0`, `SPEED_STEP`, `SPEED_MAX`, `SHRINK_RATE`, `P_CHALLENGE`, `P_ANGRY`).
+Para agregar otro personaje: crea su carpeta con las mismas capas y añade una entrada en `ch` dentro de `tienda.js` (con los puntos de giro de alas, tridente y cola en `css`),
+vuelve a generar las reglas y agrega la carpeta a la lista de `sw.js`.
