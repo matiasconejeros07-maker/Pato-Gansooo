@@ -33,9 +33,9 @@ aureola, cuernos, tridente y cola). El juego las superpone y las anima según lo
 
 - **0–29 rebotes:** ángel amistoso, con aureola y alas, frases cariñosas.
 - **30–54:** sigue siendo ángel, pero desafiante.
-- **55–69:** se enoja de forma progresiva (se pone rojo, tiembla, la aureola parpadea).
-- **70–79:** se transforma: las alas y la aureola se desvanecen y aparecen cuernos, alas de murciélago, cola y tridente.
-- **80+:** diablo con ojos y aura de fuego.
+- **55 en adelante:** en cuanto se enoja pierde la aureola y las alas de ángel y pasa a su piel de diablo: cuernos, alas de
+  murciélago, cola y tridente rojo. Desde ahí se enoja de forma progresiva (más rojo, más temblor y vapor) y, desde el 58,
+  aparece el aura de fuego, que crece hasta el rebote 80. El fondo pasa a rojo infierno.
 
 La barra empieza grande y se achica hasta el 30% mientras el billete acelera. Los valores de dificultad están al inicio
-del código de `index.html` (`SPEED0`, `SPEED_STEP`, `SPEED_MAX`, `SHRINK_RATE`, `P_CHALLENGE`, `P_ANGRY`, `P_DEVIL`).
+del código de `index.html` (`SPEED0`, `SPEED_STEP`, `SPEED_MAX`, `SHRINK_RATE`, `P_CHALLENGE`, `P_ANGRY`).

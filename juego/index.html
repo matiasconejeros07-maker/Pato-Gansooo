@@ -4,6 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Gánale al Tío Pato</title>
+<meta name="description" content="Rebota el billete contra el Tío Pato: empieza como un ángel amistoso y termina convertido en diablo. Juega en línea o instálalo en tu celular.">
+<meta name="theme-color" content="#fff7c2" id="themeColor">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tío Pato">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
   :root {
     --bg: #fff7c2;
@@ -20,7 +31,7 @@
     transition: background-color .9s ease;
     font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     overflow: hidden; overscroll-behavior: none;
-    -webkit-user-select: none; user-select: none; touch-action: manipulation;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation;
   }
   #app { position: fixed; inset: 0; display: flex; flex-direction: column; }
   body.end { background: linear-gradient(180deg, #7b3ff2 0%, #b21ee0 55%, #e0149f 100%); transition: none; }
@@ -28,50 +39,50 @@
   body.end .num, body.hell .num { color: rgba(255,255,255,.78); }
   body.hell { --ghost: rgba(255,255,255,.12); }
 
-  /* ---------- barra superior ---------- */
+  /* ---------- franja de puntajes: compacta y encima del juego, para que el Pato quede en lo más alto ---------- */
   header {
-    position: relative; z-index: 3;
-    display: flex; align-items: center; justify-content: center; gap: 14px;
-    padding: calc(env(safe-area-inset-top) + 28px) 16px 0;
-    height: calc(env(safe-area-inset-top) + 110px);
+    position: absolute; left: 0; right: 0; top: 0; z-index: 3; pointer-events: none;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    padding: calc(env(safe-area-inset-top) + 20px) 16px 0;
+    height: calc(env(safe-area-inset-top) + 66px);
   }
   #close {
-    position: absolute; left: 20px; top: calc(env(safe-area-inset-top) + 34px);
-    width: 40px; height: 40px; border: 0; background: none; cursor: pointer; padding: 8px;
+    position: absolute; left: max(10px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 16px); pointer-events: auto;
+    width: 40px; height: 40px; border: 0; background: none; cursor: pointer; padding: 9px;
   }
   #close svg { width: 100%; height: 100%; stroke: var(--ink); stroke-width: 2.2; stroke-linecap: round; }
   .num {
-    min-width: 3ch; font-size: 28px; font-weight: 800; letter-spacing: .02em;
+    min-width: 3ch; font-size: 24px; font-weight: 800; letter-spacing: .02em;
     color: var(--score); font-variant-numeric: tabular-nums; text-align: center;
     transition: color .2s, transform .15s;
   }
   .num.bump { transform: scale(1.22); color: #6d6a3d; }
   .avatars { display: flex; position: relative; }
   .avatar {
-    position: relative; width: 52px; height: 52px; border-radius: 50%;
-    display: grid; place-items: center; font-size: 28px;
+    position: relative; width: 44px; height: 44px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 24px;
     border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.15);
   }
-  .avatar.me { background: radial-gradient(circle at 35% 30%, #4a4a4a, #151515); z-index: 1; color: #fff; font-weight: 800; font-size: 24px; }
-  .avatar.bot { background: radial-gradient(circle at 35% 30%, #e8e8e8, #8d8d8d); margin-left: -8px; overflow: visible; }
+  .avatar.me { background: radial-gradient(circle at 35% 30%, #4a4a4a, #151515); z-index: 1; color: #fff; font-weight: 800; font-size: 20px; }
+  .avatar.bot { background: radial-gradient(circle at 35% 30%, #e8e8e8, #8d8d8d); margin-left: -7px; overflow: visible; }
   .avatar.bot.pic { background: radial-gradient(circle at 50% 45%, #cfd3dc, #6f7380); }
   .avatar.bot #botFace { position: relative; display: block; width: 100%; height: 100%; border-radius: 50%; overflow: hidden; display: grid; place-items: center; }
-  .avatar.bot .ava { position: absolute; width: 167px; max-width: none; height: auto; left: -57px; top: -68px; pointer-events: none; }
+  .avatar.bot .ava { position: absolute; width: 142px; max-width: none; height: auto; left: -47px; top: -56px; pointer-events: none; }
   .avatar.bot .ava.horns { transition: opacity .5s; }
   .crown {
-    position: absolute; top: -24px; left: 50%; font-size: 30px; line-height: 1;
+    position: absolute; top: -20px; left: 50%; font-size: 25px; line-height: 1;
     transform: translateX(-50%) scale(0); transition: transform .25s cubic-bezier(.3,1.6,.5,1);
     pointer-events: none; z-index: 2;
   }
   .avatar.lead .crown { transform: translateX(-50%) scale(1); }
 
   /* ---------- zona de juego ---------- */
-  #arena { position: relative; flex: 1; z-index: 1; min-height: 0; touch-action: none; }
+  #arena { position: absolute; inset: 0; z-index: 1; touch-action: none; }
   #arena.jolt { animation: jolt .16s linear; }
   @keyframes jolt { 20% { transform: translate(4px, -3px); } 40% { transform: translate(-4px, 3px); } 60% { transform: translate(3px, 2px); } 80% { transform: translate(-2px, -2px); } }
   #big {
     position: absolute; inset: 0; display: grid; place-items: center;
-    font-size: min(46vw, 260px); font-weight: 400; color: var(--ghost);
+    font-size: min(46vw, 24vh, 260px); font-weight: 400; color: var(--ghost);
     pointer-events: none; z-index: 0; transform: translateY(-4%);
   }
   #big.tick { animation: tick .9s ease-out; }
@@ -80,7 +91,7 @@
 
   #target {
     position: absolute; left: 0; top: 0; z-index: 2;
-    font-size: 56px; line-height: 1; will-change: transform; pointer-events: none;
+    font-size: calc(56px * var(--k, 1)); line-height: 1; will-change: transform; pointer-events: none;
     filter: drop-shadow(0 5px 5px rgba(0,0,0,.14));
   }
   #target span { display: inline-block; animation: spin .75s linear infinite; }
@@ -88,7 +99,7 @@
 
   /* ----- El Tío Pato: ángel amistoso → desafiante → enojado → diablo -----
      Variables: --angel / --devil (0..1, qué capas se ven) · --anger (0..1) · --shake · --flap (velocidad de aleteo). */
-  #duck { position: absolute; left: 0; top: 0; z-index: 1; width: 141px; height: 170px; pointer-events: none; visibility: hidden; will-change: transform; --angel: 1; --devil: 0; --anger: 0; --shake: 0px; --flap: 1.5s; }
+  #duck { position: absolute; left: 0; top: var(--duck-top, 26px); z-index: 1; width: calc(141px * var(--k, 1)); height: calc(170px * var(--k, 1)); pointer-events: none; visibility: hidden; will-change: transform; --angel: 1; --devil: 0; --anger: 0; --shake: 0px; --flap: 1.5s; }
   #duck .rig { position: relative; width: 100%; height: 100%; }
   #duck.mad .rig { animation: fume .11s linear infinite; }
   #duck .ly { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; -webkit-user-drag: none; transition: opacity .6s; }
@@ -104,8 +115,8 @@
   #duck .trident { transform-origin: 63.5% 40%; animation: wave 1.6s ease-in-out infinite; filter: drop-shadow(0 0 6px rgba(255, 70, 20, .95)); }
   #duck .tail { transform-origin: 40% 76%; animation: sway .9s ease-in-out infinite; }
   #duck[data-face="3"] .f3 { filter: drop-shadow(0 0 9px rgba(255, 80, 20, .85)); }
-  #duckFace { display: grid; place-items: center; width: 100%; height: 100%; font-size: 52px; }
-  #steam { position: absolute; left: 58%; top: 22%; font-size: 26px; opacity: clamp(0, calc(var(--anger) * 2.2 - .1), 1); animation: puff .7s ease-in-out infinite; }
+  #duckFace { display: grid; place-items: center; width: 100%; height: 100%; font-size: calc(52px * var(--k, 1)); }
+  #steam { position: absolute; left: 58%; top: 22%; font-size: calc(26px * var(--k, 1)); opacity: clamp(0, calc(var(--anger) * 2.2 - .1), 1); animation: puff .7s ease-in-out infinite; }
   @keyframes flapL { 50% { transform: rotate(calc(8deg + var(--anger) * 6deg)); } }
   @keyframes flapR { 50% { transform: rotate(calc(-8deg - var(--anger) * 6deg)); } }
   @keyframes bob { 50% { transform: translateY(-4px); } }
@@ -117,21 +128,21 @@
   @keyframes puff { 50% { transform: scale(1.25) rotate(8deg); } }
   #duck .rig.swing { animation: swing .26s ease-out; }
   #bubble {
-    position: absolute; top: 100%; left: 50%; transform: translateX(calc(-50% + var(--bx, 0px))) scale(.85); transform-origin: top center;
-    white-space: nowrap; font-size: 14px; font-weight: 800; color: #111; background: #fff; padding: 6px 12px;
-    border-radius: 14px; box-shadow: 0 3px 10px rgba(0,0,0,.18); opacity: 0; transition: opacity .2s, transform .2s;
+    position: absolute; top: 100%; left: 50%; transform: translateX(calc(-50% + var(--bx, 0px))); scale: .85; transform-origin: top center;
+    white-space: nowrap; font-size: clamp(12px, 3.6vw, 14px); font-weight: 800; color: #111; background: #fff; padding: 6px 12px;
+    border-radius: 14px; box-shadow: 0 3px 10px rgba(0,0,0,.18); opacity: 0; transition: opacity .2s, scale .2s;
   }
   #bubble::before { content: ""; position: absolute; left: calc(50% - var(--bx, 0px)); top: -5px; width: 10px; height: 10px; background: #fff; transform: translateX(-50%) rotate(45deg); }
-  #bubble.on { opacity: 1; transform: translateX(calc(-50% + var(--bx, 0px))) scale(1); }
+  #bubble.on { opacity: 1; scale: 1; }
   body.hell #bubble { background: #2a0608; color: #ffb199; box-shadow: 0 0 14px rgba(255, 70, 20, .6); }
   body.hell #bubble::before { background: #2a0608; }
 
   #paddle {
-    position: absolute; left: 0; top: 0; height: 16px; border-radius: 999px; background: #111; z-index: 2;
+    position: absolute; left: 0; top: 0; height: calc(16px * var(--k, 1)); border-radius: 999px; background: #111; z-index: 2;
     visibility: hidden; will-change: transform; box-shadow: 0 5px 12px rgba(0,0,0,.22);
     transition: height .08s, margin-top .08s;
   }
-  #paddle.hit { height: 11px; margin-top: 3px; }
+  #paddle.hit { height: calc(11px * var(--k, 1)); margin-top: calc(3px * var(--k, 1)); }
   body.hell #paddle { background: #1a0505; box-shadow: 0 0 14px rgba(255, 90, 30, .85), 0 5px 12px rgba(0,0,0,.35); }
 
   .pop {
@@ -144,13 +155,16 @@
   /* ---------- pantallas (inicio / final / marcadores) ---------- */
   .screen {
     position: absolute; inset: 0; z-index: 5; display: none; flex-direction: column;
-    align-items: center; justify-content: center; gap: 10px; text-align: center; padding: 24px;
-    background: rgba(255, 247, 194, .96);
+    align-items: center; justify-content: center; gap: 10px; text-align: center;
+    padding: calc(env(safe-area-inset-top) + 60px) max(20px, env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 20px) max(20px, env(safe-area-inset-left));
+    background: rgba(255, 247, 194, .96); overflow-y: auto; -webkit-overflow-scrolling: touch;
   }
+  .screen > * { flex-shrink: 0; }
+  .screen::before, .screen::after { content: ""; margin: auto; }
   .screen.show { display: flex; }
   .screen h1 { margin: 0; font-size: 32px; font-weight: 800; line-height: 1.1; }
   .screen p { margin: 0; color: #6b6840; font-size: 16px; max-width: 30ch; line-height: 1.4; }
-  .hero { display: inline-block; height: 150px; animation: float 2.2s ease-in-out infinite; filter: drop-shadow(0 8px 8px rgba(0,0,0,.15)); }
+  .hero { display: inline-block; height: clamp(96px, 19vh, 150px); animation: float 2.2s ease-in-out infinite; filter: drop-shadow(0 8px 8px rgba(0,0,0,.15)); }
   .hero img { height: 100%; width: auto; display: block; }
   @keyframes float { 50% { transform: translateY(-10px) rotate(-2deg); } }
   .btn {
@@ -183,7 +197,7 @@
   .final { font-size: 72px; font-weight: 800; line-height: 1; text-shadow: 0 2px 12px rgba(0,0,0,.25); font-variant-numeric: tabular-nums; }
   .final small { font-size: 28px; font-weight: 800; }
   .sub { font-size: 15px; font-weight: 600; opacity: .95; text-shadow: 0 1px 6px rgba(60,0,90,.55); max-width: 32ch; }
-  #result .hero { height: 128px; animation: none; }
+  #result .hero { height: clamp(84px, 15vh, 128px); animation: none; }
   #result .btn { background: #111; width: min(100%, 340px); display: flex; align-items: center; justify-content: center; gap: 10px; }
   #result .btn.ghost { background: rgba(255,255,255,.14); color: #fff; border-color: rgba(255,255,255,.7); }
   #result .link { background: none; border: 0; color: #fff; font: inherit; font-size: 16px; font-weight: 600; padding: 10px; cursor: pointer; opacity: .9; }
@@ -193,7 +207,8 @@
   #result .status, #result .best, #result .link { text-shadow: 0 1px 6px rgba(60,0,90,.55); }
 
   /* ---------- marcadores ---------- */
-  #board { justify-content: flex-start; padding: 8px 16px 20px; gap: 8px; }
+  #board { justify-content: flex-start; gap: 8px; overflow: hidden; }
+  #board::before, #board::after { display: none; }
   #board h1 { font-size: 28px; margin-top: 4px; }
   .board-note { font-size: 13px; color: #8a8658; min-height: 1.2em; max-width: 38ch; }
   #list {
@@ -214,8 +229,36 @@
   #list .empty { display: block; text-align: center; color: #8a8658; padding: 28px 16px; }
   #backBoard { margin-top: 4px; }
 
+  /* celulares bajitos (iPhone SE, Android compactos) */
+  @media (max-height: 700px) {
+    .screen { gap: 6px; }
+    .screen h1 { font-size: 26px; }
+    .screen p { font-size: 14px; }
+    .btn { padding: 13px 38px; font-size: 17px; margin-top: 6px; }
+    .btn.ghost { padding: 10px 28px; }
+    .final { font-size: 58px; }
+    #name { padding: 11px 14px; font-size: 18px; }
+  }
+  @media (max-width: 340px) { .num { font-size: 21px; min-width: 2.6ch; } header { gap: 8px; } }
+
+  /* instalar la app */
+  .sheet { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; justify-content: center; background: rgba(0,0,0,.45); }
+  .sheet[hidden], #rotate[hidden] { display: none; }
+  .sheet .card {
+    width: min(100%, 460px); background: #fffdf0; color: var(--ink); border-radius: 22px 22px 0 0; text-align: left;
+    padding: 22px 22px calc(env(safe-area-inset-bottom) + 22px); box-shadow: 0 -10px 40px rgba(0,0,0,.25);
+  }
+  .sheet h2 { margin: 0 0 10px; font-size: 20px; }
+  .sheet ol { margin: 0 0 14px; padding-left: 22px; font-size: 16px; line-height: 1.5; }
+  .sheet .btn { width: 100%; margin: 0; }
+  /* el juego es vertical: en horizontal se pausa y pide girar el celular */
+  #rotate { position: fixed; inset: 0; z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: #fff7c2; color: #111; text-align: center; padding: 24px; font-weight: 700; }
+  #rotate .ico { font-size: 48px; animation: turn 2.4s ease-in-out infinite; }
+  @keyframes turn { 0%, 30% { transform: rotate(-90deg); } 60%, 100% { transform: rotate(0); } }
+  @media (orientation: landscape) and (max-height: 520px) { #rotate { display: flex; } #rotate[hidden] { display: flex; } }
+
   @media (prefers-reduced-motion: reduce) {
-    #duck .wl, #duck .wr, #duck .halo, #duck .trident, #duck .tail, #duck.mad .rig, #steam, #target span, .hero, .rain span { animation: none; }
+    #duck .wl, #duck .wr, #duck .halo, #duck .trident, #duck .tail, #duck.mad .rig, #steam, #target span, .hero, .rain span, #rotate .ico { animation: none; }
     #arena.jolt { animation: none; }
   }
 </style>
@@ -249,6 +292,7 @@
       <input id="name" type="text" maxlength="16" placeholder="Tu nombre" autocomplete="off" autocapitalize="words" spellcheck="false" aria-label="Tu nombre">
       <button class="btn" id="play">Jugar</button>
       <button class="btn ghost" id="openBoard">🏆 Marcadores</button>
+      <button class="btn ghost" id="install" hidden>📲 Instalar app</button>
       <div class="best" id="bestMenu"></div>
     </section>
 
@@ -271,28 +315,43 @@
       <h1>🏆 Marcadores</h1>
       <div class="board-note" id="boardNote"></div>
       <ul id="list" aria-live="polite"></ul>
+      <button class="btn ghost" id="moreBoard" hidden>Ver más jugadores</button>
       <button class="btn ghost" id="backBoard">Volver</button>
     </section>
   </main>
 </div>
 
+<div id="rotate" hidden><span class="ico">📱</span><span>Gira tu celular a vertical para jugar</span></div>
+<div class="sheet" id="sheet" hidden>
+  <div class="card" role="dialog" aria-labelledby="sheetTitle">
+    <h2 id="sheetTitle">Instala la app</h2>
+    <ol id="sheetSteps"></ol>
+    <button class="btn" id="sheetOk">Entendido</button>
+  </div>
+</div>
+
 <script src="config.js"></script>
 <script>
 (() => {
-  const SIZE = 56;                // tamaño del emoji (px)
-  const R = 24;                   // radio de choque del billete
-  const PADDLE_H = 16, PADDLE_BOTTOM = 56;
-  const DUCK_BOTTOM = 150;        // borde inferior del Tío Pato: ahí devuelve el billete, siempre
-  const DUCK_CY = 99;             // centro del cuerpo del Pato (para el fuego)
+  // Medidas de referencia (celular de 390×790 útiles). Todo se escala con K para que el juego se vea igual en cualquier celular.
+  let K = 1, VS = 1;              // K: escala de tamaños · VS: escala de velocidades (según el alto)
+  let SIZE = 56;                  // tamaño del emoji (px)
+  let R = 24;                     // radio de choque del billete
+  let PADDLE_H = 16, PADDLE_BOTTOM = 56;
+  let DUCK_TOP = 26;              // el Pato queda pegado a lo más alto de la pantalla
+  let DUCK_BOTTOM = 176;          // borde inferior del Tío Pato: ahí devuelve el billete, siempre
+  let DUCK_CY = 125;              // centro del cuerpo del Pato (para el fuego)
+  let SAFE_T = 0, SAFE_B = 0;     // márgenes seguros (notch / barra de gestos)
   const SPEED0 = 430, SPEED_STEP = 11, SPEED_MAX = 1300;   // px/s: el billete acelera con cada rebote
   const PADDLE_START = .42, SHRINK_RATE = .0085, SHRINK_MIN = .3;   // la barra empieza grande y se achica hasta el 30%
-  // Fases del Tío Pato, según los rebotes: ángel amistoso → desafiante → enojado → diablo
-  const P_CHALLENGE = 30, P_ANGRY = 55, P_MORPH = 70, P_DEVIL = 80;
+  // Fases del Tío Pato, según los rebotes: ángel amistoso → desafiante → se enoja y se vuelve diablo
+  // En cuanto el Pato se enoja (55) pierde la aureola y las alas de ángel y pasa a su piel de diablo.
+  const P_CHALLENGE = 30, P_ANGRY = 55, P_DEVIL = 60, P_HELL = 70;
   const TOP_N = 100;              // cuántos jugadores muestra el marcador
   const REFRESH_MS = 15000;       // el marcador se actualiza solo mientras está abierto
   const STORE_KEY = 'gana-al-tio-pato-v2';
-  // El fondo cambia cada 10 rebotes: del cielo amarillo al infierno
-  const PALETTE = ['#fff6c0', '#ffec5c', '#ffb978', '#ffa64f', '#faa3fe', '#f478fd', '#c05cf5', '#8a3fd6', '#c2312f', '#8a1620', '#4a0a10'];
+  // El fondo cambia cada 10 rebotes (el primero a los 5): del cielo amarillo al infierno, que empieza justo cuando el Pato se enoja
+  const PALETTE = ['#fff6c0', '#ffec5c', '#ffb978', '#ffa64f', '#faa3fe', '#f478fd', '#c2312f', '#8a1620', '#5a0e14', '#3a070b', '#2a0508'];
 
   const DB = String(window.DINERO_DB_URL || '').trim().replace(/\/+$/, '');
   const ONLINE = DB !== '';
@@ -300,7 +359,7 @@
   const HAS_ART = ART !== '';
 
   const $ = id => document.getElementById(id);
-  const arena = $('arena'), target = $('target'), big = $('big'), paddle = $('paddle'), duck = $('duck'), rig = $('rig');
+  const app = $('app'), arena = $('arena'), target = $('target'), big = $('big'), paddle = $('paddle'), duck = $('duck'), rig = $('rig');
   const meNum = $('meNum'), botNum = $('botNum'), meAv = $('meAv'), botAv = $('botAv');
   const nameInput = $('name');
   const screens = { menu: $('menu'), result: $('result'), board: $('board') };
@@ -316,16 +375,16 @@
   let cdTimer = null, audio = null;
 
   /* ---------- fases del Tío Pato (todo depende de los rebotes) ---------- */
-  const devilK = () => clamp((hits - P_MORPH) / (P_DEVIL - P_MORPH), 0, 1);   // 0 → 1 mientras se transforma en diablo
+  const devilK = () => (hits >= P_ANGRY ? 1 : 0);                              // al enojarse: fuera aureola y alas de ángel, entra la piel de diablo (el cambio se suaviza con CSS)
   const angelK = () => 1 - devilK();
   const angerK = () => clamp((hits - P_ANGRY) / 25, 0, 1);                     // se enoja de forma progresiva desde el rebote 55
-  const fireK = () => clamp((hits - 62) / 22, 0, 1);                           // el fuego crece desde el 62
-  const faceIdx = () => hits < P_CHALLENGE ? 0 : hits < P_ANGRY ? 1 : devilK() > .5 ? 3 : 2;
+  const fireK = () => clamp((hits - 58) / 22, 0, 1);                           // el fuego crece desde el 58
+  const faceIdx = () => hits < P_CHALLENGE ? 0 : hits < P_ANGRY ? 1 : hits < P_HELL - 2 ? 2 : 3;
   const phaseName = () => hits < P_CHALLENGE ? 'ángel 😇' : hits < P_ANGRY ? 'desafiante 😏' : hits < P_DEVIL ? 'enojado 😡' : 'diablo 😈';
   const level = () => Math.floor(hits / 20);                                   // afina la puntería del Pato
   const paddleTop = () => H - PADDLE_BOTTOM - PADDLE_H;
   const shrink = () => Math.max(SHRINK_MIN, 1 - hits * SHRINK_RATE);                                   // factor sobre el ancho inicial
-  const ballSpeed = () => Math.min(SPEED0 + hits * SPEED_STEP, SPEED_MAX);
+  const ballSpeed = () => Math.min(SPEED0 + hits * SPEED_STEP, SPEED_MAX) * VS;
 
   /* ---------- datos del jugador (solo en este dispositivo) ---------- */
   function newId() {
@@ -343,13 +402,38 @@
   const pad = n => String(n).padStart(3, '0');
   const fmtClock = s => { s = Math.floor(s); return s >= 60 ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')} min` : `${s} s`; };
 
-  function measure() { W = arena.clientWidth; H = arena.clientHeight; sizeFx(); }
-  addEventListener('resize', () => { measure(); layout(); });
+  // Sonda para leer los márgenes seguros del celular (notch, barra de gestos)
+  const probe = document.createElement('div');
+  probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)';
+  document.body.appendChild(probe);
+  let paused = false;                                            // el juego es vertical: en horizontal se pausa
+  function measure() {
+    W = arena.clientWidth; H = arena.clientHeight;
+    const cs = getComputedStyle(probe);
+    SAFE_T = parseFloat(cs.paddingTop) || 0; SAFE_B = parseFloat(cs.paddingBottom) || 0;
+    const usable = Math.max(300, H - SAFE_T - SAFE_B);
+    K = clamp(Math.min(W / 390, usable / 790), .6, 1.3);
+    VS = clamp(usable / 790, .72, 1.3);
+    SIZE = 56 * K; R = 24 * K; PADDLE_H = 16 * K; PADDLE_BOTTOM = 40 * K + SAFE_B;
+    DUCK_TOP = SAFE_T + 26 * K; DUCK_BOTTOM = DUCK_TOP + 150 * K; DUCK_CY = DUCK_TOP + 99 * K;
+    app.style.setProperty('--k', K.toFixed(3)); duck.style.setProperty('--duck-top', DUCK_TOP.toFixed(1) + 'px');
+    paused = innerWidth > innerHeight && innerHeight < 520;
+    sizeFx();
+  }
+  const refit = () => { measure(); layout(); draw(); };
+  addEventListener('resize', refit);
+  addEventListener('orientationchange', () => setTimeout(refit, 250));
+  const setTheme = c => { try { $('themeColor').setAttribute('content', c); } catch (e) {} };   // color de la barra del navegador
+  let wake = null;                                               // mantiene la pantalla encendida mientras juegas
+  async function lockScreen() { try { if ('wakeLock' in navigator && !wake) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch (e) {} }
+  function unlockScreen() { try { if (wake) wake.release(); } catch (e) {} wake = null; }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && (state === 'play' || state === 'countdown')) lockScreen(); });
 
   /* ---------- sonido (sintetizado, sin archivos) ---------- */
   function tone(freq, dur = .07, type = 'triangle', vol = .12, to = null) {
     try {
       audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      if (audio.state === 'suspended') audio.resume();
       const t = audio.currentTime, o = audio.createOscillator(), g = audio.createGain();
       o.type = type; o.frequency.setValueAtTime(freq, t);
       if (to) o.frequency.exponentialRampToValueAtTime(to, t + dur);
@@ -359,7 +443,7 @@
   }
   const blip = (f, d) => tone(f, d);
   function quack() {                                             // "cuac": agudo y amable de ángel → grave y ronco de diablo
-    const m = clamp(hits / P_DEVIL, 0, 1);
+    const m = clamp(hits / P_HELL, 0, 1);
     tone(520 - m * 300, .13, 'sawtooth', .09, 300 - m * 190);
     setTimeout(() => tone(420 - m * 280, .09, 'square', .05, 240 - m * 160), 70);
   }
@@ -447,11 +531,11 @@
   }
 
   // Lista de los mejores, ya ordenada de mayor a menor.
-  async function fetchTop() {
+  async function fetchTop(limit = TOP_N) {
     if (!ONLINE) {
       return player.best > 0 ? [{ id: player.id, n: player.name || 'Tú', s: player.best, t: 0 }] : [];
     }
-    const r = await http(`${DB}/scores.json?orderBy=%22s%22&limitToLast=${TOP_N}`);
+    const r = await http(`${DB}/scores.json?orderBy=%22s%22&limitToLast=${limit}`);
     if (!r.ok) throw new Error('http ' + r.status);
     const data = (await r.json()) || {};
     return Object.entries(data)
@@ -496,18 +580,34 @@
     if (mine && !ul.dataset.scrolled) { mine.scrollIntoView({ block: 'center' }); ul.dataset.scrolled = '1'; }
   }
 
+  // Tu puesto entre TODOS los jugadores (aunque estés fuera del Top): cuenta cuántos tienen más rebotes que tú.
+  async function myRank(rows) {
+    if (!ONLINE || player.best <= 0) return null;
+    let rank; const pos = rows ? rows.findIndex(r => r.id === player.id) : -1;
+    if (pos >= 0) rank = rows.filter(r => r.s > player.best).length + 1;
+    else {
+      const r = await http(`${DB}/scores.json?orderBy=%22s%22&startAt=${player.best + 1}`);
+      if (!r.ok) return null;
+      rank = Object.keys((await r.json()) || {}).length + 1;
+    }
+    let total = null;
+    try { const t = await http(`${DB}/scores.json?shallow=true`); if (t.ok) total = Object.keys((await t.json()) || {}).length; } catch (e) {}
+    return { rank, total };
+  }
+  let boardLimit = TOP_N;
   async function refreshBoard() {
-    const note = $('boardNote');
+    const note = $('boardNote'), more = $('moreBoard');
     note.textContent = ONLINE ? 'Actualizando…' : 'Modo local: aquí solo aparece tu mejor puntaje en este dispositivo.';
     try {
       if (player.dirty) await syncBest();
-      const rows = await fetchTop();
+      const rows = await fetchTop(boardLimit);
       renderBoard(rows);
+      more.hidden = !(ONLINE && rows.length >= boardLimit && boardLimit < 1000);
       if (ONLINE) {
-        const pos = rows.findIndex(r => r.id === player.id);
-        note.textContent = pos >= 0
-          ? `Vas en el puesto ${pos + 1} · gana quien más rebotes aguante`
-          : (player.best > 0 ? `Tu mejor: ${player.best} rebotes · aún fuera del Top ${TOP_N}` : `Top ${TOP_N} · gana quien más rebotes aguante`);
+        const me = await myRank(rows);
+        const total = me && me.total ? ` de ${me.total.toLocaleString('es')} jugadores` : '';
+        note.textContent = me ? `Tu puesto: ${me.rank.toLocaleString('es')}${total} · gana quien más rebotes aguante`
+          : `Top ${rows.length} · gana quien más rebotes aguante`;
       }
     } catch (e) {
       note.textContent = 'No se pudo cargar. Reintentando…';
@@ -516,8 +616,8 @@
 
   function openBoard(from) {
     boardFrom = from; delete $('list').dataset.scrolled;
-    setEnd(false); document.body.classList.remove('hell'); document.body.style.backgroundColor = PALETTE[0];
-    show('board'); refreshBoard();
+    setEnd(false); document.body.classList.remove('hell'); document.body.style.backgroundColor = PALETTE[0]; setTheme(PALETTE[0]);
+    boardLimit = 100; show('board'); refreshBoard();
     clearInterval(boardTimer); boardTimer = setInterval(refreshBoard, REFRESH_MS);
   }
   function closeBoard() {
@@ -536,10 +636,11 @@
     botAv.classList.toggle('lead', !beating);
   }
   function setBg() {
-    document.body.style.backgroundColor = PALETTE[Math.min(Math.floor(hits / 10), PALETTE.length - 1)];
-    document.body.classList.toggle('hell', devilK() > .5);
+    const c = PALETTE[Math.min(Math.floor((hits + 5) / 10), PALETTE.length - 1)];
+    document.body.style.backgroundColor = c; setTheme(c);
+    document.body.classList.toggle('hell', hits >= P_ANGRY);
   }
-  function setEnd(on) { document.body.classList.toggle('end', on); }
+  function setEnd(on) { document.body.classList.toggle('end', on); if (on) setTheme('#8e2bea'); }
   function bump(el) { el.classList.add('bump'); setTimeout(() => el.classList.remove('bump'), 140); }
   function setInitial() { $('meInit').textContent = player.name ? [...player.name][0].toUpperCase() : '😎'; }
 
@@ -562,7 +663,7 @@
   function setHero() {                                           // el Pato de la pantalla final, según hasta dónde llegaste
     const el = $('heroEnd'); el.textContent = '';
     if (!HAS_ART) { el.innerHTML = '<span style="font-size:84px">🦆</span>'; return; }
-    el.appendChild(IMG(hits >= P_MORPH ? 'hero_devil.png' : hits >= P_CHALLENGE ? 'hero_mid.png' : 'hero_angel.png', ''));
+    el.appendChild(IMG(hits >= P_ANGRY ? 'hero_devil.png' : hits >= P_CHALLENGE ? 'hero_mid.png' : 'hero_angel.png', ''));
   }
   function duckLook() {
     const f = faceIdx();
@@ -589,13 +690,13 @@
   const SAY_CHALLENGE = ['¿Seguro que puedes con esto?', 'Veamos cuánto aguantas…', '¿Eso es todo lo que tienes?', 'No te confíes tanto, amigo', 'Ahora sí empieza lo bueno', 'Se acabó lo amable…', '¿Crees que puedes ganarme?'];
   const SAY_ANGRY = ['¡CUAC! ¡Ya me estás molestando!', '¡Nadie me gana, nadie!', '¡Te voy a destrozar la barra!', '¡Estoy perdiendo la paciencia!', '¡DEJA DE REBOTAR ESO!', '¡Me sacas de quicio!'];
   const SAY_DEVIL = ['¡MUAJAJAJA! ¡Eres mío!', '¡Arde, mortal!', '¡Bienvenido al infierno, cuac!', '¡NO ESCAPARÁS!', '¡Soy el Tío Pato del infierno!', '¡Quémate!'];
-  const SPECIAL = { 1: '¡Muy bien, amigo!', 30: 'Mmm… ya me cansé de ser amable', 55: '¡Se me acabó la paciencia!', 70: '¿Qué me pasa…? ¡AAARGH!', 80: '¡AHORA SOY EL DIABLO! 😈' };
+  const SPECIAL = { 1: '¡Muy bien, amigo!', 30: 'Mmm… ya me cansé de ser amable', 55: '¡Se me acabó la paciencia! ¡AAARGH! 😡', 60: '¡AHORA SOY EL DIABLO! 😈' };
   const pick = list => { let t; do { t = list[Math.floor(Math.random() * list.length)]; } while (t === lastSay && list.length > 1); return t; };
   function talk() {
-    if (SPECIAL[hits]) { say(SPECIAL[hits], 2800); if (hits >= 30) tone(hits >= 70 ? 110 : 660, .3, hits >= 70 ? 'sawtooth' : 'triangle', .1, hits >= 70 ? 55 : 880); return; }
+    if (SPECIAL[hits]) { say(SPECIAL[hits], 2800); if (hits >= 30) tone(hits >= P_ANGRY ? 110 : 660, .3, hits >= P_ANGRY ? 'sawtooth' : 'triangle', .1, hits >= P_ANGRY ? 55 : 880); return; }
     const every = hits < P_ANGRY ? 4 : 3;
     if (hits % every !== 0) return;
-    say(pick(hits < P_CHALLENGE ? SAY_FRIEND : hits < P_ANGRY ? SAY_CHALLENGE : hits < P_DEVIL ? SAY_ANGRY : SAY_DEVIL));
+    say(pick(hits < P_CHALLENGE ? SAY_FRIEND : hits < P_ANGRY ? SAY_CHALLENGE : hits < P_HELL ? SAY_ANGRY : SAY_DEVIL));
   }
 
   // Dónde llegará el billete a la altura del Tío Pato (con rebotes en las paredes), para que salga a recibirlo.
@@ -608,13 +709,13 @@
   function duckTrack(dt) {
     const want = vy < 0 ? predictX() : W / 2 + (x - W / 2) * .5;
     const maxMove = (520 + level() * 140) * dt;
-    duckX = clamp(duckX + clamp(want - duckX, -maxMove, maxMove), 40, W - 40);
+    duckX = clamp(duckX + clamp(want - duckX, -maxMove, maxMove), 40 * K, W - 40 * K);
     duckShow += (duckX - duckShow) * Math.min(1, dt * 28);
   }
   // El Tío Pato le pega al billete SIEMPRE: nada pasa por arriba de él. Apunta al lado contrario de tu barra,
   // con más precisión cuanto más nivel tenga.
   function duckReturn() {
-    y = DUCK_BOTTOM + R; duckX = clamp(x, 40, W - 40);
+    y = DUCK_BOTTOM + R; duckX = clamp(x, 40 * K, W - 40 * K);
     const lv = Math.min(level(), 4);
     let tx = lv === 0 ? x + (Math.random() - .5) * W * .6 : (W - px) + (Math.random() - .5) * W * (.4 - lv * .07);
     tx = clamp(tx, R, W - R);
@@ -645,7 +746,7 @@
     setVel(Math.sin(a), Math.cos(a));
   }
   function layout() {
-    basePw = clamp(W * PADDLE_START, 120, 190); pw = basePw * shrink();
+    basePw = clamp(W * PADDLE_START, 100, 200); pw = basePw * shrink();
     paddle.style.width = pw + 'px';
     paddle.style.top = paddleTop() + 'px';
     px = clamp(px || W / 2, pw / 2, W - pw / 2);
@@ -708,6 +809,7 @@
     movePaddle(e);
   });
   arena.addEventListener('pointermove', movePaddle);
+  arena.addEventListener('touchmove', e => { if (state === 'play' || state === 'countdown') e.preventDefault(); }, { passive: false });
   const endDrag = () => { dragX = null; };
   arena.addEventListener('pointerup', endDrag); arena.addEventListener('pointercancel', endDrag);
   addEventListener('keydown', e => {
@@ -741,7 +843,7 @@
     hits = 0; elapsed = 0; keyDir = 0; dragX = null; lastFace = -1;
     clearFx(); $('rain').textContent = ''; setEnd(false); setBg();
     layout(); duckX = duckShow = W / 2; px = W / 2;
-    state = 'countdown'; renderScores(); show(null);
+    state = 'countdown'; renderScores(); show(null); lockScreen();
     target.style.visibility = 'hidden';
     paddle.style.visibility = 'visible'; duck.style.visibility = 'visible';
     duckLook(); draw(); say('¡Hola, amigo! ¡Vamos a jugar!', 2800);
@@ -766,6 +868,7 @@
 
   function loop(now) {
     if (state !== 'play') return;
+    if (paused) { last = now; requestAnimationFrame(loop); return; }   // celular en horizontal: pausa
     const dt = Math.min((now - last) / 1000, .034); last = now;   // si la pestaña se oculta, el juego se pausa solo
     elapsed += dt;
     if (keyDir) px = clamp(px + keyDir * 760 * dt, pw / 2, W - pw / 2);
@@ -796,7 +899,7 @@
 
   async function endGame() {
     state = 'over';
-    target.style.visibility = 'hidden'; paddle.style.visibility = 'hidden'; duck.style.visibility = 'hidden';
+    target.style.visibility = 'hidden'; paddle.style.visibility = 'hidden'; duck.style.visibility = 'hidden'; unlockScreen();
     $('bubble').classList.remove('on'); big.textContent = ''; clearFx();
 
     const record = hits > player.best;
@@ -820,8 +923,8 @@
     fetchLeader();
     if (res === 'ok' && ONLINE) {
       try {
-        const pos = (await fetchTop()).findIndex(r => r.id === player.id);
-        if (state === 'over' && pos >= 0) st.textContent = `✅ Guardado · vas en el puesto ${pos + 1} del marcador`;
+        const me = await myRank(await fetchTop());
+        if (state === 'over' && me) st.textContent = `✅ Guardado · puesto ${me.rank.toLocaleString('es')}${me.total ? ' de ' + me.total.toLocaleString('es') : ''}`;
       } catch (e) {}
     }
   }
@@ -832,7 +935,7 @@
     state = 'menu';
     target.style.visibility = 'hidden'; paddle.style.visibility = 'hidden'; duck.style.visibility = 'hidden';
     $('bubble').classList.remove('on'); big.textContent = ''; clearFx();
-    setEnd(false); document.body.classList.remove('hell'); document.body.style.backgroundColor = '';
+    setEnd(false); document.body.classList.remove('hell'); document.body.style.backgroundColor = ''; setTheme('#fff7c2'); unlockScreen();
     hits = 0; elapsed = 0; duckLook(); renderScores(); fetchLeader();
     $('bestMenu').textContent = player.best ? `Tu mejor puntaje: ${player.best}` : '';
     show('menu');
@@ -845,7 +948,25 @@
   $('openBoard').addEventListener('click', () => openBoard('menu'));
   $('openBoard2').addEventListener('click', () => openBoard('result'));
   $('backBoard').addEventListener('click', closeBoard);
+  $('moreBoard').addEventListener('click', () => { boardLimit = Math.min(1000, boardLimit + 100); refreshBoard(); });
   nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') startCountdown(); });
+
+  /* ---------- app instalable (PWA) ---------- */
+  const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  let installEvt = null; const installBtn = $('install');
+  const refreshInstall = () => { installBtn.hidden = standalone() || !(installEvt || isIOS); };
+  addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; refreshInstall(); });   // Android / Chrome / Edge
+  addEventListener('appinstalled', () => { installEvt = null; refreshInstall(); });
+  installBtn.addEventListener('click', async () => {
+    if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; refreshInstall(); return; }
+    $('sheetSteps').innerHTML = '<li>Abre esta página en <b>Safari</b>.</li><li>Toca el botón <b>Compartir</b> (el cuadrado con la flecha ↑).</li><li>Elige <b>Añadir a pantalla de inicio</b> y toca <b>Añadir</b>.</li>';
+    $('sheet').hidden = false;
+  });
+  $('sheetOk').addEventListener('click', () => { $('sheet').hidden = true; });
+  refreshInstall();
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol))                      // funciona sin conexión
+    addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 
   if (HAS_ART) ['wingL_angel', 'wingR_angel', 'wingL_devil', 'wingR_devil', 'halo', 'horns', 'trident', 'tail', 'face0', 'face1', 'face2', 'face3', 'hero_mid', 'hero_devil']
     .forEach(f => { new Image().src = ART + f + '.png'; });           // precarga para que no haya parpadeos
