@@ -1040,7 +1040,8 @@
     if (!HAS_ART) { rig.innerHTML = '<span id="duckFace">🦆</span><span id="steam">💢</span>'; return; }
     const one = curCh().stat;
     if (one) {                                                    // skin de una sola imagen: el mismo dibujo en todas las fases
-      const im = picOf(one); im.className = 'ly stat'; rig.appendChild(im);
+      const im = picOf(one); im.className = 'ly stat' + (curCh().stat2 ? ' angel' : ''); rig.appendChild(im);
+      if (curCh().stat2) { const im2 = picOf(curCh().stat2); im2.className = 'ly stat devil'; rig.appendChild(im2); }      // el dibujo enojado aparece con el enojo (--devil)
       const sm = document.createElement('span'); sm.id = 'steam'; sm.textContent = '💢'; rig.appendChild(sm);
       const av = $('botFace'); av.textContent = ''; const ai = picOf(one); ai.className = 'ava'; av.appendChild(ai); botAv.classList.add('pic');
       $('heroBox').textContent = ''; $('heroBox').appendChild(picOf(one));
@@ -1075,7 +1076,7 @@
   function setHero() {                                           // el personaje de la pantalla final, según hasta dónde llegaste
     const el = $('heroEnd'); el.textContent = '';
     if (!HAS_ART) { el.innerHTML = '<span style="font-size:84px">🦆</span>'; return; }
-    if (curCh().stat) { el.appendChild(picOf(curCh().stat)); return; }
+    if (curCh().stat) { el.appendChild(picOf(hits >= P_ANGRY && curCh().stat2 ? curCh().stat2 : curCh().stat)); return; }
     el.appendChild(IMG(hits >= P_ANGRY ? 'hero_devil.png' : hits >= P_CHALLENGE ? 'hero_mid.png' : 'hero_angel.png', ''));
   }
   function duckLook() {
@@ -1087,6 +1088,13 @@
     duck.style.setProperty('--flap', (1.5 - angerK() * .9 - devilK() * .2).toFixed(2) + 's');
     duck.classList.toggle('mad', angerK() > .15);
     duck.dataset.face = f;
+    const ch = curCh();
+    if (HAS_ART && ch.stat2) {                                  // skin con dibujo enojado: el avatar cambia de imagen y de recorte
+      const ai = botAv.querySelector('.ava:not(.face):not(.horns)'), mad = devilK() > 0, av = mad ? ch.av2 : ch.av, src = mad ? ch.stat2 : ch.stat, asp = mad ? ch.asp2 : ch.asp;
+      if (ai && ai.getAttribute('src') !== src) {
+        ai.src = src; botAv.style.setProperty('--avW', av.w + 'px'); botAv.style.setProperty('--avL', (22 - av.fx * av.w).toFixed(1) + 'px'); botAv.style.setProperty('--avT', (22 - av.fy * av.w * asp).toFixed(1) + 'px');
+      }
+    }
     if (HAS_ART) {
       const a = botAv.querySelector('.ava.face'), h = botAv.querySelector('.ava.horns');
       if (a && f !== lastFace) a.src = chDir() + 'face' + f + '.png';
@@ -1389,7 +1397,7 @@
     const pv = document.createElement('div');
     if (shopTab === 'ch') {
       pv.className = 'pv chpv';
-      if (HAS_ART && it.stat) { pv.classList.add('one'); pv.appendChild(picOf(it.stat)); }
+      if (HAS_ART && it.stat) { if (!it.stat2) pv.classList.add('one'); pv.appendChild(picOf(it.stat)); if (it.stat2) pv.appendChild(picOf(it.stat2)); }      // con dibujo enojado: se alternan los dos
       else if (HAS_ART) for (const f of ['hero_angel.png', 'hero_devil.png']) { const im = new Image(); im.src = it.dir + f; im.alt = ''; im.draggable = false; pv.appendChild(im); }
       else pv.textContent = '🦆';
     } else if (shopTab === 'bg') {

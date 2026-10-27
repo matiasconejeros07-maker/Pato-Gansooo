@@ -34,8 +34,8 @@ Firebase Realtime Database (gratis, aguanta miles de jugadores) y toma unos 5 mi
   la pelota acelera mucho más rápido y la barra se achica hasta el 28%. Los valores están al inicio del código de `index.html` (`SPEED0`, `STEP_LO`, `STEP_HI`, `SPEED_MAX`, `SHRINK_LO`, `SHRINK_HI`).
 - **Los golpes del personaje son aleatorios:** cada vez que te devuelve la pelota la manda en una dirección al azar (de casi vertical a muy abierta).
 - En la **Tienda** (desde el menú o al terminar una partida) hay cuatro pestañas. Lo comprado queda en la cuenta y viaja con ella a cualquier celular:
-  - **Personajes:** Tío Pato (incluido), Pato Conejo ($50), Conejo Enojado ($50), Pato Bigotes ($150) y Tía Patita ($500). El Tío Pato y la Tía Patita empiezan de ángel y se vuelven demonio.
-    Las otras skins son de una sola imagen (`trajes/`): no cambian de dibujo, pero se enojan igual (temblor, brillo rojo, vapor y fuego).
+  - **Personajes:** Tío Pato (incluido), Pato Conejo ($50), Pato Bigotes ($150), Patita Conejita ($50) y Tía Patita ($500). El Tío Pato y la Tía Patita empiezan de ángel y se vuelven demonio.
+    Las demás skins son imágenes sueltas (`trajes/`): se enojan con temblor, brillo rojo, vapor y fuego. El Pato Conejo, además, **cambia a su dibujo enojado** (`trajes/conejo-enojado.webp`) cuando el personaje se enoja (rebote 55).
   - **Fondos:** Atardecer, Cristal, Aurora boreal, Galaxia, Holográfico y Synthwave (difuminados y animados).
   - **Barras:** Oro líquido, Llamarada, Cristal, Neón, Galaxia, Arcoíris y Holográfica; cada una con su color, brillo, partículas y un anillo de luz en cada rebote.
   - **Pelotas:** empiezas con la **moneda de $1** (que gira en el sentido del reloj y brilla). Se compran las monedas de $10, $50, $100 y $500 (giran igual) y los billetes de $1.000, $2.000, $5.000, $10.000 y $20.000 (que revolotean). Precio = su valor en pesos.
