@@ -108,6 +108,8 @@
   #duck[data-face="0"] .f0, #duck[data-face="1"] .f1, #duck[data-face="2"] .f2, #duck[data-face="3"] .f3 { opacity: 1; }
   #duck .wl { transform-origin: var(--wl, 43.5% 64.5%); animation: flapL var(--flap) ease-in-out infinite; }
   #duck .wr { transform-origin: var(--wr, 59% 63.7%); animation: flapR var(--flap) ease-in-out infinite; }
+  #duck .stat { object-fit: contain; object-position: 50% 100%; transform-origin: 50% 90%; animation: statBob 1.8s ease-in-out infinite; filter: saturate(calc(1 + var(--devil) * .3)) drop-shadow(0 0 calc(var(--anger) * 10px) rgba(255, 50, 20, .95)); }
+  @keyframes statBob { 50% { transform: translateY(-4px) rotate(1.2deg); } }
   #duck .halo { animation: bob 2.4s ease-in-out infinite; filter: drop-shadow(0 0 7px rgba(255, 214, 70, .95)); }
   #duck.mad .halo { animation: bob 2.4s ease-in-out infinite, flicker .3s steps(2) infinite; }
   #duck .horns { filter: drop-shadow(0 0 5px rgba(255, 60, 20, .8)); }
@@ -416,7 +418,7 @@
 
   /* ---------- billetera y tienda ---------- */
   .coins { display: inline-flex; align-items: center; gap: 7px; font-weight: 800; font-size: 17px; background: #fff; border: 1px solid var(--line); padding: 5px 14px 5px 7px; border-radius: 999px; font-variant-numeric: tabular-nums; box-shadow: 0 2px 8px rgba(80,70,20,.1); }
-  .coins .ci { width: 26px; height: 26px; object-fit: contain; display: block; }
+  .coins .ci { height: 26px; width: auto; max-width: 46px; object-fit: contain; display: block; }      /* es la pelota que llevas puesta: moneda o billete */
   .coins[hidden] { display: none; }
   .coinsline { font-size: 24px; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,.3); }
   #shop { justify-content: flex-start; gap: 8px; overflow: hidden; }
@@ -438,6 +440,7 @@
   .item .pv.chpv img { position: absolute; left: 50%; top: 50%; height: 84px; width: auto; transform: translate(-50%, -50%); animation: 5s ease-in-out infinite; }
   .item .pv.chpv img:first-child { animation-name: chSwapA; }
   .item .pv.chpv img:last-child { animation-name: chSwapB; }
+  .item .pv.chpv.one img { animation: none; opacity: 1; }
   @keyframes chSwapA { 0%, 38% { opacity: 1; } 50%, 88% { opacity: 0; } 100% { opacity: 1; } }
   @keyframes chSwapB { 0%, 38% { opacity: 0; } 50%, 88% { opacity: 1; } 100% { opacity: 0; } }
   .item .nm { font-weight: 800; font-size: 15px; line-height: 1.15; }
@@ -495,7 +498,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .bgx, .bgx i, .bgx::before, .bgx::after, #paddle, #paddle::before, #paddle::after, .pvbar, .pvbar::before, .pvbar::after { animation: none !important; }
-    #duck .wl, #duck .wr, #duck .halo, #duck .trident, #duck .tail, #duck.mad .rig, #steam, .ball.emoji, .ball img, .hero, .rain span, #rotate .ico, #mult.show, .item .pv.chpv img { animation: none; }
+    #duck .wl, #duck .wr, #duck .halo, #duck .trident, #duck .tail, #duck .stat, #duck.mad .rig, #steam, .ball.emoji, .ball img, .hero, .rain span, #rotate .ico, #mult.show, .item .pv.chpv img { animation: none; }
     #arena.jolt { animation: none; }
   }
 </style>
@@ -1026,7 +1029,8 @@
   function setInitial() { $('meInit').textContent = player.name ? [...player.name][0].toUpperCase() : '😎'; }
 
   /* ---------- el Tío Pato: capas del personaje ---------- */
-  const chDir = () => HAS_ART ? curCh().dir : '';
+  const chDir = () => HAS_ART ? (curCh().dir || '') : '';
+  const picOf = f => { const im = new Image(); im.src = f; im.alt = ''; im.draggable = false; return im; };      // imagen suelta (skins de una sola imagen)
   const IMG = (f, cls) => { const im = document.createElement('img'); im.src = chDir() + f; im.alt = ''; im.draggable = false; im.className = cls; return im; };
   const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
   let builtCh = '';
@@ -1034,6 +1038,14 @@
     builtCh = wallet.eq.ch; lastFace = -1;
     rig.textContent = '';
     if (!HAS_ART) { rig.innerHTML = '<span id="duckFace">🦆</span><span id="steam">💢</span>'; return; }
+    const one = curCh().stat;
+    if (one) {                                                    // skin de una sola imagen: el mismo dibujo en todas las fases
+      const im = picOf(one); im.className = 'ly stat'; rig.appendChild(im);
+      const sm = document.createElement('span'); sm.id = 'steam'; sm.textContent = '💢'; rig.appendChild(sm);
+      const av = $('botFace'); av.textContent = ''; const ai = picOf(one); ai.className = 'ava'; av.appendChild(ai); botAv.classList.add('pic');
+      $('heroBox').textContent = ''; $('heroBox').appendChild(picOf(one));
+      duckLook(); return;
+    }
     // de atrás hacia adelante: cola, alas de diablo, alas de ángel, tridente, cuerpo (4 caras), aureola, cuernos
     [['tail.png', 'ly devil tail'], ['wingL_devil.png', 'ly devil wl'], ['wingR_devil.png', 'ly devil wr'],
      ['wingL_angel.png', 'ly angel wl'], ['wingR_angel.png', 'ly angel wr'], ['trident.png', 'ly devil trident'],
@@ -1054,6 +1066,7 @@
     const [sx, sy] = String(c.steam || '58% 22%').split(' ');
     set(duck, '--wl', c.wl); set(duck, '--wr', c.wr); set(duck, '--tr', c.tr); set(duck, '--tail', c.tail); set(duck, '--sx', sx); set(duck, '--sy', sy);
     set(botAv, '--avW', c.avW); set(botAv, '--avL', c.avL); set(botAv, '--avT', c.avT);
+    if (ch.stat && ch.av) { set(botAv, '--avW', ch.av.w + 'px'); set(botAv, '--avL', (22 - ch.av.fx * ch.av.w).toFixed(1) + 'px'); set(botAv, '--avT', (22 - ch.av.fy * ch.av.w * ch.asp).toFixed(1) + 'px'); }   // centra la cara en el círculo de 44 px
     $('ttl').firstChild.textContent = 'Gánale ' + (ch.g === 'f' ? 'a la ' : 'al '); $('ttlName').textContent = ch.n;
     $('tagline').textContent = `Rebota la moneda con tu barra y junta pesos. ${cap(ch.name)} siempre te la devuelve.`;
     $('verdict').textContent = 'Ganó ' + ch.name;
@@ -1062,6 +1075,7 @@
   function setHero() {                                           // el personaje de la pantalla final, según hasta dónde llegaste
     const el = $('heroEnd'); el.textContent = '';
     if (!HAS_ART) { el.innerHTML = '<span style="font-size:84px">🦆</span>'; return; }
+    if (curCh().stat) { el.appendChild(picOf(curCh().stat)); return; }
     el.appendChild(IMG(hits >= P_ANGRY ? 'hero_devil.png' : hits >= P_CHALLENGE ? 'hero_mid.png' : 'hero_angel.png', ''));
   }
   function duckLook() {
@@ -1353,6 +1367,7 @@
     const b = itemOf('ball', wallet.eq.ball) || CAT.ball[0], el = target.firstElementChild;
     el.textContent = ''; el.className = 'ball ' + (b.fx || ''); el.style.setProperty('--bw', b.w || 1);
     trailColor = b.trail || '#ffc928';
+    if (b.img) document.querySelectorAll('.coins .ci').forEach(i => { i.src = b.img; });      // el recuadro de pesos muestra la pelota que llevas puesta
     if (b.img) {
       const im = new Image(); im.alt = ''; im.draggable = false;
       im.onerror = () => { el.className = 'ball emoji'; el.textContent = '💸'; };
@@ -1374,7 +1389,8 @@
     const pv = document.createElement('div');
     if (shopTab === 'ch') {
       pv.className = 'pv chpv';
-      if (HAS_ART) for (const f of ['hero_angel.png', 'hero_devil.png']) { const im = new Image(); im.src = it.dir + f; im.alt = ''; im.draggable = false; pv.appendChild(im); }
+      if (HAS_ART && it.stat) { pv.classList.add('one'); pv.appendChild(picOf(it.stat)); }
+      else if (HAS_ART) for (const f of ['hero_angel.png', 'hero_devil.png']) { const im = new Image(); im.src = it.dir + f; im.alt = ''; im.draggable = false; pv.appendChild(im); }
       else pv.textContent = '🦆';
     } else if (shopTab === 'bg') {
       pv.className = 'pv bgx'; pv.dataset.bg = it.id; pv.innerHTML = '<i></i><i></i><i></i>';

@@ -9,6 +9,10 @@ window.TIENDA = {
   ch: [
     { id: 'tio', n: 'Tío Pato',   price: 0,   dir: 'pato/',    name: 'el Tío Pato', g: 'm',
       css: { wl: '43.5% 64.5%', wr: '59% 63.7%', tr: '60.3% 35.5%', tail: '40% 76%', steam: '58% 22%', avW: '142px', avL: '-47px', avT: '-56px' }, note: 'El de siempre' },
+    // Skins de una sola imagen (sin evolución ángel → demonio): se enojan con temblor, brillo rojo y vapor. av = recorte de la cara para el avatar.
+    { id: 'conejo',  n: 'Pato Conejo',    price: 50,  stat: 'trajes/conejo.webp',         asp: 1.92, name: 'el Pato Conejo',    g: 'm', av: { w: 78, fx: .53, fy: .40 },  css: { steam: '66% 12%' }, note: 'Con orejas de conejo' },
+    { id: 'conejo2', n: 'Conejo Enojado', price: 50,  stat: 'trajes/conejo-enojado.webp', asp: 1.65, name: 'el Conejo Enojado', g: 'm', av: { w: 78, fx: .55, fy: .39 },  css: { steam: '66% 10%' }, note: 'Con cara de pocos amigos' },
+    { id: 'bigotes', n: 'Pato Bigotes',   price: 150, stat: 'trajes/bigotes.webp',        asp: 1.92, name: 'el Pato Bigotes',   g: 'm', av: { w: 76, fx: .47, fy: .375 }, css: { steam: '64% 12%' }, note: 'Bigote, sombrero de copa y bata' },
     { id: 'tia', n: 'Tía Patita', price: 500, dir: 'patita/',  name: 'la Tía Patita', g: 'f',
       css: { wl: '42% 64.2%', wr: '60.3% 62.8%', tr: '65.6% 39.2%', tail: '39.5% 78.4%', steam: '58% 26%', avW: '166px', avL: '-50px', avT: '-67px' }, note: 'Ángel que se vuelve demonio' }
   ],
