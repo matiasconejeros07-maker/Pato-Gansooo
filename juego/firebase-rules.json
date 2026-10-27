@@ -6,18 +6,24 @@
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid",
-        ".validate": "newData.hasChild('s')",
+        ".validate": "newData.hasChildren(['s', 'b', 'r'])",
         "s": {
           ".validate": "newData.isNumber() && (newData.val() === now || newData.val() === data.val())"
         },
+        "b": {
+          ".validate": "newData.isString() && (newData.val() === 'peso1' || root.child('wallets').child($uid).child('own').child('ball_' + newData.val()).val() === true)"
+        },
+        "r": {
+          ".validate": "newData.isNumber() && newData.val() === (newData.parent().child('b').val() === 'peso1' ? 1 : newData.parent().child('b').val() === 'peso5' ? 2 : newData.parent().child('b').val() === 'peso10' ? 3 : newData.parent().child('b').val() === 'peso50' ? 4 : newData.parent().child('b').val() === 'peso100' ? 5 : newData.parent().child('b').val() === 'peso500' ? 6 : newData.parent().child('b').val() === 'b1000' ? 7 : newData.parent().child('b').val() === 'b2000' ? 8 : newData.parent().child('b').val() === 'b5000' ? 9 : newData.parent().child('b').val() === 'b10000' ? 10 : newData.parent().child('b').val() === 'b20000' ? 20 : 0)"
+        },
         "e": {
-          ".validate": "newData.isNumber() && newData.val() === now && !data.exists() && data.parent().child('s').exists() && newData.parent().child('s').val() === data.parent().child('s').val() && newData.parent().hasChildren(['s', 'h', 'p'])"
+          ".validate": "newData.isNumber() && newData.val() === now && !data.exists() && data.parent().child('s').exists() && newData.parent().child('s').val() === data.parent().child('s').val() && newData.parent().hasChildren(['s', 'b', 'r', 'h', 'p'])"
         },
         "h": {
-          ".validate": "newData.isNumber() && newData.val() % 1 === 0 && newData.val() >= 0 && newData.val() <= 500 && !data.exists() && newData.parent().hasChildren(['s', 'e', 'p']) && newData.val() * 450 <= now - newData.parent().child('s').val() + 3000"
+          ".validate": "newData.isNumber() && newData.val() % 1 === 0 && newData.val() >= 0 && newData.val() <= 500 && !data.exists() && newData.parent().hasChildren(['s', 'b', 'r', 'e', 'p']) && newData.val() * 450 <= now - newData.parent().child('s').val() + 3000"
         },
         "p": {
-          ".validate": "newData.isNumber() && !data.exists() && newData.parent().hasChildren(['s', 'e', 'h']) && newData.val() === (newData.parent().child('h').val() + 100 * ((newData.parent().child('h').val() - newData.parent().child('h').val() % 100) / 100) * (((newData.parent().child('h').val() - newData.parent().child('h').val() % 100) / 100) - 1) / 2 + ((newData.parent().child('h').val() - newData.parent().child('h').val() % 100) / 100) * (newData.parent().child('h').val() - 100 * ((newData.parent().child('h').val() - newData.parent().child('h').val() % 100) / 100) + 1))"
+          ".validate": "newData.isNumber() && !data.exists() && newData.parent().hasChildren(['s', 'b', 'r', 'e', 'h']) && newData.val() === newData.parent().child('r').val() * (newData.parent().child('h').val() + 100 * ((newData.parent().child('h').val() - newData.parent().child('h').val() % 100) / 100) * (((newData.parent().child('h').val() - newData.parent().child('h').val() % 100) / 100) - 1) / 2 + ((newData.parent().child('h').val() - newData.parent().child('h').val() % 100) / 100) * (newData.parent().child('h').val() - 100 * ((newData.parent().child('h').val() - newData.parent().child('h').val() % 100) / 100) + 1))"
         },
         "$other": {
           ".validate": false
@@ -64,16 +70,19 @@
           ".validate": "newData.isNumber() && newData.val() === newData.parent().parent().parent().child('runs').child($uid).child('s').val() && newData.parent().parent().parent().child('runs').child($uid).child('e').exists() && (!data.exists() || newData.val() > data.val())"
         },
         "own": {
-          "ch_conejo": {
+          "ch_tia": {
             ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 50)"
           },
-          "ch_bigotes": {
-            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 150)"
+          "ch_conejo": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 200)"
           },
           "ch_conejita": {
-            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 50)"
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 200)"
           },
-          "ch_tia": {
+          "ch_bigotes": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 500)"
+          },
+          "ch_tios": {
             ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 500)"
           },
           "bg_atardecer": {
@@ -114,6 +123,9 @@
           },
           "pad_holo": {
             ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 400)"
+          },
+          "ball_peso5": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 5)"
           },
           "ball_peso10": {
             ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 10)"

@@ -28,17 +28,18 @@ Firebase Realtime Database (gratis, aguanta miles de jugadores) y toma unos 5 mi
 
 ## Pesos y tienda
 
-- **Cada rebote vale dinero:** del rebote 1 al 99 vale **$1**, del 100 al 199 vale **$2**, del 200 al 299 **$3**, y así sigue. Una partida de 86 rebotes da $86;
-  una de 120 da $141 (99 × $1 + 21 × $2). Al llegar al rebote 100 aparece el aviso animado **«¡Monedas dobles! ×2»** (×3 en el 200…) y una insignia ×N junto al marcador.
+- **Cada pelota paga distinto por punto:** moneda $1 → $1 · $5 → $2 · $10 → $3 · $50 → $4 · $100 → $5 · $500 → $6 · billete $1.000 → $7 · $2.000 → $8 · $5.000 → $9 · $10.000 → $10 · **$20.000 → $20**.
+  Ese valor se multiplica por **«Monedas dobles»**: ×1 del rebote 1 al 99, ×2 del 100 al 199, ×3 del 200 al 299, y así. Ejemplo: con el billete de $20.000, una partida de 120 rebotes da 20 × 141 = $2.820.
+  Al llegar al rebote 100 aparece el aviso animado **«¡Monedas dobles! ×2»** (×3 en el 200…) y una insignia ×N junto al marcador. La pelota con la que empiezas la partida es la que paga toda la partida.
 - **Dificultad:** hasta el rebote 99 el juego es ágil pero amable (la pelota acelera poco y la barra se achica poco). Desde el 100 sube de verdad:
   la pelota acelera mucho más rápido y la barra se achica hasta el 28%. Los valores están al inicio del código de `index.html` (`SPEED0`, `STEP_LO`, `STEP_HI`, `SPEED_MAX`, `SHRINK_LO`, `SHRINK_HI`).
 - **Los golpes del personaje son aleatorios:** cada vez que te devuelve la pelota la manda en una dirección al azar (de casi vertical a muy abierta).
 - En la **Tienda** (desde el menú o al terminar una partida) hay cuatro pestañas. Lo comprado queda en la cuenta y viaja con ella a cualquier celular:
-  - **Personajes:** Tío Pato (incluido), Pato Conejo ($50), Pato Bigotes ($150), Patita Conejita ($50) y Tía Patita ($500). El Tío Pato y la Tía Patita empiezan de ángel y se vuelven demonio.
-    Las demás skins son imágenes sueltas (`trajes/`): se enojan con temblor, brillo rojo, vapor y fuego. El Pato Conejo, además, **cambia a su dibujo enojado** (`trajes/conejo-enojado.webp`) cuando el personaje se enoja (rebote 55).
+  - **Personajes:** Tío Pato (incluido), Tía Patita ($50), Tío Pato Conejo ($200), Tía Patita Conejita ($200), Tío Pato Simi ($500) y Tíos Patitos ($500). El Tío Pato y la Tía Patita empiezan de ángel y se vuelven demonio.
+    Las demás skins son imágenes sueltas (`trajes/`): cada una tiene su dibujo calmado y su dibujo enojado, al que cambia cuando el personaje se enoja (rebote 55), con temblor, brillo rojo, vapor y fuego.
   - **Fondos:** Atardecer, Cristal, Aurora boreal, Galaxia, Holográfico y Synthwave (difuminados y animados).
   - **Barras:** Oro líquido, Llamarada, Cristal, Neón, Galaxia, Arcoíris y Holográfica; cada una con su color, brillo, partículas y un anillo de luz en cada rebote.
-  - **Pelotas:** empiezas con la **moneda de $1** (que gira en el sentido del reloj y brilla). Se compran las monedas de $10, $50, $100 y $500 (giran igual) y los billetes de $1.000, $2.000, $5.000, $10.000 y $20.000 (que revolotean). Precio = su valor en pesos.
+  - **Pelotas:** empiezas con la **moneda de $1** (que gira en el sentido del reloj y brilla). Se compran las monedas de $5, $10, $50, $100 y $500 (giran igual) y los billetes de $1.000, $2.000, $5.000, $10.000 y $20.000 (que revolotean). Precio = su valor en pesos; cada una muestra cuánto paga por punto.
 - Sin cuentas (modo local) los pesos y compras quedan solo en ese celular.
 - El catálogo y los precios están en `tienda.js`. Si cambias algo, ejecuta `node juego/herramientas/generar-reglas.js`
   (regenera `firebase-rules.json`, porque las reglas también validan precios y pesos) y vuelve a pegar las reglas en Firebase → Realtime Database → Reglas → Publicar.
@@ -53,7 +54,7 @@ para que los celulares descarguen lo nuevo. Los ajustes de cada pelota (animaci�
 Todo juego que corre en el teléfono puede ser manipulado por alguien con conocimientos, así que la protección está en **Firebase**, que es lo único que el jugador no controla.
 Las reglas de `firebase-rules.json` hacen esto:
 
-- **Partidas verificadas:** al empezar, el juego anota en Firebase la hora de inicio **del servidor**; al terminar, Firebase pone la hora de fin y solo acepta la partida si los rebotes caben
+- **Partidas verificadas:** al empezar, el juego anota en Firebase la hora de inicio **del servidor**, la pelota que usas (tiene que ser tuya) y lo que paga por punto; al terminar, Firebase pone la hora de fin y solo acepta la partida si los rebotes caben
   en el tiempo transcurrido (mínimo 0,45 s por rebote, más 3 s de margen) y con un máximo de 500 rebotes. **Los pesos de la partida los calculan las reglas** (no el jugador).
 - **Cobro único:** los pesos y el marcador se escriben en una sola operación atómica y cada partida se cobra una sola vez. No hay forma de escribir «mi saldo es 99999», de subir el
   puntaje por su cuenta, de repetir una partida ya cobrada ni de borrar lo gastado.
@@ -62,7 +63,7 @@ Las reglas de `firebase-rules.json` hacen esto:
 - Sin conexión no hay partida verificada: se puede jugar, pero esa partida no suma pesos ni marcador. Si se corta internet justo al terminar, la partida queda guardada y se cobra sola al volver la conexión.
 
 **Límite honesto:** un tramposo con un programa (un «bot») que de verdad espere el tiempo real sí puede enviar partidas de pocos o muchos rebotes, porque desde el servidor no se puede saber
-si los rebotes los dio una persona. Lo máximo que logra es ganar a un ritmo acotado (como mucho unos $1.500 por partida de ~4 minutos); no puede inventar cifras ni gastar de más.
+si los rebotes los dio una persona. Lo máximo que logra es ganar a un ritmo acotado: hasta 500 rebotes por partida, así que como mucho unos $1.500 por partida con la moneda de $1 y hasta ~$30.000 con el billete de $20.000 (que antes tuvo que comprar); no puede inventar cifras ni gastar de más.
 Para un juego entre conocidos o un evento es más que suficiente. Si algún día necesitas más: (1) **Firebase App Check** con reCAPTCHA (gratis) bloquea la mayoría de los bots y las copias
 modificadas del juego; (2) **Cloud Functions** (plan Blaze) permiten registrar los movimientos de la partida y repetirla en el servidor para validarla.
 
