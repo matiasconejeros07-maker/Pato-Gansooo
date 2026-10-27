@@ -35,13 +35,13 @@ window.TIENDA = {
     { id: 'holo',     n: 'Holográfica',  price: 400, note: 'Iridiscente con destellos' }
   ],
 
-  // Pelotas: monedas y billetes chilenos. fx = cómo gira (flip: moneda · flutter: billete). w = ancho relativo.
+  // Pelotas: monedas y billetes chilenos. fx = cómo se mueve (spin: la moneda gira en el sentido del reloj · flutter: el billete revolotea). w = ancho relativo.
   ball: [
-    { id: 'peso1',   n: 'Moneda $1',      price: 0,     img: 'skins/peso1.webp',   fx: 'flip',    w: 1,    trail: '#d5dbe8', note: 'La moneda de inicio' },
-    { id: 'peso10',  n: 'Moneda $10',     price: 10,    img: 'skins/peso10.webp',  fx: 'flip',    w: 1,    trail: '#f2c66a' },
-    { id: 'peso50',  n: 'Moneda $50',     price: 50,    img: 'skins/peso50.webp',  fx: 'flip',    w: 1,    trail: '#e0b060' },
-    { id: 'peso100', n: 'Moneda $100',    price: 100,   img: 'skins/peso100.webp', fx: 'flip',    w: 1,    trail: '#ffe08a' },
-    { id: 'peso500', n: 'Moneda $500',    price: 500,   img: 'skins/peso500.webp', fx: 'flip',    w: 1.05, trail: '#f5f0d0' },
+    { id: 'peso1',   n: 'Moneda $1',      price: 0,     img: 'skins/peso1.webp',   fx: 'spin',    w: 1,    trail: '#d5dbe8', note: 'La moneda de inicio' },
+    { id: 'peso10',  n: 'Moneda $10',     price: 10,    img: 'skins/peso10.webp',  fx: 'spin',    w: 1,    trail: '#f2c66a' },
+    { id: 'peso50',  n: 'Moneda $50',     price: 50,    img: 'skins/peso50.webp',  fx: 'spin',    w: 1,    trail: '#e0b060' },
+    { id: 'peso100', n: 'Moneda $100',    price: 100,   img: 'skins/peso100.webp', fx: 'spin',    w: 1,    trail: '#ffe08a' },
+    { id: 'peso500', n: 'Moneda $500',    price: 500,   img: 'skins/peso500.webp', fx: 'spin',    w: 1.05, trail: '#f5f0d0' },
     { id: 'b1000',   n: 'Billete $1.000', price: 1000,  img: 'skins/b1000.webp',   fx: 'flutter', w: 1.6,  trail: '#8fe08f' },
     { id: 'b2000',   n: 'Billete $2.000', price: 2000,  img: 'skins/b2000.webp',   fx: 'flutter', w: 1.6,  trail: '#c9a6ee' },
     { id: 'b5000',   n: 'Billete $5.000', price: 5000,  img: 'skins/b5000.webp',   fx: 'flutter', w: 1.6,  trail: '#f08a94' },
