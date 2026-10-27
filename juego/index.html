@@ -98,7 +98,7 @@
 
   /* ----- El Tío Pato: ángel amistoso → desafiante → enojado → diablo -----
      Variables: --angel / --devil (0..1, qué capas se ven) · --anger (0..1) · --shake · --flap (velocidad de aleteo). */
-  #duck { position: absolute; left: 0; top: var(--duck-top, 26px); z-index: 1; width: calc(141px * var(--k, 1)); height: calc(170px * var(--k, 1)); pointer-events: none; visibility: hidden; will-change: transform; --angel: 1; --devil: 0; --anger: 0; --shake: 0px; --flap: 1.5s; }
+  #duck { position: absolute; left: 0; top: var(--duck-top, 26px); z-index: 1; width: calc(141px * var(--k, 1) * var(--dw, 1)); height: calc(170px * var(--k, 1)); pointer-events: none; visibility: hidden; will-change: transform; --angel: 1; --devil: 0; --anger: 0; --shake: 0px; --flap: 1.5s; }
   #duck .rig { position: relative; width: 100%; height: 100%; }
   #duck.mad .rig { animation: fume .11s linear infinite; }
   #duck .ly { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; -webkit-user-drag: none; transition: opacity .6s; }
@@ -210,7 +210,7 @@
   .verdict { font-size: 24px; font-weight: 800; text-shadow: 0 2px 12px rgba(0,0,0,.25); }
   .final { font-size: 72px; font-weight: 800; line-height: 1; text-shadow: 0 2px 12px rgba(0,0,0,.25); font-variant-numeric: tabular-nums; }
   .final small { font-size: 28px; font-weight: 800; }
-  .sub { font-size: 15px; font-weight: 600; opacity: .95; text-shadow: 0 1px 6px rgba(60,0,90,.55); max-width: 32ch; }
+  .sub { white-space: pre-line; font-size: 15px; font-weight: 600; opacity: .95; text-shadow: 0 1px 6px rgba(60,0,90,.55); max-width: 32ch; }
   #result .hero { height: clamp(84px, 15vh, 128px); animation: none; }
   #result .btn { background: #111; width: min(100%, 340px); display: flex; align-items: center; justify-content: center; gap: 10px; }
   #result .btn.ghost { background: rgba(255,255,255,.14); color: #fff; border-color: rgba(255,255,255,.7); }
@@ -623,6 +623,7 @@
   const PADDLE_START = .42, SHRINK_LO = .003, SHRINK_HI = .0095, SHRINK_MIN = .28;   // la barra: 100% → 70% en el rebote 100 → 28%
   const rateAt = n => Math.floor(n / TIER) + 1;             // pesos que vale el rebote número n ($1 hasta el 99, $2 del 100 al 199…)
   const pesosFor = h => { const t = Math.floor(h / TIER); return h + TIER * t * (t - 1) / 2 + t * (h - TIER * t + 1); };   // pesos de una partida de h rebotes
+  let gameRate = 1;                                         // pesos por punto de la pelota con la que empezó la partida (ball[].rate)
   const money = n => '$' + String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   // Fases del Tío Pato, según los rebotes: ángel amistoso → desafiante → se enoja y se vuelve diablo
   // En cuanto el Pato se enoja (55) pierde la aureola y las alas de ángel y pasa a su piel de diablo.
@@ -1068,9 +1069,11 @@
     set(duck, '--wl', c.wl); set(duck, '--wr', c.wr); set(duck, '--tr', c.tr); set(duck, '--tail', c.tail); set(duck, '--sx', sx); set(duck, '--sy', sy);
     set(botAv, '--avW', c.avW); set(botAv, '--avL', c.avL); set(botAv, '--avT', c.avT);
     if (ch.stat && ch.av) { set(botAv, '--avW', ch.av.w + 'px'); set(botAv, '--avL', (22 - ch.av.fx * ch.av.w).toFixed(1) + 'px'); set(botAv, '--avT', (22 - ch.av.fy * ch.av.w * ch.asp).toFixed(1) + 'px'); }   // centra la cara en el círculo de 44 px
-    $('ttl').firstChild.textContent = 'Gánale ' + (ch.g === 'f' ? 'a la ' : 'al '); $('ttlName').textContent = ch.n;
-    $('tagline').textContent = `Rebota la moneda con tu barra y junta pesos. ${cap(ch.name)} siempre te la devuelve.`;
-    $('verdict').textContent = 'Ganó ' + ch.name;
+    const pl = ch.g === 'p';
+    set(duck, '--dw', ch.dw || 1);
+    $('ttl').firstChild.textContent = 'Gánale ' + (pl ? 'a los ' : ch.g === 'f' ? 'a la ' : 'al '); $('ttlName').textContent = ch.n.replace(/^Los /, '');
+    $('tagline').textContent = `Rebota la moneda con tu barra y junta pesos. ${cap(ch.name)} siempre te la ${pl ? 'devuelven' : 'devuelve'}.`;
+    $('verdict').textContent = (pl ? 'Ganaron ' : 'Ganó ') + ch.name;
     if (builtCh !== wallet.eq.ch) buildDuck();
   }
   function setHero() {                                           // el personaje de la pantalla final, según hasta dónde llegaste
@@ -1102,7 +1105,7 @@
     }
     lastFace = f;
   }
-  const tpl = t => t.replace('%n', curCh().name).replace('%D', curCh().g === 'f' ? 'LA DIABLA' : 'EL DIABLO');
+  const tpl = t => t.replace('%n', curCh().name).replace('%D', ({ f: 'LA DIABLA', p: 'LOS DIABLOS' })[curCh().g] || 'EL DIABLO');
   function say(text, ms = 2400) {
     const b = $('bubble'); b.textContent = tpl(text); b.classList.add('on'); lastSay = text; bubbleW = b.offsetWidth;
     clearTimeout(bubbleTimer); bubbleTimer = setTimeout(() => b.classList.remove('on'), ms);
@@ -1113,12 +1116,21 @@
   const SAY_ANGRY = ['¡CUAC! ¡Ya me estás molestando!', '¡Nadie me gana, nadie!', '¡Te voy a destrozar la barra!', '¡Estoy perdiendo la paciencia!', '¡DEJA DE REBOTAR ESO!', '¡Me sacas de quicio!'];
   const SAY_DEVIL = ['¡MUAJAJAJA! ¡Eres mío!', '¡Arde, mortal!', '¡Bienvenido al infierno, cuac!', '¡NO ESCAPARÁS!', '¡Soy %n del infierno!', '¡Quémate!'];
   const SPECIAL = { 1: '¡Muy bien, amigo!', 30: 'Mmm… ya me cansé de ser amable', 55: '¡Se me acabó la paciencia! ¡AAARGH! 😡', 60: '¡AHORA SOY %D! 😈', 100: '¡Monedas dobles! Pero ahora va en serio… 😏', 200: '¡Monedas triples! ¿Hasta dónde llegas? 😈' };
+  // La pareja habla en plural.
+  const SAY_PL = {
+    friend: ['¡Qué bien lo haces, amigo!', '¡Muy bien, campeón!', '¡Nos encanta jugar contigo!', '¡Tú puedes, amigo!', '¡Wow, qué buenos reflejos!', '¡Sigue así, crack!', '¡Eres genial!', '¡Qué divertido, cuac cuac!'],
+    challenge: ['¿Seguro que puedes con esto?', 'Veamos cuánto aguantas…', '¿Eso es todo lo que tienes?', 'No te confíes tanto, amigo', 'Ahora sí empieza lo bueno', 'Se acabó lo amable…', '¿Crees que puedes ganarnos?'],
+    angry: ['¡CUAC! ¡Ya nos estás molestando!', '¡Nadie nos gana, nadie!', '¡Te vamos a destrozar la barra!', '¡Estamos perdiendo la paciencia!', '¡DEJA DE REBOTAR ESO!', '¡Nos sacas de quicio!'],
+    devil: ['¡MUAJAJAJA! ¡Eres nuestro!', '¡Arde, mortal!', '¡Bienvenido al infierno, cuac!', '¡NO ESCAPARÁS!', '¡Somos %n del infierno!', '¡Quémate!'],
+    special: { 30: 'Mmm… ya nos cansamos de ser amables', 55: '¡Se nos acabó la paciencia! ¡AAARGH! 😡', 60: '¡AHORA SOMOS %D! 😈' }
+  };
   const pick = list => { let t; do { t = list[Math.floor(Math.random() * list.length)]; } while (t === lastSay && list.length > 1); return t; };
   function talk() {
-    if (SPECIAL[hits]) { say(SPECIAL[hits], 2800); if (hits >= 30) tone(hits >= P_ANGRY ? 110 : 660, .3, hits >= P_ANGRY ? 'sawtooth' : 'triangle', .1, hits >= P_ANGRY ? 55 : 880); return; }
+    const pl = curCh().g === 'p', L = pl ? SAY_PL : { friend: SAY_FRIEND, challenge: SAY_CHALLENGE, angry: SAY_ANGRY, devil: SAY_DEVIL }, sp = (pl && SAY_PL.special[hits]) || SPECIAL[hits];
+    if (sp) { say(sp, 2800); if (hits >= 30) tone(hits >= P_ANGRY ? 110 : 660, .3, hits >= P_ANGRY ? 'sawtooth' : 'triangle', .1, hits >= P_ANGRY ? 55 : 880); return; }
     const every = hits < P_ANGRY ? 4 : 3;
     if (hits % every !== 0) return;
-    say(pick(hits < P_CHALLENGE ? SAY_FRIEND : hits < P_ANGRY ? SAY_CHALLENGE : hits < P_HELL ? SAY_ANGRY : SAY_DEVIL));
+    say(pick(hits < P_CHALLENGE ? L.friend : hits < P_ANGRY ? L.challenge : hits < P_HELL ? L.angry : L.devil));
   }
 
   // Dónde llegará el billete a la altura del Tío Pato (con rebotes en las paredes), para que salga a recibirlo.
@@ -1193,13 +1205,13 @@
     if (vy > 0 && prevY + R <= top + 2 && y + R >= top && Math.abs(x - px) <= pw / 2 + R * .7) {
       y = top - R;
       hits++;                                                    // ¡un rebote más: aquí se cuenta el puntaje!
-      const rt = rateAt(hits);                                   // lo que vale este rebote en pesos
+      const rt = rateAt(hits), val = gameRate * rt;             // lo que vale este rebote en pesos: lo que paga tu pelota × «monedas dobles»
       const off = clamp((x - px) / (pw / 2 + R * .7) + (Math.random() - .5) * .3, -1, 1);
       setVel(Math.sin(off * 1.05), -Math.cos(off * 1.05));       // el ángulo depende de dónde pega en la barra
       renderScores(); bump(meNum); setBig(hits); setBg(); duckLook(); talk();
-      spawn(rt > 1 ? 'pop gold' : 'pop', x, top - 28, '+$' + rt);
+      spawn(val > 1 ? 'pop gold' : 'pop', x, top - 28, '+' + money(val));
       padBurst(x, top);
-      if (hits % TIER === 0) bonusBanner(rt);
+      if (hits % TIER === 0) bonusBanner(rt, val);
       paddle.classList.add('hit'); setTimeout(() => paddle.classList.remove('hit'), 90);
       tone(480 + Math.min(hits, 60) * 10, .07);
       if (navigator.vibrate) navigator.vibrate(8);
@@ -1209,10 +1221,10 @@
 
   // «¡Monedas dobles!» (×2 en el rebote 100, ×3 en el 200…): cartel animado, lluvia de chispas, fanfarria y vibración.
   const multEl = $('mult');
-  function bonusBanner(rt) {
+  function bonusBanner(rt, val) {
     multEl.querySelector('b').textContent = '×' + rt;
     multEl.querySelector('span').textContent = rt === 2 ? '¡Monedas dobles!' : rt === 3 ? '¡Monedas triples!' : `¡Monedas ×${rt}!`;
-    multEl.querySelector('small').textContent = `Cada rebote ahora vale ${money(rt)}`;
+    multEl.querySelector('small').textContent = `Cada rebote ahora vale ${money(val)}`;
     multEl.classList.remove('show'); void multEl.offsetWidth; multEl.classList.add('show');
     for (let i = 0; i < 5; i++) burst(W * (.1 + i * .2), H * .5, 14, ['#ffd54a', '#fff2a0', '#ffb300', '#ff8a1f'], 380 + Math.random() * 160, true);
     [523, 659, 784, 1047, 1319].forEach((f, i) => setTimeout(() => tone(f, .16, 'triangle', .13), i * 80));
@@ -1279,7 +1291,7 @@
   const PKEY = () => 'gana-al-tio-pato-partida-' + (session ? session.uid : 'local');
   const itemOf = (cat, id) => CAT[cat].find(i => i.id === id);
   const owns = (cat, id) => { const it = itemOf(cat, id); return !!it && (it.price === 0 || wallet.own[cat + '_' + id] === true); };
-  const pendingP = () => (pending ? pesosFor(pending.h) : 0);
+  const pendingP = () => (pending ? pending.r * pesosFor(pending.h) : 0);
   const balance = () => Math.max(0, wallet.c + pendingP() - wallet.sp);
   const curCh = () => itemOf('ch', wallet.eq.ch) || CAT.ch[0];
   const savePending = () => { try { if (pending) localStorage.setItem(PKEY(), JSON.stringify(pending)); else localStorage.removeItem(PKEY()); } catch (e) {} };
@@ -1289,7 +1301,7 @@
       const w = JSON.parse(localStorage.getItem(WKEY()) || 'null');
       if (w) { wallet.c = +w.c || 0; wallet.sp = +w.sp || 0; wallet.lr = +w.lr || 0; wallet.own = w.own || {}; wallet.eq = { ...DEF, ...(w.eq || {}) }; }
       const p = AUTH && session ? JSON.parse(localStorage.getItem(PKEY()) || 'null') : null;
-      if (p && +p.s > 0 && +p.h > 0) pending = { s: +p.s, h: +p.h };
+      if (p && +p.s > 0 && +p.h > 0) pending = { s: +p.s, h: +p.h, r: +p.r || 1 };
     } catch (e) {}
     for (const k in DEF) if (!itemOf(k, wallet.eq[k])) wallet.eq[k] = DEF[k];
   }
@@ -1318,14 +1330,15 @@
     try {
       if (pending) await claimRun();                               // primero cobra la partida anterior si quedó pendiente
       const tok = encodeURIComponent(await idToken()), uid = session.uid;
-      const put = t => http(`${DB}/runs/${uid}.json?auth=${t}`, { method: 'PUT', headers: JSONH, body: JSON.stringify({ s: SV }) });
+      const ball = itemOf('ball', wallet.eq.ball) || CAT.ball[0], rate = ball.rate || 1;                       // la pelota y lo que paga quedan anotados al empezar (las reglas los comprueban)
+      const put = t => http(`${DB}/runs/${uid}.json?auth=${t}`, { method: 'PUT', headers: JSONH, body: JSON.stringify({ s: SV, b: ball.id, r: rate }) });
       let r = await put(tok);
       if (r.status === 401 && /token/i.test(await r.clone().text().catch(() => '')) && !/permission/i.test(await r.clone().text().catch(() => ''))) r = await put(encodeURIComponent(await idToken(true)));   // token vencido: se renueva y se reintenta una vez
       if (!r.ok) { runFail = r.status === 401 || r.status === 403 ? 'rules' : 'net'; return null; }
       const g = await http(`${DB}/runs/${uid}/s.json?auth=${tok}`);
       const s = g.ok ? await g.json() : null;
       if (typeof s !== 'number') return null;
-      run = { s }; return run;
+      run = { s, r: rate }; return run;
     } catch (e) { runFail = 'net'; return null; }
   }
   let claiming = null;
@@ -1340,7 +1353,7 @@
       if (!wr.ok) return wr.status === 401 || wr.status === 403 ? 'denied' : 'error';
       const w = (await wr.json()) || {}, best = sr.ok ? (+(await sr.json()) || 0) : 0;
       if (+w.lr === pr.s) { pending = null; savePending(); await pullWallet(); return 'ok'; }      // ya estaba cobrada (se perdió la respuesta)
-      const c0 = +w.c || 0, sp0 = +w.sp || 0, p = pesosFor(pr.h), body = {};
+      const c0 = +w.c || 0, sp0 = +w.sp || 0, p = pr.r * pesosFor(pr.h), body = {};
       body[`runs/${uid}/e`] = SV; body[`runs/${uid}/h`] = pr.h; body[`runs/${uid}/p`] = p;
       body[`wallets/${uid}/c`] = c0 + p; body[`wallets/${uid}/sp`] = sp0; body[`wallets/${uid}/lr`] = pr.s;
       if (pr.h > best) body[`scores/${uid}`] = { n: player.name || session.name, k: session.key, s: pr.h, t: SV };
@@ -1418,7 +1431,8 @@
     for (const it of CAT[shopTab]) {
       const card = document.createElement('div'); card.className = 'item' + (wallet.eq[shopTab] === it.id ? ' on' : '');
       const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = it.n;
-      const nt = document.createElement('div'); nt.className = 'nt'; nt.textContent = it.note || (it.price ? '' : 'Incluido');
+      const nt = document.createElement('div'); nt.className = 'nt';
+      nt.textContent = shopTab === 'ball' ? `Paga ${money(it.rate)} por punto${it.note ? ' · ' + it.note : ''}` : (it.note || (it.price ? '' : 'Incluido'));
       const btn = document.createElement('button'); btn.type = 'button';
       if (wallet.eq[shopTab] === it.id) { btn.className = 'cur'; btn.textContent = 'Equipado ✓'; btn.disabled = true; }
       else if (owns(shopTab, it.id)) { btn.className = 'eq'; btn.textContent = 'Equipar'; btn.onclick = () => equip(shopTab, it.id); }
@@ -1529,6 +1543,7 @@
 
     measure();
     hits = 0; elapsed = 0; keyDir = 0; dragX = null; lastFace = -1;
+    gameRate = (itemOf('ball', wallet.eq.ball) || CAT.ball[0]).rate || 1;
     clearFx(); $('rain').textContent = ''; setEnd(false); setThemeActive(true); applyCosmetics(); setBg();
     document.body.classList.add('ingame'); runP = beginRun();    // el servidor anota la hora de inicio de la partida
     layout(); duckX = duckShow = W / 2; px = W / 2;
@@ -1608,7 +1623,7 @@
       if (!session) { lines.push('❌ No has iniciado sesión'); show(); return; }
       const tok = encodeURIComponent(await idToken()), uid = session.uid;
       await add('Leer tu billetera', await http(`${DB}/wallets/${uid}.json?auth=${tok}`));
-      const w = await http(`${DB}/runs/${uid}.json?auth=${tok}`, { method: 'PUT', headers: JSONH, body: JSON.stringify({ s: SV }) });
+      const w = await http(`${DB}/runs/${uid}.json?auth=${tok}`, { method: 'PUT', headers: JSONH, body: JSON.stringify({ s: SV, b: CAT.ball[0].id, r: CAT.ball[0].rate || 1 }) });
       await add('Empezar una partida (reglas nuevas)', w);
       if (w.ok) { const g = await http(`${DB}/runs/${uid}/s.json?auth=${tok}`); await add('Leer la hora del servidor', g, g.ok ? ' ' + (await g.clone().text()) : ''); lines.push('Las reglas nuevas están activas. Juega otra partida.'); }
       else lines.push(w.status === 401 || w.status === 403 ? '→ Firebase rechazó la escritura: en la base de arriba todavía no están las reglas nuevas. En Firebase → Realtime Database → Reglas debe haber un bloque "runs"; pega firebase-rules.json completo y publica.' : '→ No se pudo hablar con Firebase. Revisa tu conexión.');
@@ -1622,10 +1637,10 @@
     document.body.classList.remove('ingame');
     $('bubble').classList.remove('on'); big.textContent = ''; clearFx(); multEl.classList.remove('show');
 
-    const hp = Math.min(hits, H_MAX), p = pesosFor(hp), record = hp > player.best;
+    const hp = Math.min(hits, H_MAX), p = gameRate * pesosFor(hp), record = hp > player.best;
     $('finalScore').textContent = hits;
     $('finalLabel').textContent = hits === 1 ? 'rebote' : 'rebotes';
-    $('finalSub').textContent = `Aguantaste ${fmtClock(elapsed)} · ${curCh().name} llegó a ${phaseName()}`;
+    $('finalSub').textContent = `Aguantaste ${fmtClock(elapsed)} · ${curCh().name} llegó a ${phaseName()}\n${(itemOf('ball', wallet.eq.ball) || CAT.ball[0]).n} · ${money(gameRate)} por punto`;
     $('bestResult').textContent = record ? '🎉 ¡Nuevo récord personal!' : `Tu mejor puntaje: ${player.best}`;
     renderScores(); setHero(); makeRain(hits >= P_DEVIL); setEnd(true); setThemeActive(false); document.body.classList.remove('hell', 'dark');
     const cl = $('coinsLine'), st = $('saveStatus'); st.className = 'status'; st.textContent = ''; cl.textContent = '';
@@ -1649,7 +1664,7 @@
       st.textContent = rules ? 'Firebase no permitió registrar la partida: hay que publicar las reglas nuevas (firebase-rules.json).' : 'Hace falta internet al empezar la partida para sumar pesos y puntaje.';
       $('bestResult').textContent = `Tu mejor puntaje: ${player.best}`; $('diagBtn').hidden = false; return;
     }
-    pending = { s: rn.s, h: hp }; savePending(); renderCoins();
+    pending = { s: rn.s, h: hp, r: rn.r }; savePending(); renderCoins();
     countUp(cl, p, n => `+${money(n)}`);
     st.textContent = 'Guardando tu partida…';
     for (let i = 0; i < 4; i++) {

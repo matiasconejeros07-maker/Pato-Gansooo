@@ -9,6 +9,8 @@ vm.runInContext(fs.readFileSync(path.join(dir, 'tienda.js'), 'utf8'), ctx);
 const T = ctx.window.TIENDA, ECO = T.eco, E = ECO.tier;
 const CATS = ['ch', 'bg', 'pad', 'ball'];
 const MAIL = '@tio-pato.invalid';
+// pesos por punto de cada pelota (ball[].rate): se escribe como una cadena de «?:» sobre el id de la pelota que quedó anotada al empezar la partida
+const rateExp = b => '(' + T.ball.map(i => `${b} === '${i.id}' ? ${i.rate}`).join(' : ') + ' : 0)';
 
 // pesos ganados con h rebotes: $1 por rebote del 1 al 99, $2 del 100 al 199, $3 del 200 al 299…
 // h + E·t(t−1)/2 + t·(h − E·t + 1), con t = ⌊h/E⌋ (las reglas no tienen variables locales, por eso se repite la expresión).
@@ -31,16 +33,19 @@ const rules = { rules: {
   '.read': false, '.write': false,
 
   // ---- partidas: el servidor pone la hora de inicio y la de fin. Los rebotes no pueden ser más de los que caben en ese tiempo,
-  //      y los pesos de la partida los fijan las reglas (no el jugador). Una partida terminada no se puede volver a terminar. ----
+  //      y los pesos de la partida los fijan las reglas (no el jugador): pelota usada (b, tiene que ser tuya) → pesos por punto (r) → total (p).
+  //      Una partida terminada no se puede volver a terminar. ----
   runs: { $uid: {
     '.read': 'auth != null && auth.uid === $uid',
     '.write': 'auth != null && auth.uid === $uid',
-    '.validate': "newData.hasChild('s')",
+    '.validate': "newData.hasChildren(['s', 'b', 'r'])",
     s: { '.validate': 'newData.isNumber() && (newData.val() === now || newData.val() === data.val())' },
-    e: { '.validate': `newData.isNumber() && newData.val() === now && !data.exists() && data.parent().child('s').exists() && ${P}.child('s').val() === data.parent().child('s').val() && ${P}.hasChildren(['s', 'h', 'p'])` },
-    h: { '.validate': `newData.isNumber() && newData.val() % 1 === 0 && newData.val() >= 0 && newData.val() <= ${ECO.hMax} && !data.exists() && ${P}.hasChildren(['s', 'e', 'p'])`
+    b: { '.validate': `newData.isString() && (newData.val() === '${defaults.ball}' || root.child('wallets').child($uid).child('own').child('ball_' + newData.val()).val() === true)` },
+    r: { '.validate': `newData.isNumber() && newData.val() === ${rateExp(`${P}.child('b').val()`)}` },
+    e: { '.validate': `newData.isNumber() && newData.val() === now && !data.exists() && data.parent().child('s').exists() && ${P}.child('s').val() === data.parent().child('s').val() && ${P}.hasChildren(['s', 'b', 'r', 'h', 'p'])` },
+    h: { '.validate': `newData.isNumber() && newData.val() % 1 === 0 && newData.val() >= 0 && newData.val() <= ${ECO.hMax} && !data.exists() && ${P}.hasChildren(['s', 'b', 'r', 'e', 'p'])`
       + ` && newData.val() * ${ECO.msPorRebote} <= now - ${P}.child('s').val() + ${ECO.holguraMs}` },
-    p: { '.validate': `newData.isNumber() && !data.exists() && ${P}.hasChildren(['s', 'e', 'h']) && newData.val() === ${pesosExp(`${P}.child('h').val()`)}` },
+    p: { '.validate': `newData.isNumber() && !data.exists() && ${P}.hasChildren(['s', 'b', 'r', 'e', 'h']) && newData.val() === ${P}.child('r').val() * ${pesosExp(`${P}.child('h').val()`)}` },
     $other: { '.validate': false }
   } },
 
