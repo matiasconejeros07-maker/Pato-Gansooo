@@ -64,6 +64,15 @@
           ".validate": "newData.isNumber() && newData.val() === newData.parent().parent().parent().child('runs').child($uid).child('s').val() && newData.parent().parent().parent().child('runs').child($uid).child('e').exists() && (!data.exists() || newData.val() > data.val())"
         },
         "own": {
+          "ch_conejo": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 50)"
+          },
+          "ch_conejo2": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 50)"
+          },
+          "ch_bigotes": {
+            ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 150)"
+          },
           "ch_tia": {
             ".validate": "newData.val() === true && (data.exists() || newData.parent().parent().child('sp').val() - root.child('wallets').child(auth.uid).child('sp').val() >= 500)"
           },
