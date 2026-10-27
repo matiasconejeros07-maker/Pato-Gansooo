@@ -217,6 +217,8 @@
   #result .status.err { color: #ffd6d0; }
   #result .best { color: rgba(255,255,255,.85); }
   #result .status, #result .best, #result .link { text-shadow: 0 1px 6px rgba(60,0,90,.55); }
+  #diagOut { margin: 0; width: min(100%, 340px); text-align: left; white-space: pre-wrap; word-break: break-word; font: 12px/1.45 ui-monospace, Menlo, Consolas, monospace; color: #fff; background: rgba(20,0,40,.55); border-radius: 12px; padding: 10px 12px; -webkit-user-select: text; user-select: text; }
+  #diagOut[hidden], #diagBtn[hidden] { display: none; }
 
   /* ---------- marcadores ---------- */
   #board { justify-content: flex-start; gap: 8px; overflow: hidden; }
@@ -560,6 +562,8 @@
       <div class="sub" id="finalSub"></div>
       <div class="coinsline" id="coinsLine"></div>
       <div class="status" id="saveStatus"></div>
+      <button class="link" id="diagBtn" hidden>Ver detalle técnico</button>
+      <pre id="diagOut" hidden></pre>
       <div class="best" id="bestResult"></div>
       <button class="btn" id="again"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Jugar de nuevo</button>
       <button class="btn ghost" id="openShop2">🛍️ Gastar mis pesos</button>
@@ -1292,7 +1296,9 @@
     try {
       if (pending) await claimRun();                               // primero cobra la partida anterior si quedó pendiente
       const tok = encodeURIComponent(await idToken()), uid = session.uid;
-      const r = await http(`${DB}/runs/${uid}.json?auth=${tok}`, { method: 'PUT', headers: JSONH, body: JSON.stringify({ s: SV }) });
+      const put = t => http(`${DB}/runs/${uid}.json?auth=${t}`, { method: 'PUT', headers: JSONH, body: JSON.stringify({ s: SV }) });
+      let r = await put(tok);
+      if (r.status === 401 && /token/i.test(await r.clone().text().catch(() => '')) && !/permission/i.test(await r.clone().text().catch(() => ''))) r = await put(encodeURIComponent(await idToken(true)));   // token vencido: se renueva y se reintenta una vez
       if (!r.ok) { runFail = r.status === 401 || r.status === 403 ? 'rules' : 'net'; return null; }
       const g = await http(`${DB}/runs/${uid}/s.json?auth=${tok}`);
       const s = g.ok ? await g.json() : null;
@@ -1565,6 +1571,27 @@
     }
   }
 
+  // Prueba paso a paso lo que Firebase deja hacer a esta cuenta y lo muestra en pantalla (sirve para saber si las reglas están publicadas).
+  const BUILD = 'v8';
+  async function diagnose() {
+    const out = $('diagOut'), lines = [`Versión del juego: ${BUILD}`, `Base de datos: ${DB.replace(/^https?:\/\//, '')}`];
+    out.hidden = false; const show = () => { out.textContent = lines.join('\n'); };
+    const add = async (t, r, extra) => { let d = ''; if (!r.ok) { try { d = ' ' + (await r.text()).slice(0, 110); } catch (e) {} } lines.push(`${r.ok ? '✅' : '❌'} ${t} · ${r.status}${d}${extra || ''}`); show(); };
+    lines.push('Probando…'); show();
+    try {
+      lines.pop();
+      await add('Leer marcadores', await http(`${DB}/scores.json?shallow=true`));
+      if (!session) { lines.push('❌ No has iniciado sesión'); show(); return; }
+      const tok = encodeURIComponent(await idToken()), uid = session.uid;
+      await add('Leer tu billetera', await http(`${DB}/wallets/${uid}.json?auth=${tok}`));
+      const w = await http(`${DB}/runs/${uid}.json?auth=${tok}`, { method: 'PUT', headers: JSONH, body: JSON.stringify({ s: SV }) });
+      await add('Empezar una partida (reglas nuevas)', w);
+      if (w.ok) { const g = await http(`${DB}/runs/${uid}/s.json?auth=${tok}`); await add('Leer la hora del servidor', g, g.ok ? ' ' + (await g.clone().text()) : ''); lines.push('Las reglas nuevas están activas. Juega otra partida.'); }
+      else lines.push(w.status === 401 || w.status === 403 ? '→ Firebase rechazó la escritura: en la base de arriba todavía no están las reglas nuevas. En Firebase → Realtime Database → Reglas debe haber un bloque "runs"; pega firebase-rules.json completo y publica.' : '→ No se pudo hablar con Firebase. Revisa tu conexión.');
+    } catch (e) { lines.push('❌ Sin conexión (' + e.message + ')'); }
+    show();
+  }
+
   async function endGame() {
     state = 'over';
     target.style.visibility = 'hidden'; paddle.style.visibility = 'hidden'; duck.style.visibility = 'hidden'; unlockScreen();
@@ -1578,6 +1605,7 @@
     $('bestResult').textContent = record ? '🎉 ¡Nuevo récord personal!' : `Tu mejor puntaje: ${player.best}`;
     renderScores(); setHero(); makeRain(hits >= P_DEVIL); setEnd(true); setThemeActive(false); document.body.classList.remove('hell', 'dark');
     const cl = $('coinsLine'), st = $('saveStatus'); st.className = 'status'; st.textContent = ''; cl.textContent = '';
+    $('diagBtn').hidden = true; $('diagOut').hidden = true;
     tone(300, .35, 'sawtooth', .1, 120);
     show('result');
     if (hp === 0) { cl.textContent = 'Sin pesos esta vez. ¡Rebota más!'; fetchLeader(); return; }
@@ -1595,7 +1623,7 @@
       const rules = runFail === 'rules';
       cl.textContent = rules ? 'Esta partida no se pudo guardar.' : 'Sin conexión: esta partida no sumó pesos.'; st.className = 'status err';
       st.textContent = rules ? 'Firebase no permitió registrar la partida: hay que publicar las reglas nuevas (firebase-rules.json).' : 'Hace falta internet al empezar la partida para sumar pesos y puntaje.';
-      $('bestResult').textContent = `Tu mejor puntaje: ${player.best}`; return;
+      $('bestResult').textContent = `Tu mejor puntaje: ${player.best}`; $('diagBtn').hidden = false; return;
     }
     pending = { s: rn.s, h: hp }; savePending(); renderCoins();
     countUp(cl, p, n => `+${money(n)}`);
@@ -1612,13 +1640,13 @@
       }
       if (res === 'denied') {
         cl.textContent = 'Esta partida no se pudo cobrar.'; st.className = 'status err'; $('bestResult').textContent = `Tu mejor puntaje: ${player.best}`;
-        st.textContent = 'Firebase no permitió guardar la partida (revisa que las reglas nuevas estén publicadas).'; return;
+        st.textContent = 'Firebase no permitió guardar la partida (revisa que las reglas nuevas estén publicadas).'; $('diagBtn').hidden = false; return;
       }
       st.className = 'status err'; st.textContent = 'No se pudo guardar. Reintentando…';
       await new Promise(r => setTimeout(r, 4000));
       if (state !== 'over') return;
     }
-    st.textContent = 'Sin conexión: tus pesos se cobrarán solos cuando vuelva internet.';
+    st.textContent = 'Sin conexión: tus pesos se cobrarán solos cuando vuelva internet.'; $('diagBtn').hidden = false;
   }
 
   function backToMenu() {
@@ -1638,6 +1666,7 @@
   $('tabUp').addEventListener('click', () => setAuthMode('up'));
   $('eye').addEventListener('click', () => { const p = $('pass'); const show = p.type === 'password'; p.type = show ? 'text' : 'password'; $('eye').textContent = show ? '🙈' : '👁'; });
   $('logout').addEventListener('click', logout);
+  $('diagBtn').addEventListener('click', diagnose);
   $('openShop').addEventListener('click', () => openShop('menu'));
   $('openShop2').addEventListener('click', () => openShop('result'));
   $('shopBack').addEventListener('click', closeShop);
