@@ -37,15 +37,15 @@ Firebase Realtime Database (gratis, aguanta miles de jugadores) y toma unos 5 mi
   - **Personajes:** Tío Pato (incluido) y Tía Patita ($500). Los dos empiezan de ángel y se vuelven demonio igual.
   - **Fondos:** Atardecer, Cristal, Aurora boreal, Galaxia, Holográfico y Synthwave (difuminados y animados).
   - **Barras:** Oro líquido, Llamarada, Cristal, Neón, Galaxia, Arcoíris y Holográfica; cada una con su color, brillo, partículas y un anillo de luz en cada rebote.
-  - **Pelotas:** empiezas con la **moneda de $1** (que gira y brilla). Se compran las monedas de $10, $50, $100 y $500 y los billetes de $1.000, $2.000, $5.000, $10.000 y $20.000 (que revolotean). Precio = su valor en pesos.
+  - **Pelotas:** empiezas con la **moneda de $1** (que gira en el sentido del reloj y brilla). Se compran las monedas de $10, $50, $100 y $500 (giran igual) y los billetes de $1.000, $2.000, $5.000, $10.000 y $20.000 (que revolotean). Precio = su valor en pesos.
 - Sin cuentas (modo local) los pesos y compras quedan solo en ese celular.
 - El catálogo y los precios están en `tienda.js`. Si cambias algo, ejecuta `node juego/herramientas/generar-reglas.js`
   (regenera `firebase-rules.json`, porque las reglas también validan precios y pesos) y vuelve a pegar las reglas en Firebase → Realtime Database → Reglas → Publicar.
 
 ### Cambiar las imágenes de las pelotas
-Están en `skins/` (WebP con fondo transparente). `peso1`, `b1000`, `b10000` y `b20000` son las reales; **`peso10`, `peso50`, `peso100`, `peso500`, `b2000` y `b5000` son provisorias**.
-Para reemplazarlas basta con guardar la imagen nueva con el mismo nombre (monedas cuadradas de ~256 px, billetes de ~420 px de ancho) y subir el número de `VERSION` en `sw.js`
-para que los celulares descarguen lo nuevo. Los ajustes de cada pelota (animación `flip`/`flutter`, tamaño y color de la estela) están en `tienda.js`.
+Están en `skins/` (WebP con fondo transparente). Ya están todas las imágenes reales.
+Para reemplazarlas basta con guardar la imagen nueva con el mismo nombre (monedas de ~300 px, billetes de ~440 px de ancho) y subir el número de `VERSION` en `sw.js`
+para que los celulares descarguen lo nuevo. Los ajustes de cada pelota (animación `spin`/`flutter`, tamaño y color de la estela) están en `tienda.js`.
 
 ## Anti-trampas: cómo se protege el juego
 

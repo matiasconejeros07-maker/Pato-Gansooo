@@ -389,11 +389,11 @@
   /* ---------- pelotas: monedas que giran y billetes que revolotean ---------- */
   .ball { position: absolute; inset: 0; display: grid; place-items: center; }
   .ball img { width: calc(100% * var(--bw, 1)); max-width: none; height: auto; display: block; -webkit-user-drag: none; will-change: transform; }
-  .ball.flip img { animation: coinFlip 1.15s linear infinite, glint 1.15s linear infinite; }
+  .ball.spin img { animation: coinSpin 1.6s linear infinite, glint 1.6s linear infinite; }
   .ball.flutter img { animation: flutter .9s ease-in-out infinite; }
   .ball.emoji { font-size: calc(56px * var(--k, 1)); line-height: 1; animation: spin .75s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  @keyframes coinFlip { from { transform: perspective(520px) rotateY(0); } to { transform: perspective(520px) rotateY(360deg); } }
+  @keyframes coinSpin { to { transform: rotate(360deg); } }       /* la moneda gira como una rueda, en el sentido del reloj */
   @keyframes glint { 0%, 100% { filter: brightness(1) drop-shadow(0 3px 3px rgba(0,0,0,.3)); } 14% { filter: brightness(1.5) saturate(1.2) drop-shadow(0 0 8px rgba(255,255,255,.9)); } 30% { filter: brightness(.9) drop-shadow(0 3px 3px rgba(0,0,0,.3)); } 64% { filter: brightness(1.45) saturate(1.2) drop-shadow(0 0 8px rgba(255,255,255,.9)); } 80% { filter: brightness(.92) drop-shadow(0 3px 3px rgba(0,0,0,.3)); } }
   @keyframes flutter { 0%, 100% { transform: rotate(-11deg) scale(1, 1); } 25% { transform: rotate(3deg) scale(1.05, .8); } 50% { transform: rotate(12deg) scale(1, 1); } 75% { transform: rotate(-4deg) scale(1.05, .8); } }
 
@@ -1242,7 +1242,7 @@
   const CAT = window.TIENDA || {
     ch: [{ id: 'tio', n: 'Tío Pato', price: 0, dir: 'pato/', name: 'el Tío Pato', g: 'm', css: {} }],
     bg: [{ id: 'clasico', n: 'Clásico', price: 0 }], pad: [{ id: 'clasica', n: 'Clásica', price: 0 }],
-    ball: [{ id: 'peso1', n: 'Moneda $1', price: 0, img: 'skins/peso1.webp', fx: 'flip', w: 1, trail: '#d5dbe8' }]
+    ball: [{ id: 'peso1', n: 'Moneda $1', price: 0, img: 'skins/peso1.webp', fx: 'spin', w: 1, trail: '#d5dbe8' }]
   };
   const DEF = { ch: CAT.ch[0].id, bg: CAT.bg[0].id, pad: CAT.pad[0].id, ball: CAT.ball[0].id };
   const themeEl = $('theme');
