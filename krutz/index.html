@@ -3,131 +3,130 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Carta · KRUTZ Pizzería</title>
-<meta name="description" content="Carta digital de KRUTZ Pizzería: pizzas de 35 cm, pizza portafoglio, opción Napoletana con San Marzano DOP y mozzarella di bufala, café, bollería y más, con precios.">
-<meta name="theme-color" content="#2C3320">
+<title>Menú | KRUTZ Pizzería Artesanal</title>
+<meta name="description" content="Carta de KRUTZ: pizza portafoglio, pizzas estilo napoletano, papas, salsas, bollería, café y bebidas en San Bernardo. Con fotos y precios.">
+<meta name="theme-color" content="#000000">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Carta · KRUTZ Pizzería">
-<meta property="og:description" content="Pizzas de 35 cm, portafoglio, opción Napoletana, café y bollería. Revisa la carta completa con precios.">
-<meta property="og:locale" content="es_CL">
-<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preload" href="assets/fonts/cormorant-garamond.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/video/horno-poster.jpg" as="image">
+<meta property="og:title" content="Menú | KRUTZ Pizzería Artesanal">
+<meta property="og:description" content="Buena masa, buenos ingredientes. Para volver siempre.">
 <meta property="og:image" content="assets/fotos/pesto-burrata.jpg">
-<link rel="stylesheet" href="assets/css/carta.css?v=5">
+<meta property="og:locale" content="es_CL">
+<link rel="icon" href="assets/img/krutz-logo-256.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/krutz-logo-256.png">
+<link rel="preload" href="assets/fonts/league-spartan-800.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/dm-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/carta.css?v=13">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Restaurant",
-  "name": "KRUTZ Pizzería",
+  "name": "KRUTZ Pizzería Artesanal",
   "url": "https://krutz.cl",
   "email": "contacto@krutz.cl",
-  "telephone": "+56 9 7549 8719",
-  "servesCuisine": ["Italiana", "Pizza"],
+  "telephone": "+56 9 5373 0459",
+  "servesCuisine": ["Pizza", "Italiana"],
+  "address": { "@type": "PostalAddress", "addressLocality": "San Bernardo", "addressRegion": "Región Metropolitana", "addressCountry": "CL" },
   "sameAs": ["https://www.instagram.com/krutz.cl/"]
 }
 </script>
 </head>
 <body>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2v20"/><path d="M2 12h20"/><path d="m4.93 4.93 14.14 14.14"/><path d="m19.07 4.93-14.14 14.14"/></symbol>
+  <symbol id="i-ig" viewBox="0 0 24 24"><rect width="20" height="20" x="2" y="2" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></symbol>
+  <symbol id="i-wa" viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-10 6L2 7"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></symbol>
+</svg>
+
 <a class="skip" href="#carta">Ir a la carta</a>
 
-<header class="bar" id="bar">
-  <div class="bar__inner">
-    <a class="brand" href="#inicio" aria-label="KRUTZ Pizzería, ir al inicio">
-      <span class="brand__name">KRUTZ</span>
-      <span class="brand__sub">Pizzería</span>
-    </a>
-    <a class="ig-btn" href="https://www.instagram.com/krutz.cl/" target="_blank" rel="noopener" aria-label="Instagram de KRUTZ (@krutz.cl)">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg>
-      <span>@krutz.cl</span>
-    </a>
-  </div>
-  <nav class="cats" id="cats" aria-label="Categorías de la carta">
-    <ul class="cats__list" id="cats-list"></ul>
+<div class="topbar">
+  <span>Masa con biga</span>
+  <svg class="icon star" aria-hidden="true"><use href="#i-star"/></svg>
+  <span>Ingredientes seleccionados</span>
+  <svg class="icon star" aria-hidden="true"><use href="#i-star"/></svg>
+  <span>Hecho a mano</span>
+</div>
+
+<header class="site-header">
+  <nav class="wrap header-nav" aria-label="Navegación principal">
+    <a href="https://krutz.cl" aria-label="KRUTZ Pizzería Artesanal, ir a krutz.cl"><img class="logo" src="assets/img/krutz-logo-256.png" alt="KRUTZ Pizzería Artesanal" width="76" height="76"></a>
+    <div class="header-links">
+      <a href="#pizzas">Las pizzas</a>
+      <a href="https://www.instagram.com/krutz.cl/" target="_blank" rel="noopener">Instagram</a>
+      <a class="header-cta" data-wa href="https://wa.me/56953730459" target="_blank" rel="noopener">Pedir por WhatsApp ↗</a>
+    </div>
   </nav>
 </header>
 
 <main>
-  <section class="hero" id="inicio">
-    <div class="hero__media" id="hero-media" aria-hidden="true"></div>
-    <div class="hero__frame">
-      <p class="hero__kicker">Carta digital</p>
-      <h1 class="hero__title">
-        <span class="hero__word">KRUTZ</span>
-        <span class="hero__sub"><i></i>Pizzería<i></i></span>
-      </h1>
-      <p class="hero__tag">Tradizione italiana, <em>spirito contemporaneo.</em></p>
-      <div class="hero__actions">
-        <a class="btn btn--light" href="#carta">Ver la carta</a>
-        <a class="btn btn--ghost-light" href="https://www.instagram.com/krutz.cl/" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg>
-          Instagram
-        </a>
+  <section class="hero" aria-labelledby="menu-title">
+    <div class="wrap hero-grid">
+      <div class="hero-text">
+        <div class="eyebrow"><i></i>KRUTZ · Pizzería artesanal · San Bernardo</div>
+        <h1 id="menu-title">Menu</h1>
+        <p class="hero-copy">Buena masa, buenos ingredientes.<br>Para volver siempre.</p>
       </div>
+      <figure class="hero-video" id="hero-media">
+        <figcaption class="hero-note">
+          <strong>Pizza estilo napoletano.</strong>
+          <span>Masa de fermentación prolongada, preparada con harina de los mejores cultivos de trigo en Italia. Simplemente, buena pizza.</span>
+        </figcaption>
+      </figure>
     </div>
-    <a class="hero__scroll" href="#carta" aria-label="Bajar a la carta">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-    </a>
   </section>
 
-  <section class="spot" id="spotlight" aria-label="Pizza destacada" hidden>
-    <div class="spot__inner"></div>
-  </section>
+  <div class="ticker" aria-hidden="true">
+    <span>Para comer al paso</span><b>✳</b><span>Para compartir</span><b>✳</b><span>Para volver siempre</span>
+  </div>
 
-  <div class="carta" id="carta"></div>
+  <nav class="category-nav" aria-label="Categorías del menú">
+    <div class="wrap" id="cats"></div>
+  </nav>
 
-  <section class="follow" id="instagram">
-    <div class="follow__card">
-      <div class="follow__copy">
-        <p class="eyebrow">Seguici</p>
-        <h2 class="follow__title">Síguenos en <em>@krutz.cl</em></h2>
-        <p>Novedades, productos y todo lo que sale de nuestro horno, en Instagram.</p>
-        <a class="btn btn--olive" href="https://www.instagram.com/krutz.cl/" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg>
-          Ir a Instagram
+  <div class="menu-main" id="carta">
+    <div class="wrap menu-grid" id="menu-grid"></div>
+  </div>
+
+  <section class="follow" aria-labelledby="follow-title">
+    <div class="wrap follow-grid">
+      <div>
+        <div class="section-kicker">Síguenos</div>
+        <h2 id="follow-title">@krutz.cl</h2>
+        <p class="section-intro">Lo que sale del horno, novedades y todo lo que pasa en KRUTZ, en Instagram.</p>
+        <a class="btn-box" href="https://www.instagram.com/krutz.cl/" target="_blank" rel="noopener">
+          <svg class="icon" aria-hidden="true"><use href="#i-ig"/></svg> Ir a Instagram ↗
         </a>
       </div>
-      <a class="follow__qr" href="https://www.instagram.com/krutz.cl/" target="_blank" rel="noopener" aria-label="Código QR al Instagram de KRUTZ">
-        <img src="qr/qr-instagram-krutz.svg" width="180" height="180" alt="Código QR que abre el Instagram @krutz.cl" loading="lazy">
+      <a class="follow-qr" href="https://www.instagram.com/krutz.cl/" target="_blank" rel="noopener" aria-label="Código QR al Instagram de KRUTZ">
+        <img src="qr/qr-instagram-krutz-bn.svg" width="168" height="168" alt="Código QR que abre el Instagram @krutz.cl" loading="lazy">
         <span>Escanea con la cámara</span>
       </a>
     </div>
   </section>
 </main>
 
-<footer class="foot">
-  <div class="foot__inner">
-    <p class="foot__brand">KRUTZ <span>Pizzería</span></p>
-    <ul class="foot__links">
-      <li><a href="https://krutz.cl" target="_blank" rel="noopener">krutz.cl</a></li>
-      <li><a href="mailto:contacto@krutz.cl">contacto@krutz.cl</a></li>
-      <li><a href="tel:+56975498719">+56 9 7549 8719</a></li>
-      <li><a href="https://www.instagram.com/krutz.cl/" target="_blank" rel="noopener">Instagram @krutz.cl</a></li>
-    </ul>
-    <p class="foot__note">Precios en pesos chilenos, IVA incluido.</p>
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <a href="https://krutz.cl" aria-label="Ir a krutz.cl"><img class="logo" src="assets/img/krutz-logo-256.png" alt="KRUTZ Pizzería Artesanal" width="76" height="76" loading="lazy"></a>
+      <div class="footer-tagline">Buena pizza. Buenos momentos. Para volver siempre.</div>
+      <div class="footer-links">
+        <a class="link-with-icon" href="https://www.instagram.com/krutz.cl/" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="#i-ig"/></svg>Instagram @krutz.cl</a>
+        <a class="link-with-icon" data-wa href="https://wa.me/56953730459" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="#i-wa"/></svg>+56 9 5373 0459</a>
+        <a class="link-with-icon" href="mailto:contacto@krutz.cl"><svg class="icon" aria-hidden="true"><use href="#i-mail"/></svg>contacto@krutz.cl</a>
+        <a href="#menu-title">Volver arriba ↑</a>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© <span id="year">2026</span> KRUTZ · Pizzería Artesanal</span><span>Precios con IVA incluido · San Bernardo, Región Metropolitana</span></div>
   </div>
 </footer>
 
-<dialog class="sheet" id="sheet" aria-labelledby="sheet-title">
-  <div class="sheet__card">
-    <button class="sheet__close" type="button" data-close aria-label="Cerrar">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
-    </button>
-    <div class="sheet__media" id="sheet-media"></div>
-    <div class="sheet__body">
-      <p class="sheet__cat" id="sheet-cat"></p>
-      <h2 class="sheet__title" id="sheet-title"></h2>
-      <p class="sheet__detail" id="sheet-detail"></p>
-      <p class="sheet__desc" id="sheet-desc"></p>
-      <div class="sheet__napo" id="sheet-napo" hidden></div>
-      <p class="sheet__price" id="sheet-price"></p>
-    </div>
-  </div>
-</dialog>
+<a class="float-contact" data-wa href="https://wa.me/56953730459" target="_blank" rel="noopener" aria-label="Pedir a KRUTZ por WhatsApp">WhatsApp ↗</a>
 
-<script src="assets/js/carta.js?v=3"></script>
-<script src="assets/js/app.js?v=4"></script>
+<script src="assets/js/carta.js?v=10"></script>
+<script src="assets/js/app.js?v=10"></script>
 </body>
 </html>
