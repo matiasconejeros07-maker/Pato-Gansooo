@@ -120,9 +120,11 @@ button { font: inherit; color: inherit; }
     radial-gradient(90% 60% at 50% 110%, rgba(0, 0, 0, .35), transparent 70%);
 }
 .hero__media { position: absolute; inset: 0; z-index: -2; background: center / cover no-repeat; }
+.hero__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 70%; }
+.hero__media { background-position: 50% 70%; }
 .hero.has-photo::before { background: linear-gradient(180deg, rgba(20, 22, 14, .55) 0%, rgba(20, 22, 14, .35) 45%, rgba(20, 22, 14, .8) 100%); }
 .hero__frame {
-  position: relative; width: min(100%, 560px); min-width: 0; padding: 52px 18px 44px;
+  position: relative; width: min(100%, 680px); min-width: 0; padding: 52px 18px 44px;
   border: 1px solid rgba(243, 238, 223, .28);
 }
 .hero__frame::before, .hero__frame::after {
@@ -132,7 +134,7 @@ button { font: inherit; color: inherit; }
   linear-gradient(var(--tomato), var(--tomato)) top center / 64px 2px no-repeat; }
 .hero__kicker { font: 600 11px/1 var(--sans); letter-spacing: .32em; text-transform: uppercase; color: var(--on-olive-muted); }
 .hero__title { margin: 22px 0 18px; font-weight: 400; }
-.hero__word { display: block; font: 600 clamp(56px, 17vw, 168px)/.9 var(--serif); letter-spacing: .1em; margin-right: -.1em; }
+.hero__word { display: block; font: 600 clamp(56px, 17vw, 132px)/.9 var(--serif); letter-spacing: .1em; margin-right: -.1em; }
 .hero__sub { display: inline-flex; align-items: center; gap: 14px; margin-top: 14px; font: 500 12px/1 var(--sans); letter-spacing: .5em; text-transform: uppercase; margin-right: -.5em; }
 .hero__sub i { width: 34px; height: 1px; background: var(--tomato); }
 .hero__tag { font: 400 italic clamp(19px, 5.4vw, 24px)/1.3 var(--serif); color: var(--on-olive); }
@@ -140,6 +142,23 @@ button { font: inherit; color: inherit; }
 .hero__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 34px; }
 .hero__scroll { position: absolute; bottom: 22px; left: 50%; translate: -50% 0; display: grid; place-items: center; width: 44px; height: 44px; color: var(--on-olive-muted); animation: nudge 2.4s ease-in-out infinite; }
 @keyframes nudge { 50% { transform: translateY(6px); } }
+
+/* ---------- Pizza destacada ---------- */
+.spot { padding: 48px max(var(--gutter), env(safe-area-inset-left)) 8px; }
+.spot__inner { max-width: 1240px; margin: 0 auto; display: grid; gap: 26px; align-items: center; }
+.spot__media { position: relative; margin: 0; border-radius: 22px; overflow: hidden; aspect-ratio: 4 / 3; box-shadow: 0 30px 60px -30px rgba(30, 28, 25, .45); }
+.spot__media::after { content: ""; position: absolute; inset: 10px; border: 1px solid rgba(255, 255, 255, .35); border-radius: 14px; pointer-events: none; }
+.spot__media img { width: 100%; height: 100%; object-fit: cover; }
+.spot__kicker { font: 500 italic 22px/1 var(--serif); color: var(--tomato); }
+.spot__title { margin-top: 8px; font: 600 clamp(44px, 12vw, 76px)/.95 var(--serif); letter-spacing: -.01em; }
+.spot__detail { margin-top: 12px; font: 500 12px/1.2 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.spot__desc { margin-top: 12px; color: var(--muted); max-width: 46ch; }
+.spot__row { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 24px; margin-top: 24px; }
+.spot__price { font: 700 28px/1 var(--sans); }
+@media (min-width: 900px) {
+  .spot { padding-top: 88px; }
+  .spot__inner { grid-template-columns: 1.25fr 1fr; gap: 64px; }
+}
 
 /* ---------- Carta ---------- */
 .carta { max-width: 1240px; margin: 0 auto; padding: 24px max(var(--gutter), env(safe-area-inset-left)) 40px; }
@@ -199,7 +218,7 @@ button { font: inherit; color: inherit; }
 
 /* Destacado (pizzas): foto más grande */
 .cat--destacado .card__media { aspect-ratio: 4 / 3; }
-.card__media.is-empty { aspect-ratio: 16 / 9; }
+@media (max-width: 639px) { .cat--destacado .card__media.is-empty { aspect-ratio: 16 / 9; } }
 .cat--tarjetas .card__media.is-empty { aspect-ratio: 4 / 3; }
 @media (min-width: 640px) {
   .cat--destacado .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }

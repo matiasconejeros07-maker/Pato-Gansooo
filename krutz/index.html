@@ -13,7 +13,9 @@
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/cormorant-garamond.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/css/carta.css?v=2">
+<link rel="preload" href="assets/video/horno-poster.jpg" as="image">
+<meta property="og:image" content="assets/fotos/pesto-burrata.jpg">
+<link rel="stylesheet" href="assets/css/carta.css?v=4">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -69,6 +71,10 @@
     </a>
   </section>
 
+  <section class="spot" id="spotlight" aria-label="Pizza destacada" hidden>
+    <div class="spot__inner"></div>
+  </section>
+
   <div class="carta" id="carta"></div>
 
   <section class="follow" id="instagram">
@@ -119,7 +125,7 @@
   </div>
 </dialog>
 
-<script src="assets/js/carta.js?v=1"></script>
-<script src="assets/js/app.js?v=1"></script>
+<script src="assets/js/carta.js?v=2"></script>
+<script src="assets/js/app.js?v=3"></script>
 </body>
 </html>

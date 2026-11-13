@@ -23,8 +23,13 @@ window.KRUTZ = {
   instagram: "https://www.instagram.com/krutz.cl/",
   instagramUsuario: "@krutz.cl",
 
-  // Foto principal de la portada (assets/fotos/…). Vacía = portada tipográfica.
-  fotoPortada: "",
+  // Portada: video en loop (sin sonido) y su imagen de respaldo.
+  // Si ambos quedan vacíos se muestra la portada tipográfica.
+  videoPortada: "assets/video/horno.mp4",
+  fotoPortada: "assets/video/horno-poster.jpg",
+
+  // Pizza destacada bajo la portada (nombre exacto de un producto).
+  destacado: "Pesto Burrata",
 
   napoletana: {
     titulo: "Hazla Napoletana",
@@ -51,11 +56,11 @@ window.KRUTZ = {
       estilo: "destacado",
       napoletana: true,
       productos: [
-        { nombre: "Margherita", precio: 7990, detalle: "35 cm", descripcion: "", foto: "", etiqueta: "", napoletana: true },
-        { nombre: "Pepperoni", precio: 9990, detalle: "35 cm", descripcion: "", foto: "", etiqueta: "" },
-        { nombre: "Pollo BBQ", precio: 12990, detalle: "35 cm", descripcion: "", foto: "", etiqueta: "" },
+        { nombre: "Margherita", precio: 7990, detalle: "35 cm", descripcion: "", foto: "assets/fotos/margherita.jpg", etiqueta: "", napoletana: true },
+        { nombre: "Pepperoni", precio: 9990, detalle: "35 cm", descripcion: "", foto: "assets/fotos/pepperoni.jpg", etiqueta: "" },
+        { nombre: "Pollo BBQ", precio: 12990, detalle: "35 cm", descripcion: "", foto: "assets/fotos/pollo-bbq.jpg", etiqueta: "" },
         { nombre: "Prosciutto Cotto e Funghi", precio: 13990, detalle: "35 cm", descripcion: "", foto: "", etiqueta: "", napoletana: true },
-        { nombre: "Pesto Burrata", precio: 16990, detalle: "35 cm", descripcion: "", foto: "", etiqueta: "" },
+        { nombre: "Pesto Burrata", precio: 16990, detalle: "35 cm", descripcion: "", foto: "assets/fotos/pesto-burrata.jpg", etiqueta: "" },
         { nombre: "Burrata e Pomodorini", precio: 16990, detalle: "35 cm", descripcion: "", foto: "", etiqueta: "" },
         { nombre: "Diavola KRUTZ", precio: 13990, detalle: "35 cm", descripcion: "", foto: "", etiqueta: "", napoletana: true }
       ]

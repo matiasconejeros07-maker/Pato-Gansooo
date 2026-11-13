@@ -46,11 +46,48 @@
     return box;
   }
 
-  /* ---------- Portada ---------- */
-  if (data.fotoPortada) {
-    var hm = document.getElementById("hero-media");
-    hm.style.backgroundImage = "url('" + data.fotoPortada + "')";
+  /* ---------- Portada: video del horno (o foto de respaldo) ---------- */
+  var hm = document.getElementById("hero-media");
+  if (data.videoPortada || data.fotoPortada) {
     document.getElementById("inicio").classList.add("has-photo");
+    if (data.fotoPortada) hm.style.backgroundImage = "url('" + data.fotoPortada + "')";
+    if (data.videoPortada && !reduceMotion) {
+      var v = el("video", "hero__video");
+      v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
+      v.setAttribute("muted", ""); v.setAttribute("playsinline", "");
+      v.preload = "auto";
+      if (data.fotoPortada) v.poster = data.fotoPortada;
+      v.src = data.videoPortada;
+      hm.appendChild(v);
+      var p = v.play && v.play();
+      if (p && p.catch) p.catch(function () { /* sin autoplay: queda la foto */ });
+    }
+  }
+
+  /* ---------- Pizza destacada ---------- */
+  var destacada = null;
+  data.categorias.forEach(function (c) {
+    c.productos.forEach(function (p) { if (p.nombre === data.destacado && p.foto) destacada = { cat: c, prod: p }; });
+  });
+  var spot = document.getElementById("spotlight");
+  if (destacada && spot) {
+    var fig = el("figure", "spot__media reveal");
+    var simg = el("img");
+    simg.src = destacada.prod.foto; simg.alt = destacada.prod.nombre; simg.decoding = "async";
+    fig.appendChild(simg);
+    var sc = el("div", "spot__copy reveal");
+    sc.appendChild(el("p", "spot__kicker", "In primo piano"));
+    sc.appendChild(el("h2", "spot__title", destacada.prod.nombre));
+    if (destacada.prod.detalle) sc.appendChild(el("p", "spot__detail", "Pizza · " + destacada.prod.detalle));
+    if (destacada.prod.descripcion) sc.appendChild(el("p", "spot__desc", destacada.prod.descripcion));
+    var row = el("div", "spot__row");
+    row.appendChild(el("span", "spot__price", precio(destacada.prod.precio)));
+    var go = el("a", "btn btn--olive", "Ver todas las pizzas");
+    go.href = "#" + destacada.cat.id;
+    row.appendChild(go);
+    sc.appendChild(row);
+    spot.querySelector(".spot__inner").append(fig, sc);
+    spot.hidden = false;
   }
 
   /* ---------- Carta ---------- */

@@ -12,7 +12,8 @@ Todo está en **`assets/js/carta.js`**:
 - **Descripción / ingredientes:** campo `descripcion`. Si está vacío no se muestra nada.
 - **Etiqueta:** `"Favorito"`, `"Especialidad"` o `"Recomendado"` (solo las aprobadas).
 - **Napoletana:** `napoletana: true` en las pizzas que la admiten.
-- **Foto de portada:** `fotoPortada`.
+- **Portada:** `videoPortada` (video del horno, en loop y sin sonido) y `fotoPortada` (imagen de respaldo).
+- **Pizza destacada:** `destacado` (nombre exacto de un producto con foto).
 
 ## QR
 
