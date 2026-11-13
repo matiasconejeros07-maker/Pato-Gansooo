@@ -20,6 +20,7 @@ window.KRUTZ = {
   marca: "KRUTZ",
   sitio: "https://krutz.cl",
   correo: "contacto@krutz.cl",
+  telefono: "+56 9 7549 8719",
   instagram: "https://www.instagram.com/krutz.cl/",
   instagramUsuario: "@krutz.cl",
 
@@ -34,8 +35,8 @@ window.KRUTZ = {
   napoletana: {
     titulo: "Hazla Napoletana",
     precio: 5000,
-    texto: "Reemplaza el Pomodoro KRUTZ y la mozzarella fior di latte por tomate San Marzano DOP y una mozzarella di bufala completa de 125 g.",
-    disponible: "Disponible solo para Margherita, Prosciutto Cotto e Funghi y Diavola KRUTZ."
+    texto: "Reemplazamos nuestro Pomodoro KRUTZ y fior di latte por tomate San Marzano DOP y una mozzarella di bufala completa de 125 g.",
+    disponible: "Disponible únicamente para Margherita, Prosciutto Cotto e Funghi y Diavola KRUTZ."
   },
 
   categorias: [
@@ -44,9 +45,10 @@ window.KRUTZ = {
       nombre: "Pizza Portafoglio",
       italiano: "Pizza a portafoglio",
       estilo: "destacado",
+      intro: "Pizza individual elaborada con bollo de 150 g, pensada para doblar y comer al paso.",
       productos: [
-        { nombre: "Portafoglio Margherita", precio: 3990, detalle: "", descripcion: "", foto: "", etiqueta: "" },
-        { nombre: "Portafoglio Pepperoni", precio: 4490, detalle: "", descripcion: "", foto: "", etiqueta: "" }
+        { nombre: "Portafoglio Margherita", precio: 3990, detalle: "", descripcion: "Pomodoro KRUTZ, mozzarella fior di latte, albahaca y aceite de oliva.", foto: "", etiqueta: "" },
+        { nombre: "Portafoglio Pepperoni", precio: 4490, detalle: "", descripcion: "Pomodoro KRUTZ, mozzarella fior di latte y pepperoni.", foto: "", etiqueta: "" }
       ]
     },
     {
@@ -54,15 +56,16 @@ window.KRUTZ = {
       nombre: "Pizzas de 35 cm",
       italiano: "Le pizze",
       estilo: "destacado",
+      intro: "Elaboradas con bollos de 300 g y masa de fermentación prolongada.",
       napoletana: true,
       productos: [
-        { nombre: "Margherita", precio: 7990, detalle: "35 cm", descripcion: "", foto: "assets/fotos/margherita.jpg", etiqueta: "", napoletana: true },
-        { nombre: "Pepperoni", precio: 9990, detalle: "35 cm", descripcion: "", foto: "assets/fotos/pepperoni.jpg", etiqueta: "" },
-        { nombre: "Pollo BBQ", precio: 12990, detalle: "35 cm", descripcion: "", foto: "assets/fotos/pollo-bbq.jpg", etiqueta: "" },
-        { nombre: "Prosciutto Cotto e Funghi", precio: 13990, detalle: "35 cm", descripcion: "", foto: "", etiqueta: "", napoletana: true },
-        { nombre: "Pesto Burrata", precio: 16990, detalle: "35 cm", descripcion: "", foto: "assets/fotos/pesto-burrata.jpg", etiqueta: "" },
-        { nombre: "Burrata e Pomodorini", precio: 16990, detalle: "35 cm", descripcion: "", foto: "", etiqueta: "" },
-        { nombre: "Diavola KRUTZ", precio: 13990, detalle: "35 cm", descripcion: "", foto: "", etiqueta: "", napoletana: true }
+        { nombre: "Margherita", precio: 7990, detalle: "35 cm", descripcion: "Pomodoro KRUTZ, mozzarella fior di latte, grana padano, albahaca y aceite de oliva.", foto: "assets/fotos/margherita.jpg", etiqueta: "", napoletana: true },
+        { nombre: "Pepperoni", precio: 9990, detalle: "35 cm", descripcion: "Pomodoro KRUTZ, mozzarella fior di latte y pepperoni.", foto: "assets/fotos/pepperoni.jpg", etiqueta: "" },
+        { nombre: "Pollo BBQ", precio: 12990, detalle: "35 cm", descripcion: "Salsa BBQ, mozzarella fior di latte, pollo asado, bacon y cebolla morada.", foto: "assets/fotos/pollo-bbq.jpg", etiqueta: "" },
+        { nombre: "Prosciutto Cotto e Funghi", precio: 13990, detalle: "35 cm", descripcion: "Pomodoro KRUTZ, mozzarella fior di latte, jamón cocido, champiñones y aceite de oliva.", foto: "", etiqueta: "", napoletana: true },
+        { nombre: "Pesto Burrata", precio: 16990, detalle: "35 cm", descripcion: "Pesto genovese, mozzarella fior di latte, burrata, tomate cherry, parmesano, albahaca y aceite de oliva.", foto: "assets/fotos/pesto-burrata.jpg", etiqueta: "" },
+        { nombre: "Burrata e Pomodorini", precio: 16990, detalle: "35 cm", descripcion: "Pomodoro KRUTZ, tomate cherry, parmesano, albahaca y burrata.", foto: "", etiqueta: "" },
+        { nombre: "Diavola KRUTZ", precio: 13990, detalle: "35 cm", descripcion: "Pomodoro KRUTZ, mozzarella fior di latte, ventricina piccante, pepperoncini y aceite de oliva.", foto: "", etiqueta: "", napoletana: true }
       ]
     },
     {
@@ -71,6 +74,9 @@ window.KRUTZ = {
       italiano: "Patatine",
       estilo: "tarjetas",
       nota: "Cada porción incluye una salsa básica a elección: ketchup o mostaza.",
+      extras: [
+        { nombre: "Salsa básica adicional", precio: 500, detalle: "" }
+      ],
       productos: [
         { nombre: "Pequeña", precio: 2490, detalle: "120 g", descripcion: "", foto: "", etiqueta: "" },
         { nombre: "Mediana", precio: 3990, detalle: "240 g", descripcion: "", foto: "", etiqueta: "" }
@@ -78,9 +84,10 @@ window.KRUTZ = {
     },
     {
       id: "salsas",
-      nombre: "Salsas",
+      nombre: "Salsas premium",
       italiano: "Le salse",
       estilo: "lista",
+      nota: "El pesto contiene lácteos y puede contener frutos secos. Consultar por otros alérgenos.",
       productos: [
         { nombre: "Real Mayo", precio: 1000, detalle: "30 ml", descripcion: "" },
         { nombre: "Maionese all’aglio", precio: 1000, detalle: "30 ml", descripcion: "" },
@@ -104,7 +111,7 @@ window.KRUTZ = {
     },
     {
       id: "cafe",
-      nombre: "Café y bebidas calientes",
+      nombre: "Café vending y bebidas calientes",
       italiano: "Caffetteria",
       estilo: "lista",
       productos: [
@@ -117,12 +124,12 @@ window.KRUTZ = {
     },
     {
       id: "combos",
-      nombre: "Combos",
+      nombre: "Combos de lanzamiento",
       italiano: "Combinazioni",
       estilo: "combos",
       productos: [
         { nombre: "Americano + medialuna", precio: 3490, detalle: "", descripcion: "" },
-        { nombre: "Bebida caliente especial + medialuna", precio: 3990, detalle: "", descripcion: "Bebidas especiales: Cappuccino Vainilla, Mocaccino o Chocolate caliente." }
+        { nombre: "Bebida caliente especial + medialuna", precio: 3990, detalle: "", descripcion: "Bebida caliente especial: Cappuccino Vainilla, Mocaccino o Chocolate caliente." }
       ]
     },
     {

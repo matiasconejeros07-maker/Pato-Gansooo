@@ -109,6 +109,7 @@
     ht.appendChild(h2);
     head.appendChild(ht);
     sec.appendChild(head);
+    if (cat.intro) sec.appendChild(el("p", "cat__intro reveal", cat.intro));
     if (cat.nota) sec.appendChild(el("p", "cat__note reveal", cat.nota));
 
     var estilo = cat.estilo || "lista";
@@ -160,6 +161,22 @@
       list.appendChild(li);
     });
     sec.appendChild(list);
+
+    // Agregados con precio propio (ej: salsa básica adicional).
+    if (cat.extras && cat.extras.length) {
+      var ex = el("ul", "menu-list cat__extras");
+      cat.extras.forEach(function (x) {
+        var r = el("li", "menu-row reveal");
+        var ln = el("div", "menu-row__line");
+        ln.appendChild(el("span", "menu-row__name", x.nombre));
+        ln.appendChild(el("span", "menu-row__dots"));
+        ln.appendChild(el("span", "price", precio(x.precio)));
+        r.appendChild(ln);
+        if (x.detalle) r.appendChild(el("p", "menu-row__detail", x.detalle));
+        ex.appendChild(r);
+      });
+      sec.appendChild(ex);
+    }
 
     if (cat.napoletana && data.napoletana) sec.appendChild(bloqueNapoletana(data.napoletana));
     carta.appendChild(sec);
