@@ -370,8 +370,12 @@
     // Sin servidor configurado: el cliente envía el pedido desde su WhatsApp.
     if (!data.pedidosURL) {
       var url = "https://wa.me/" + data.whatsapp + "?text=" + encodeURIComponent(mensaje());
-      var w = window.open(url, "_blank");
-      if (w) { try { w.opener = null; } catch (err) {} } else location.href = url;
+      // Botón de respaldo por si el navegador bloquea la apertura automática.
+      $("cart-wa-link").href = url;
+      var w = null;
+      try { w = window.open(url, "_blank"); } catch (err) {}
+      if (w) { try { w.opener = null; } catch (err) {} }
+      else if (window.top === window) location.href = url;
       $("cart-sent").hidden = false;
       $("cart-sent").scrollIntoView({ block: "nearest", behavior: "smooth" });
       return;
