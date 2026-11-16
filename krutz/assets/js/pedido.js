@@ -12,7 +12,7 @@
   if (!data) return;
 
   var K_PEDIDO = "krutz.pedido.v1";
-  var K_CUENTA = "krutz.cuenta.v1";
+  var K_CUENTA = "krutz.cuenta.v2";
   var DOP = data.napoletana;
 
   /* ---------- Utilidades ---------- */
@@ -51,7 +51,8 @@
   // Descarta productos que ya no están en la carta.
   pedido.lineas = pedido.lineas.filter(function (l) { return l && productos[l.id] && l.cant > 0; });
   var cuenta = leer(K_CUENTA, null);
-  if (!cuenta || !cuenta.nombre) cuenta = null;
+  if (!cuenta || !cuenta.nombre || !cuenta.rut || !cuenta.telefono) cuenta = null;
+  var recibo = null; // último pedido enviado (se muestra como comprobante)
 
   function persistir() { guardar(K_PEDIDO, pedido); }
   function totalUnidades() { return pedido.lineas.reduce(function (a, l) { return a + l.cant; }, 0); }
@@ -191,8 +192,9 @@
 
     // Líneas del pedido.
     lista.textContent = "";
-    $("cart-empty").hidden = n > 0;
+    $("cart-empty").hidden = n > 0 || !!recibo;
     $("cart-form").hidden = n === 0;
+    $("cart-done").hidden = !recibo;
     pedido.lineas.forEach(function (l, i) {
       var p = productos[l.id];
       var li = el("li", "line");
@@ -231,44 +233,81 @@
 
   /* ---------- Cuenta ---------- */
   var dCuenta = $("account-dialog");
+  var volverAlCarro = false;
+
+  // RUT chileno: valida dígito verificador (módulo 11) y lo deja como 12.345.678-5.
+  function formatearRut(t) {
+    var c = String(t || "").replace(/[^0-9kK]/g, "").toUpperCase();
+    if (c.length < 2) return null;
+    var cuerpo = c.slice(0, -1), dv = c.slice(-1);
+    if (!/^\d{6,8}$/.test(cuerpo)) return null;
+    var suma = 0, m = 2;
+    for (var i = cuerpo.length - 1; i >= 0; i--) { suma += Number(cuerpo[i]) * m; m = m === 7 ? 2 : m + 1; }
+    var r = 11 - (suma % 11);
+    var esperado = r === 11 ? "0" : r === 10 ? "K" : String(r);
+    if (dv !== esperado) return null;
+    return cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "-" + dv;
+  }
+  function limpiarTelefono(t) {
+    var d = String(t || "").replace(/\D/g, "");
+    if (d.length === 9 && d[0] === "9") d = "56" + d;          // 9 1234 5678
+    if (d.length === 8) d = "569" + d;                         // 1234 5678
+    if (!/^56\d{9}$/.test(d)) return null;
+    return "+56 " + d.slice(2, 3) + " " + d.slice(3, 7) + " " + d.slice(7);
+  }
+  function limpiarNombre(t) { return String(t || "").replace(/\s+/g, " ").trim().slice(0, 60); }
+
   function pintarCuenta() {
-    var etiqueta = $("account-label");
-    etiqueta.textContent = cuenta ? "Hola, " + cuenta.nombre.split(" ")[0] : "Crear cuenta";
+    $("account-label").textContent = cuenta ? "Hola, " + cuenta.nombre.split(" ")[0] : "Crear cuenta";
     $("cart-who").hidden = !cuenta;
     $("cart-guest").hidden = !!cuenta;
     if (cuenta) {
       $("cart-who-name").textContent = cuenta.nombre;
-      $("cart-who-phone").textContent = cuenta.telefono || "";
+      $("cart-who-data").textContent = "RUT " + cuenta.rut + " · " + cuenta.telefono;
     }
     $("account-title").textContent = cuenta ? "Mi cuenta" : "Crea tu cuenta";
     $("account-logout").hidden = !cuenta;
     $("account-save").textContent = cuenta ? "Guardar cambios" : "Crear cuenta";
   }
-  function limpiarTelefono(t) { return String(t || "").replace(/[^\d+ ]/g, "").replace(/\s+/g, " ").trim().slice(0, 20); }
-  function limpiarNombre(t) { return String(t || "").replace(/\s+/g, " ").trim().slice(0, 60); }
 
-  function abrirCuenta() {
+  function abrirCuenta(desdeCarro) {
+    volverAlCarro = desdeCarro === true;
+    if (volverAlCarro && dCarro.open) cerrar(dCarro);
     $("acc-name").value = cuenta ? cuenta.nombre : "";
-    $("acc-phone").value = cuenta ? (cuenta.telefono || "") : "";
+    $("acc-rut").value = cuenta ? cuenta.rut : "";
+    $("acc-phone").value = cuenta ? cuenta.telefono : "";
     $("account-error").hidden = true;
     abrir(dCuenta);
     setTimeout(function () { $("acc-name").focus(); }, 30);
   }
-  $("account-btn").addEventListener("click", abrirCuenta);
-  $("cart-who-edit").addEventListener("click", abrirCuenta);
+  $("account-btn").addEventListener("click", function () { abrirCuenta(false); });
+  dCuenta.addEventListener("close", function () { setTimeout(function () { volverAlCarro = false; }, 0); });
+  $("cart-who-edit").addEventListener("click", function () { abrirCuenta(true); });
+  $("cart-create").addEventListener("click", function () { abrirCuenta(true); });
+  $("acc-rut").addEventListener("blur", function () { var r = formatearRut(this.value); if (r) this.value = r; });
+
+  function errorCuenta(t, campo) {
+    $("account-error").textContent = t;
+    $("account-error").hidden = false;
+    $(campo).focus();
+  }
   $("account-form").addEventListener("submit", function (e) {
     e.preventDefault();
     var nombre = limpiarNombre($("acc-name").value);
-    if (nombre.length < 2) {
-      $("account-error").textContent = "Escribe tu nombre para crear la cuenta.";
-      $("account-error").hidden = false;
-      return;
-    }
-    cuenta = { nombre: nombre, telefono: limpiarTelefono($("acc-phone").value) };
+    var rut = formatearRut($("acc-rut").value);
+    var tel = limpiarTelefono($("acc-phone").value);
+    if (nombre.length < 3 || nombre.indexOf(" ") < 0) return errorCuenta("Escribe tu nombre y apellido.", "acc-name");
+    if (!rut) return errorCuenta("Revisa tu RUT: no es válido (ej. 12.345.678-5).", "acc-rut");
+    if (!tel) return errorCuenta("Escribe un celular chileno válido (ej. +56 9 1234 5678).", "acc-phone");
+    var nueva = !cuenta;
+    cuenta = { nombre: nombre, rut: rut, telefono: tel };
     guardar(K_CUENTA, cuenta);
     pintarCuenta();
     cerrar(dCuenta);
-    aviso("Cuenta lista: " + nombre.split(" ")[0]);
+    aviso(nueva ? "Cuenta creada: " + nombre.split(" ")[0] : "Datos actualizados");
+    // Registra la cuenta en la planilla del local (si está configurada).
+    if (data.pedidosURL) enviarServidor({ accion: "cuenta", cliente: cuenta }).catch(function () {});
+    if (volverAlCarro) { volverAlCarro = false; abrirCarro(); }
   });
   $("account-logout").addEventListener("click", function () {
     cuenta = null;
@@ -278,58 +317,112 @@
     aviso("Tus datos se borraron de este dispositivo");
   });
 
-  /* ---------- Mensaje de WhatsApp ---------- */
-  function mensaje(nombre, telefono) {
-    var r = [];
-    r.push("Hola KRUTZ, quiero hacer un pedido.");
-    r.push("");
-    r.push("*Nombre:* " + nombre);
-    if (telefono) r.push("*Teléfono:* " + telefono);
-    r.push("");
-    r.push("*Pedido*");
-    pedido.lineas.forEach(function (l) {
+  /* ---------- Pedido ---------- */
+  function lineasPedido() {
+    return pedido.lineas.map(function (l) {
       var p = productos[l.id];
-      r.push("• " + l.cant + " × " + nombreDe(p) + " — " + precio(unitario(l) * l.cant));
-      var det = detalleDe(l);
-      if (det) r.push("   " + det);
+      return { id: l.id, cant: l.cant, nombre: nombreDe(p), detalle: detalleDe(l), unitario: unitario(l), subtotal: unitario(l) * l.cant };
     });
-    r.push("");
-    r.push("*Total: " + precio(totalPesos()) + "*");
+  }
+
+  function mensaje() {
+    var r = ["Hola KRUTZ, quiero hacer un pedido.", "", "*Nombre:* " + cuenta.nombre, "*RUT:* " + cuenta.rut, "*Teléfono:* " + cuenta.telefono, "", "*Pedido*"];
+    lineasPedido().forEach(function (l) {
+      r.push("• " + l.cant + " × " + l.nombre + " — " + precio(l.subtotal));
+      if (l.detalle) r.push("   " + l.detalle);
+    });
+    r.push("", "*Total: " + precio(totalPesos()) + "*");
     var com = (pedido.comentario || "").trim();
-    if (com) {
-      r.push("");
-      r.push("*Comentarios:*");
-      r.push(com);
-    }
+    if (com) r.push("", "*Comentarios:*", com);
     return r.join("\n");
   }
 
+  // text/plain evita la verificación previa (CORS) de Google Apps Script.
+  function enviarServidor(cuerpo) {
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var t = ctrl && setTimeout(function () { ctrl.abort(); }, 25000);
+    return fetch(data.pedidosURL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(cuerpo),
+      redirect: "follow",
+      signal: ctrl ? ctrl.signal : undefined
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (t) clearTimeout(t);
+      if (!j || !j.ok) { var er = new Error((j && j.error) || "Error del servidor"); er.servidor = !!(j && j.error); throw er; }
+      return j;
+    }, function (err) { if (t) clearTimeout(t); throw err; });
+  }
+
+  function errorCarro(t) {
+    $("cart-error").textContent = t;
+    $("cart-error").hidden = false;
+    $("cart-error").scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  var enviando = false;
   $("cart-form").addEventListener("submit", function (e) {
     e.preventDefault();
-    if (!pedido.lineas.length) return;
-    var nombre, telefono;
-    if (cuenta) { nombre = cuenta.nombre; telefono = cuenta.telefono; }
-    else {
-      nombre = limpiarNombre($("guest-name").value);
-      telefono = limpiarTelefono($("guest-phone").value);
-      if (nombre.length < 2) {
-        $("cart-error").textContent = "Escribe tu nombre para que sepamos de quién es el pedido.";
-        $("cart-error").hidden = false;
-        $("guest-name").focus();
-        return;
-      }
-      // Lo que escribió queda como su cuenta para los próximos pedidos.
-      cuenta = { nombre: nombre, telefono: telefono };
-      guardar(K_CUENTA, cuenta);
-    }
+    if (!pedido.lineas.length || enviando) return;
+    if (!cuenta) { errorCarro("Crea tu cuenta para hacer el pedido."); return; }
     $("cart-error").hidden = true;
-    var url = "https://wa.me/" + data.whatsapp + "?text=" + encodeURIComponent(mensaje(nombre, telefono));
-    var w = window.open(url, "_blank");
-    if (w) { try { w.opener = null; } catch (err) {} } else location.href = url;
-    $("cart-sent").hidden = false;
-    pintar();
-    $("cart-sent").scrollIntoView({ block: "nearest", behavior: "smooth" });
+
+    // Sin servidor configurado: el cliente envía el pedido desde su WhatsApp.
+    if (!data.pedidosURL) {
+      var url = "https://wa.me/" + data.whatsapp + "?text=" + encodeURIComponent(mensaje());
+      var w = window.open(url, "_blank");
+      if (w) { try { w.opener = null; } catch (err) {} } else location.href = url;
+      $("cart-sent").hidden = false;
+      $("cart-sent").scrollIntoView({ block: "nearest", behavior: "smooth" });
+      return;
+    }
+
+    var boton = $("cart-submit");
+    var lineas = lineasPedido(), total = totalPesos();
+    enviando = true;
+    boton.disabled = true;
+    boton.textContent = "Enviando pedido…";
+    enviarServidor({
+      accion: "pedido",
+      cliente: cuenta,
+      lineas: lineas,
+      total: total,
+      comentario: (pedido.comentario || "").trim(),
+      web: $("hp-web") ? $("hp-web").value : ""
+    }).then(function (j) {
+      recibo = { numero: j.numero, fecha: j.fecha || new Date().toLocaleString("es-CL"), lineas: lineas, total: total };
+      pedido = { lineas: [], comentario: "" };
+      comentario.value = "";
+      persistir();
+      pintarRecibo();
+      pintar();
+      $("cart-done").scrollIntoView({ block: "start" });
+    }).catch(function (err) {
+      errorCarro(err && err.servidor ? err.message : "No pudimos enviar tu pedido. Revisa tu conexión e inténtalo de nuevo.");
+    }).then(function () {
+      enviando = false;
+      boton.disabled = false;
+      boton.innerHTML = 'Pedir al local · <span id="cart-send-total">' + precio(totalPesos()) + "</span>";
+    });
   });
+
+  function pintarRecibo() {
+    $("done-num").textContent = recibo.numero;
+    $("done-name").textContent = cuenta ? cuenta.nombre : "";
+    $("done-date").textContent = recibo.fecha;
+    var ul = $("done-lines");
+    ul.textContent = "";
+    recibo.lineas.forEach(function (l) {
+      var li = el("li", "line");
+      var txt = el("div", "line-text");
+      txt.appendChild(el("b", null, l.cant + " × " + l.nombre));
+      if (l.detalle) txt.appendChild(el("small", null, l.detalle));
+      li.append(txt, el("span", "line-price", precio(l.subtotal)));
+      ul.appendChild(li);
+    });
+    $("done-total").textContent = precio(recibo.total);
+  }
+
   $("cart-clear").addEventListener("click", function () {
     pedido = { lineas: [], comentario: "" };
     comentario.value = "";
@@ -340,8 +433,20 @@
   });
   $("cart-keep").addEventListener("click", function () { $("cart-sent").hidden = true; });
 
-  function abrirCarro() { $("cart-sent").hidden = true; $("cart-error").hidden = true; abrir(dCarro); }
+  function abrirCarro() {
+    $("cart-sent").hidden = true;
+    $("cart-error").hidden = true;
+    if (recibo && pedido.lineas.length) recibo = null;
+    pintar();
+    abrir(dCarro);
+  }
+  dCarro.addEventListener("close", function () { if (recibo) { recibo = null; pintar(); } });
   document.querySelectorAll("[data-open-cart]").forEach(function (b) { b.addEventListener("click", abrirCarro); });
+
+  // Texto del botón e indicación según cómo se envía el pedido.
+  $("cart-hint").textContent = data.pedidosURL
+    ? "Tu pedido llega directo al local."
+    : "Se abrirá WhatsApp con tu pedido escrito. Solo tienes que tocar Enviar.";
 
   /* ---------- Aviso breve ---------- */
   var toast = $("toast"), tId;

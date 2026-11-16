@@ -160,3 +160,23 @@ dialog.sheet-small .sheet-panel { max-height: min(720px, 92vh); }
   .sheet-foot { padding: 14px 18px calc(18px + env(safe-area-inset-bottom, 0px)); }
   .cart-form { padding: 4px 18px calc(22px + env(safe-area-inset-bottom, 0px)); }
 }
+
+/* ---------- Pedir al local / comprobante ---------- */
+.btn-order { width: 100%; background: var(--accent); color: var(--ink); font-size: 15px; padding: 19px 20px; letter-spacing: .2px; }
+.btn-order:hover { background: var(--ink); color: var(--accent); }
+.btn-order:disabled { background: #e8e8e8; color: #777; cursor: progress; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.legal { font-size: 11px; line-height: 1.6; color: var(--muted); margin: 2px 0 6px; }
+.cart-guest .btn-line { width: 100%; margin-bottom: 12px; }
+
+.cart-done { display: grid; gap: 10px; }
+.done-mark { color: var(--accent); font-size: 44px; line-height: 1; }
+.cart-done h3 { font-family: var(--display); font-size: 32px; font-weight: 800; line-height: 1; letter-spacing: -.6px; text-transform: uppercase; margin: 0; }
+.cart-done > p { color: var(--muted); font-size: 14px; margin-bottom: 6px; }
+.receipt { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 6px 0 4px; padding: 16px; background: var(--soft); font-size: 13px; }
+.receipt dt { font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: var(--muted); align-self: center; }
+.receipt dd { margin: 0; font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+.receipt-lines .line { padding: 12px 0; }
+.receipt-lines .line-price { grid-row: 1; }
+.receipt-lines .line-text b { font-size: 16px; }
+.cart-done .btn-solid { margin-top: 6px; }

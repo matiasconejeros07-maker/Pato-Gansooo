@@ -20,15 +20,19 @@ Todo está en **`assets/js/carta.js`**:
 - **Portada:** `videoPortada` (video del horno, en loop y sin sonido) y `fotoPortada` (imagen de respaldo).
 - **WhatsApp:** `whatsapp` (solo números); todos los botones de pedido lo usan.
 
-## Pedidos por WhatsApp
+## Pedidos
 
-Cada producto tiene un botón **Agregar**. El cliente arma su pedido, escribe comentarios
-(ej. «sin albahaca») y crea su cuenta con su nombre (y teléfono opcional). Al tocar
-**Enviar pedido por WhatsApp** se abre WhatsApp con el mensaje listo para el número de `whatsapp`:
-nombre, productos con sus opciones, total y comentarios.
+Cada producto tiene un botón **Agregar**. El cliente arma su pedido y escribe comentarios
+(ej. «sin albahaca»). Para pedir debe tener una cuenta con **nombre, RUT y teléfono**; el RUT se valida.
+Luego toca **Pedir al local**.
 
-La cuenta y el pedido se guardan solo en el dispositivo del cliente (no hay servidor ni contraseñas).
-La lógica está en `assets/js/pedido.js` y los estilos en `assets/css/pedido.css`.
+- **Con servidor** (`pedidosURL` en `carta.js`): el pedido se guarda en tu planilla de Google
+  y te llega a tu WhatsApp, con un correo de respaldo. El cliente ve «¡Pedido recibido!» con su número de pedido.
+  Para activarlo, sigue [`servidor/LEEME.md`](servidor/LEEME.md).
+- **Sin servidor** (`pedidosURL` vacío): se abre el WhatsApp del cliente con el pedido escrito.
+
+La lógica está en `assets/js/pedido.js`, los estilos en `assets/css/pedido.css`
+y el servidor en `servidor/Codigo.gs`.
 
 ## QR
 

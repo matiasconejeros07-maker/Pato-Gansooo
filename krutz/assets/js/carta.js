@@ -23,6 +23,11 @@ window.KRUTZ = {
   correo: "contacto@krutz.cl",
   whatsapp: "56953730459",
   whatsappTexto: "+56 9 5373 0459",
+
+  // Dirección del servidor de pedidos (Google Apps Script, ver krutz/servidor/).
+  // Con ella, «Pedir al local» envía el pedido directo a tu WhatsApp y lo guarda
+  // en tu planilla. Vacía: el cliente envía el pedido desde su propio WhatsApp.
+  pedidosURL: "",
   instagram: "https://www.instagram.com/krutz.cl/",
   ubicacion: "San Bernardo, Región Metropolitana",
 

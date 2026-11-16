@@ -16,7 +16,7 @@
 <link rel="preload" href="assets/fonts/league-spartan-800.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/dm-sans-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/carta.css?v=14">
-<link rel="stylesheet" href="assets/css/pedido.css?v=1">
+<link rel="stylesheet" href="assets/css/pedido.css?v=3">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -175,6 +175,19 @@
       </div>
       <ul class="cart-lines" id="cart-lines"></ul>
       <p class="cart-porta" id="cart-porta" hidden>La Pizza Portafoglio solo se vende al paso o para retiro en local.</p>
+      <div class="cart-done" id="cart-done" role="status" hidden>
+        <span class="done-mark" aria-hidden="true">✳</span>
+        <h3>¡Pedido recibido!</h3>
+        <p>El local ya tiene tu pedido.</p>
+        <dl class="receipt">
+          <dt>N° de pedido</dt><dd id="done-num"></dd>
+          <dt>A nombre de</dt><dd id="done-name"></dd>
+          <dt>Fecha</dt><dd id="done-date"></dd>
+        </dl>
+        <ul class="cart-lines receipt-lines" id="done-lines"></ul>
+        <div class="cart-total"><span>Total</span><b id="done-total"></b></div>
+        <button class="btn-solid" type="button" data-close>Volver a la carta</button>
+      </div>
     </div>
   <form class="cart-form" id="cart-form" novalidate hidden>
     <label class="field">
@@ -184,21 +197,19 @@
 
     <div class="cart-who" id="cart-who" hidden>
       <svg class="icon" aria-hidden="true"><use href="#i-user"/></svg>
-      <div><small>Pedido a nombre de</small><b id="cart-who-name"></b><span id="cart-who-phone"></span></div>
+      <div><small>Pedido a nombre de</small><b id="cart-who-name"></b><span id="cart-who-data"></span></div>
       <button type="button" class="link-btn" id="cart-who-edit">Cambiar</button>
     </div>
     <div class="cart-guest" id="cart-guest">
-      <p class="guest-intro">Crea tu cuenta con tu nombre: así sabemos de quién es el pedido y la próxima vez no tendrás que escribirlo.</p>
-      <div class="guest-fields">
-        <label class="field"><span>Nombre y apellido</span><input id="guest-name" type="text" autocomplete="name" maxlength="60" required></label>
-        <label class="field"><span>Teléfono <i>(opcional)</i></span><input id="guest-phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="+56 9"></label>
-      </div>
+      <p class="guest-intro">Para pedir necesitas una cuenta con tu nombre, RUT y teléfono. Es una sola vez.</p>
+      <button class="btn-line" type="button" id="cart-create">Crear cuenta</button>
     </div>
     <p class="form-error" id="cart-error" role="alert" hidden></p>
+    <input class="hp" id="hp-web" name="web" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
 
     <div class="cart-total"><span>Total</span><b id="cart-total">$0</b></div>
-    <button class="btn-solid btn-wa" type="submit"><svg class="icon" aria-hidden="true"><use href="#i-wa"/></svg>Enviar pedido por WhatsApp · <span id="cart-send-total">$0</span></button>
-    <p class="cart-hint">Se abrirá WhatsApp con tu pedido escrito. Solo tienes que tocar Enviar.</p>
+    <button class="btn-solid btn-order" type="submit" id="cart-submit">Pedir al local · <span id="cart-send-total">$0</span></button>
+    <p class="cart-hint" id="cart-hint">Tu pedido llega directo al local.</p>
 
     <div class="cart-sent" id="cart-sent" role="status" hidden>
       <b>¿Ya enviaste el pedido en WhatsApp?</b>
@@ -216,9 +227,11 @@
       <button class="sheet-close" type="button" data-close aria-label="Cerrar">×</button>
     </header>
     <div class="sheet-body">
-      <p class="opt-desc">Con tu cuenta, tus pedidos nos llegan por WhatsApp con tu nombre. Tus datos quedan guardados solo en este dispositivo.</p>
+      <p class="opt-desc">Necesitas una cuenta para hacer pedidos. Así el local sabe quién pide y puede contactarte.</p>
       <label class="field"><span>Nombre y apellido</span><input id="acc-name" type="text" autocomplete="name" maxlength="60" required></label>
-      <label class="field"><span>Teléfono <i>(opcional)</i></span><input id="acc-phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="+56 9"></label>
+      <label class="field"><span>RUT</span><input id="acc-rut" type="text" inputmode="text" autocomplete="off" maxlength="12" placeholder="12.345.678-9" required></label>
+      <label class="field"><span>Teléfono</span><input id="acc-phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="+56 9 1234 5678" required></label>
+      <p class="legal">Al crear tu cuenta aceptas que KRUTZ guarde tu nombre, RUT y teléfono para gestionar tus pedidos.</p>
       <p class="form-error" id="account-error" role="alert" hidden></p>
     </div>
     <footer class="sheet-foot">
@@ -228,8 +241,8 @@
   </form>
 </dialog>
 
-<script src="assets/js/carta.js?v=11"></script>
+<script src="assets/js/carta.js?v=12"></script>
 <script src="assets/js/app.js?v=11"></script>
-<script src="assets/js/pedido.js?v=2"></script>
+<script src="assets/js/pedido.js?v=5"></script>
 </body>
 </html>
