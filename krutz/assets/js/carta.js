@@ -11,7 +11,13 @@
  *   descripcion  Ingredientes o descripción ("" = no se muestra).
  *   foto         Ruta a la foto en assets/fotos/ ("" = sin foto).
  *   napoletana   true si admite «Hazla DOP».
+ *   opciones     Elecciones al pedir: [{ nombre: "Sabor", valores: [...] }].
+ *   nombrePedido Nombre en el mensaje de WhatsApp (si difiere).
  */
+// Elecciones que se repiten en varios productos.
+var SALSA_BASICA = { nombre: "Salsa incluida", valores: ["Ketchup", "Mostaza"] };
+var GLASEADO = { nombre: "Glaseado", valores: ["Con glaseado", "Sin glaseado"] };
+
 window.KRUTZ = {
   sitio: "https://krutz.cl",
   correo: "contacto@krutz.cl",
@@ -78,9 +84,9 @@ window.KRUTZ = {
       nombre: "Papas fritas",
       intro: "Cada porción incluye una salsa básica a elección: ketchup o mostaza.",
       productos: [
-        { nombre: "Pequeña", precio: 2490, detalle: "120 g" },
-        { nombre: "Mediana", precio: 3990, detalle: "240 g" },
-        { nombre: "Salsa básica adicional", precio: 500, descripcion: "Ketchup o mostaza." }
+        { nombre: "Pequeña", nombrePedido: "Papas fritas pequeñas (120 g)", precio: 2490, detalle: "120 g", opciones: [SALSA_BASICA] },
+        { nombre: "Mediana", nombrePedido: "Papas fritas medianas (240 g)", precio: 3990, detalle: "240 g", opciones: [SALSA_BASICA] },
+        { nombre: "Salsa básica adicional", precio: 500, descripcion: "Ketchup o mostaza.", opciones: [{ nombre: "Salsa", valores: ["Ketchup", "Mostaza"] }] }
       ]
     },
     {
@@ -106,10 +112,10 @@ window.KRUTZ = {
       nombre: "Bollería y minitortas",
       notas: ["En bollería el glaseado es opcional, avísale a quien toma tu pedido."],
       productos: [
-        { nombre: "Medialuna", precio: 1990 },
-        { nombre: "Croissant de mantequilla", precio: 2490 },
-        { nombre: "Rollito de canela", precio: 2490 },
-        { nombre: "Minitorta", precio: 5490, descripcion: "Carrot Cake, Tres Leches, Cheesecake de frambuesa, Matilde o Choco Naranja, según disponibilidad." }
+        { nombre: "Medialuna", precio: 1990, opciones: [GLASEADO] },
+        { nombre: "Croissant de mantequilla", precio: 2490, opciones: [GLASEADO] },
+        { nombre: "Rollito de canela", precio: 2490, opciones: [GLASEADO] },
+        { nombre: "Minitorta", precio: 5490, descripcion: "Carrot Cake, Tres Leches, Cheesecake de frambuesa, Matilde o Choco Naranja, según disponibilidad.", opciones: [{ nombre: "Sabor", nota: "Según disponibilidad", valores: ["Carrot Cake", "Tres Leches", "Cheesecake de frambuesa", "Matilde", "Choco Naranja"] }] }
       ]
     },
     {
@@ -133,7 +139,7 @@ window.KRUTZ = {
       destacado: true,
       productos: [
         { nombre: "Americano + medialuna", precio: 3490 },
-        { nombre: "Bebida caliente especial + medialuna", precio: 3990, descripcion: "Elige Cappuccino Vainilla, Mocaccino o Chocolate caliente." }
+        { nombre: "Bebida caliente especial + medialuna", precio: 3990, descripcion: "Elige Cappuccino Vainilla, Mocaccino o Chocolate caliente.", opciones: [{ nombre: "Bebida", valores: ["Cappuccino Vainilla", "Mocaccino", "Chocolate caliente"] }] }
       ]
     },
     {
@@ -142,9 +148,9 @@ window.KRUTZ = {
       kicker: "Para tomar",
       nombre: "Bebidas frías",
       productos: [
-        { nombre: "Bebida en lata", precio: 1800, descripcion: "Coca Cola, Coca Cola Sin Azúcar, Sprite, Limón Soda." },
-        { nombre: "San Pellegrino variedades", precio: 2800, descripcion: "Limonata, Aranciata Rossa, Agua Mineral c/gas embotellada en los Alpes italianos." },
-        { nombre: "Agua purificada", precio: 1800, descripcion: "Agua Benedictino con o sin gas." }
+        { nombre: "Bebida en lata", precio: 1800, descripcion: "Coca Cola, Coca Cola Sin Azúcar, Sprite, Limón Soda.", opciones: [{ nombre: "Sabor", valores: ["Coca Cola", "Coca Cola Sin Azúcar", "Sprite", "Limón Soda"] }] },
+        { nombre: "San Pellegrino variedades", precio: 2800, descripcion: "Limonata, Aranciata Rossa, Agua Mineral c/gas embotellada en los Alpes italianos.", opciones: [{ nombre: "Variedad", valores: ["Limonata", "Aranciata Rossa", "Agua Mineral c/gas"] }] },
+        { nombre: "Agua purificada", precio: 1800, descripcion: "Agua Benedictino con o sin gas.", opciones: [{ nombre: "Tipo", valores: ["Con gas", "Sin gas"] }] }
       ]
     }
   ]

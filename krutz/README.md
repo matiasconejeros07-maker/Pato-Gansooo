@@ -13,11 +13,22 @@ Todo está en **`assets/js/carta.js`**:
 - **Descripción / ingredientes:** campo `descripcion`. Si está vacío no se muestra nada.
 - **Foto:** guarda la imagen (vertical 4:5, ej. 960×1200) en `assets/fotos/` y escribe su ruta en `foto`.
   Los productos con foto aparecen en la franja de fotos de su sección.
+- **Opciones al pedir:** `opciones` (ej. sabor de la lata, salsa de las papas). El cliente debe elegir una antes de agregar.
 - **Hazla DOP:** `napoletana: true` en las pizzas que la admiten; el bloque se edita en `napoletana`.
 - **Categorías:** `menu` (texto en la barra de categorías; sin él no aparece), `kicker`, `nombre`,
   `intro`, `notas`, `aviso`, `dosColumnas`, `ancho` y `destacado` (bloque amarillo).
 - **Portada:** `videoPortada` (video del horno, en loop y sin sonido) y `fotoPortada` (imagen de respaldo).
 - **WhatsApp:** `whatsapp` (solo números); todos los botones de pedido lo usan.
+
+## Pedidos por WhatsApp
+
+Cada producto tiene un botón **Agregar**. El cliente arma su pedido, escribe comentarios
+(ej. «sin albahaca») y crea su cuenta con su nombre (y teléfono opcional). Al tocar
+**Enviar pedido por WhatsApp** se abre WhatsApp con el mensaje listo para el número de `whatsapp`:
+nombre, productos con sus opciones, total y comentarios.
+
+La cuenta y el pedido se guardan solo en el dispositivo del cliente (no hay servidor ni contraseñas).
+La lógica está en `assets/js/pedido.js` y los estilos en `assets/css/pedido.css`.
 
 ## QR
 

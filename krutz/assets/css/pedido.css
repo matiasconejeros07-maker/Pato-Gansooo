@@ -1,0 +1,162 @@
+/* ==========================================================
+   KRUTZ · Pedido por WhatsApp
+   Botones «Agregar», carrito, cuenta y opciones.
+   Misma identidad: negro, blanco, amarillo, esquinas rectas.
+   ========================================================== */
+
+button { font: inherit; color: inherit; }
+
+/* ---------- Encabezado ---------- */
+.header-cta { display: inline-flex; align-items: center; gap: 10px; border: 0; cursor: pointer; font-size: 12px; }
+.header-cta .count { min-width: 22px; padding: 4px 6px; background: var(--ink); color: var(--accent); font-size: 11px; line-height: 1; text-align: center; }
+.header-account {
+  display: inline-flex; align-items: center; gap: 8px; padding: 10px 0; border: 0; background: none; color: var(--paper);
+  font-size: 12px; cursor: pointer; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 6px; transition: text-decoration-color .2s;
+}
+.header-account:hover { text-decoration-color: var(--accent); }
+.header-account .icon { width: 17px; height: 17px; }
+
+/* ---------- Botón Agregar ---------- */
+.add {
+  grid-column: 1 / -1; justify-self: start; display: inline-flex; align-items: center; gap: 8px; margin-top: 4px;
+  padding: 9px 14px; border: 2px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer;
+  font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; transition: background-color .2s, color .2s;
+}
+.add span { font-size: 15px; line-height: 0; }
+.add:hover, .add.in-cart { background: var(--ink); color: var(--paper); }
+.add em { font-style: normal; min-width: 20px; padding: 3px 5px; margin-left: 2px; background: var(--accent); color: var(--ink); font-size: 10px; line-height: 1; text-align: center; }
+.launch .add { background: transparent; }
+.launch .add:hover, .launch .add.in-cart { background: var(--ink); color: var(--accent); }
+.launch .add.in-cart em { background: var(--accent); color: var(--ink); }
+
+/* ---------- Barra del pedido ---------- */
+.cart-bar {
+  position: fixed; z-index: 30; left: 50%; transform: translateX(-50%);
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px)); width: min(520px, calc(100% - 28px));
+  display: flex; align-items: center; gap: 12px; padding: 16px 20px; border: 0; cursor: pointer;
+  background: var(--ink); color: var(--paper); font-size: 13px; text-align: left; box-shadow: 0 10px 40px rgba(0, 0, 0, .28);
+}
+.cart-bar .icon { width: 19px; height: 19px; color: var(--accent); }
+.cart-bar span { flex: 1; }
+.cart-bar b { color: var(--accent); font-size: 12px; letter-spacing: .8px; text-transform: uppercase; white-space: nowrap; }
+.cart-bar:hover b { text-decoration: underline; text-underline-offset: 4px; }
+.footer { padding-bottom: 104px; }
+
+.toast {
+  position: fixed; z-index: 60; left: 50%; top: calc(16px + env(safe-area-inset-top, 0px)); transform: translate(-50%, -160%);
+  max-width: calc(100% - 28px); padding: 12px 18px; background: var(--accent); color: var(--ink);
+  font-size: 12px; font-weight: 700; transition: transform .3s ease; pointer-events: none;
+}
+.toast.show { transform: translate(-50%, 0); }
+
+/* ---------- Paneles ---------- */
+html.has-dialog { overflow: hidden; }
+dialog.sheet {
+  position: fixed; inset: 0 0 0 auto; margin: 0; padding: 0; border: 0; width: min(480px, 100%); max-width: none;
+  height: 100%; max-height: none; background: var(--paper); color: var(--ink); overflow: hidden;
+}
+dialog.sheet-small { inset: 0; margin: auto; height: auto; width: min(460px, calc(100% - 32px)); }
+dialog.sheet::backdrop { background: rgba(0, 0, 0, .6); }
+dialog.sheet[open] { animation: sheet-in .28s ease; }
+dialog.sheet-small[open] { animation-name: pop-in; }
+@keyframes sheet-in { from { transform: translateX(40px); opacity: 0; } }
+@keyframes pop-in { from { transform: translateY(16px); opacity: 0; } }
+@keyframes sheet-up { from { transform: translateY(40px); opacity: 0; } }
+
+.sheet-panel { display: flex; flex-direction: column; height: 100%; overflow-y: auto; overscroll-behavior: contain; }
+dialog.sheet-small .sheet-panel { max-height: min(720px, 92vh); }
+.sheet-head {
+  position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 22px 24px 18px; background: var(--paper); border-bottom: 2px solid var(--ink);
+}
+.sheet-head h2 { font-size: 30px; margin: 0; letter-spacing: -.8px; }
+.sheet-close { width: 40px; height: 40px; flex: 0 0 auto; border: 0; background: var(--ink); color: var(--paper); font-size: 24px; line-height: 1; cursor: pointer; }
+.sheet-close:hover { background: var(--accent); color: var(--ink); }
+.sheet-body { padding: 20px 24px; }
+.sheet-foot { padding: 18px 24px 24px; border-top: 1px solid var(--line); display: grid; gap: 14px; }
+.opt-desc { color: var(--muted); font-size: 13px; line-height: 1.65; margin-bottom: 18px; }
+.opt-desc:empty { display: none; }
+
+/* Opciones */
+.opt-group { border: 0; padding: 0; margin: 0 0 20px; min-width: 0; }
+.opt-group legend { padding: 0; margin-bottom: 10px; font-size: 11px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; }
+.opt-group legend small { color: var(--muted); font-size: inherit; letter-spacing: inherit; }
+.choice { display: flex; align-items: center; gap: 12px; padding: 13px 14px; border: 1px solid var(--line); margin-top: -1px; cursor: pointer; font-size: 14px; }
+.choice:hover { background: var(--soft); }
+.choice:has(input:checked) { border-color: var(--ink); background: var(--soft); position: relative; z-index: 1; }
+.choice input { width: 18px; height: 18px; margin: 0; accent-color: var(--ink); flex: 0 0 auto; }
+.choice-dop span { display: grid; gap: 4px; }
+.choice-dop b { font-family: var(--display); font-size: 17px; text-transform: uppercase; }
+.choice-dop small { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.opt-foot { grid-template-columns: auto 1fr; align-items: stretch; }
+
+.qty { display: inline-flex; align-items: center; border: 2px solid var(--ink); }
+.qty button { width: 34px; height: 34px; border: 0; background: none; cursor: pointer; font-size: 18px; line-height: 1; }
+.qty button:hover { background: var(--ink); color: var(--paper); }
+.qty span { min-width: 28px; text-align: center; font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
+.qty-lg button { width: 46px; height: 50px; }
+
+/* Botones */
+.btn-solid { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 20px; border: 0; cursor: pointer; background: var(--ink); color: var(--paper); font-size: 13px; font-weight: 700; transition: background-color .2s, color .2s; }
+.btn-solid:hover { background: var(--accent); color: var(--ink); }
+.btn-line { padding: 14px 18px; border: 2px solid var(--ink); background: none; cursor: pointer; font-size: 12px; font-weight: 700; }
+.btn-line:hover { background: var(--ink); color: var(--paper); }
+.link-btn { border: 0; background: none; padding: 6px 0; cursor: pointer; font-size: 12px; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; justify-self: start; }
+.btn-wa { width: 100%; background: var(--accent); color: var(--ink); font-size: 14px; padding: 18px 20px; }
+.btn-wa:hover { background: var(--ink); color: var(--accent); }
+
+/* Formularios */
+.field { display: grid; gap: 7px; margin-bottom: 14px; }
+.field > span { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; }
+.field i { font-style: normal; color: var(--muted); text-transform: none; letter-spacing: 0; font-weight: 400; }
+.field input, .field textarea {
+  width: 100%; padding: 13px 14px; border: 1px solid #bdbdbd; border-radius: 0; background: var(--paper); color: var(--ink);
+  font: 16px/1.45 var(--body); -webkit-appearance: none; appearance: none;
+}
+.field textarea { resize: vertical; min-height: 84px; }
+.field input:focus, .field textarea:focus { outline: none; border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.form-error { margin: 0 0 12px; padding: 10px 12px; background: #fff2d6; border-left: 3px solid var(--accent-ink); font-size: 12px; font-weight: 700; color: #5a3d00; }
+
+/* Carrito */
+.cart-empty { display: grid; justify-items: start; gap: 18px; padding: 24px 0; color: var(--muted); font-size: 14px; }
+.cart-lines { list-style: none; margin: 0; padding: 0; }
+.line { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px 14px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.line-text b { display: block; font-family: var(--display); font-size: 18px; font-weight: 800; line-height: 1.1; }
+.line-text small { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.line .qty { grid-row: 2; justify-self: start; }
+.line-price { grid-column: 2; grid-row: 1 / 3; align-self: start; font-family: var(--display); font-size: 17px; font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.cart-porta { margin-top: 14px; padding: 12px 14px; background: var(--soft); font-size: 12px; line-height: 1.6; color: #555; }
+
+.cart-form { padding: 6px 24px 26px; display: grid; gap: 6px; }
+.cart-who { display: flex; align-items: center; gap: 12px; padding: 14px; margin-bottom: 12px; background: var(--soft); }
+.cart-who .icon { width: 20px; height: 20px; }
+.cart-who div { flex: 1; display: grid; gap: 2px; min-width: 0; }
+.cart-who small { font-size: 10px; letter-spacing: 1.1px; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.cart-who b { font-size: 15px; overflow-wrap: anywhere; }
+.cart-who span { font-size: 12px; color: var(--muted); }
+.cart-who span:empty { display: none; }
+.guest-intro { font-size: 13px; line-height: 1.6; color: var(--muted); margin: 4px 0 14px; }
+.cart-total { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 0; border-top: 2px solid var(--ink); }
+.cart-total span { font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; }
+.cart-total b { font-family: var(--display); font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.cart-hint { font-size: 11px; line-height: 1.6; color: var(--muted); text-align: center; margin-top: 4px; }
+.cart-sent { margin-top: 12px; padding: 18px; background: var(--ink); color: var(--paper); display: grid; gap: 14px; }
+.cart-sent div { display: flex; flex-wrap: wrap; gap: 10px; }
+.cart-sent .btn-solid { background: var(--accent); color: var(--ink); }
+.cart-sent .btn-line { border-color: var(--paper); color: var(--paper); }
+
+/* ---------- Celular ---------- */
+@media (max-width: 780px) {
+  .header-cta { padding: 12px 14px; font-size: 11px; gap: 8px; }
+  .header-account span { display: none; }
+  .header-account .icon { width: 22px; height: 22px; }
+  .cart-bar { bottom: calc(12px + env(safe-area-inset-bottom, 0px)); padding: 15px 16px; font-size: 12px; }
+  dialog.sheet, dialog.sheet-small { inset: auto 0 0 0; margin: 0; width: 100%; height: auto; max-height: 92vh; max-height: 92dvh; }
+  dialog.sheet .sheet-panel, dialog.sheet-small .sheet-panel { max-height: 92vh; max-height: 92dvh; }
+  dialog.sheet[open], dialog.sheet-small[open] { animation-name: sheet-up; }
+  .sheet-head { padding: 18px 18px 14px; }
+  .sheet-head h2 { font-size: 26px; }
+  .sheet-body { padding: 16px 18px; }
+  .sheet-foot { padding: 14px 18px calc(18px + env(safe-area-inset-bottom, 0px)); }
+  .cart-form { padding: 4px 18px calc(22px + env(safe-area-inset-bottom, 0px)); }
+}

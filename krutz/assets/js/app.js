@@ -42,6 +42,12 @@
     if (p.detalle) a.appendChild(el("p", "meta", p.detalle));
     if (p.descripcion) a.appendChild(el("p", null, p.descripcion));
     if (p.napoletana) a.appendChild(el("span", "tag-dop", "Disponible DOP"));
+    var b = el("button", "add");
+    b.type = "button";
+    b.dataset.add = p.id;
+    b.setAttribute("aria-label", "Agregar " + p.nombre + " al pedido");
+    b.innerHTML = 'Agregar <span aria-hidden="true">+</span>';
+    a.appendChild(b);
     return a;
   }
 
@@ -64,6 +70,7 @@
   var num = 0;
   data.categorias.forEach(function (c) {
     num++;
+    c.productos.forEach(function (p, i) { p.id = c.id + "-" + i; });
     var sec = el("section", "menu-section" + (c.ancho ? " full" : "") + (c.destacado ? " launch" : ""));
     sec.id = c.id;
     sec.setAttribute("aria-labelledby", c.id + "-t");

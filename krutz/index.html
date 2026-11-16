@@ -15,7 +15,8 @@
 <link rel="apple-touch-icon" href="assets/img/krutz-logo-256.png">
 <link rel="preload" href="assets/fonts/league-spartan-800.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/dm-sans-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/css/carta.css?v=13">
+<link rel="stylesheet" href="assets/css/carta.css?v=14">
+<link rel="stylesheet" href="assets/css/pedido.css?v=1">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -38,6 +39,8 @@
   <symbol id="i-wa" viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></symbol>
   <symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-10 6L2 7"/></symbol>
   <symbol id="i-up" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></symbol>
 </svg>
 
 <a class="skip" href="#carta">Ir a la carta</a>
@@ -56,7 +59,8 @@
     <div class="header-links">
       <a href="#pizzas">Las pizzas</a>
       <a href="https://www.instagram.com/krutz.cl/" target="_blank" rel="noopener">Instagram</a>
-      <a class="header-cta" data-wa href="https://wa.me/56953730459" target="_blank" rel="noopener">Pedir por WhatsApp ↗</a>
+      <button class="header-account" id="account-btn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg><span id="account-label">Crear cuenta</span></button>
+      <button class="header-cta" type="button" data-open-cart>Tu pedido <span class="count" data-cart-count>0</span></button>
     </div>
   </nav>
 </header>
@@ -124,9 +128,108 @@
   </div>
 </footer>
 
-<a class="float-contact" data-wa href="https://wa.me/56953730459" target="_blank" rel="noopener" aria-label="Pedir a KRUTZ por WhatsApp">WhatsApp ↗</a>
+<a class="float-contact" data-wa href="https://wa.me/56953730459" target="_blank" rel="noopener" aria-label="Escribir a KRUTZ por WhatsApp">WhatsApp ↗</a>
 
-<script src="assets/js/carta.js?v=10"></script>
-<script src="assets/js/app.js?v=10"></script>
+<button class="cart-bar" id="cart-bar" type="button" data-open-cart hidden>
+  <svg class="icon" aria-hidden="true"><use href="#i-bag"/></svg>
+  <span id="cart-bar-text">0 productos</span>
+  <b>Ver pedido →</b>
+</button>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- Elegir opciones de un producto -->
+<dialog class="sheet sheet-small" id="opt-dialog" aria-labelledby="opt-title">
+  <div class="sheet-panel">
+    <header class="sheet-head">
+      <h2 id="opt-title">Producto</h2>
+      <button class="sheet-close" type="button" data-close aria-label="Cerrar">×</button>
+    </header>
+    <div class="sheet-body">
+      <p class="opt-desc" id="opt-desc"></p>
+      <div id="opt-groups"></div>
+      <p class="form-error" id="opt-error" role="alert" hidden></p>
+    </div>
+    <footer class="sheet-foot opt-foot">
+      <div class="qty qty-lg" role="group" aria-label="Cantidad">
+        <button type="button" id="opt-minus" aria-label="Una unidad menos">−</button>
+        <span id="opt-qty">1</span>
+        <button type="button" id="opt-plus" aria-label="Una unidad más">+</button>
+      </div>
+      <button class="btn-solid" type="button" id="opt-add">Agregar</button>
+    </footer>
+  </div>
+</dialog>
+
+<!-- Pedido -->
+<dialog class="sheet" id="cart-dialog" aria-labelledby="cart-title">
+  <div class="sheet-panel">
+    <header class="sheet-head">
+      <h2 id="cart-title">Tu pedido</h2>
+      <button class="sheet-close" type="button" data-close aria-label="Cerrar">×</button>
+    </header>
+    <div class="sheet-body">
+      <div class="cart-empty" id="cart-empty">
+        <p>Todavía no agregas nada.</p>
+        <button class="btn-line" type="button" data-close>Ver la carta</button>
+      </div>
+      <ul class="cart-lines" id="cart-lines"></ul>
+      <p class="cart-porta" id="cart-porta" hidden>La Pizza Portafoglio solo se vende al paso o para retiro en local.</p>
+    </div>
+  <form class="cart-form" id="cart-form" novalidate hidden>
+    <label class="field">
+      <span>Comentarios</span>
+      <textarea id="cart-note" rows="3" maxlength="500" placeholder="Ej: sin albahaca en la Margherita, o lo que quieras contarnos de tu pedido."></textarea>
+    </label>
+
+    <div class="cart-who" id="cart-who" hidden>
+      <svg class="icon" aria-hidden="true"><use href="#i-user"/></svg>
+      <div><small>Pedido a nombre de</small><b id="cart-who-name"></b><span id="cart-who-phone"></span></div>
+      <button type="button" class="link-btn" id="cart-who-edit">Cambiar</button>
+    </div>
+    <div class="cart-guest" id="cart-guest">
+      <p class="guest-intro">Crea tu cuenta con tu nombre: así sabemos de quién es el pedido y la próxima vez no tendrás que escribirlo.</p>
+      <div class="guest-fields">
+        <label class="field"><span>Nombre y apellido</span><input id="guest-name" type="text" autocomplete="name" maxlength="60" required></label>
+        <label class="field"><span>Teléfono <i>(opcional)</i></span><input id="guest-phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="+56 9"></label>
+      </div>
+    </div>
+    <p class="form-error" id="cart-error" role="alert" hidden></p>
+
+    <div class="cart-total"><span>Total</span><b id="cart-total">$0</b></div>
+    <button class="btn-solid btn-wa" type="submit"><svg class="icon" aria-hidden="true"><use href="#i-wa"/></svg>Enviar pedido por WhatsApp · <span id="cart-send-total">$0</span></button>
+    <p class="cart-hint">Se abrirá WhatsApp con tu pedido escrito. Solo tienes que tocar Enviar.</p>
+
+    <div class="cart-sent" id="cart-sent" role="status" hidden>
+      <b>¿Ya enviaste el pedido en WhatsApp?</b>
+      <div><button class="btn-solid" type="button" id="cart-clear">Sí, vaciar pedido</button><button class="btn-line" type="button" id="cart-keep">Aún no</button></div>
+    </div>
+  </form>
+  </div>
+</dialog>
+
+<!-- Cuenta -->
+<dialog class="sheet sheet-small" id="account-dialog" aria-labelledby="account-title">
+  <form class="sheet-panel" id="account-form" novalidate>
+    <header class="sheet-head">
+      <h2 id="account-title">Crea tu cuenta</h2>
+      <button class="sheet-close" type="button" data-close aria-label="Cerrar">×</button>
+    </header>
+    <div class="sheet-body">
+      <p class="opt-desc">Con tu cuenta, tus pedidos nos llegan por WhatsApp con tu nombre. Tus datos quedan guardados solo en este dispositivo.</p>
+      <label class="field"><span>Nombre y apellido</span><input id="acc-name" type="text" autocomplete="name" maxlength="60" required></label>
+      <label class="field"><span>Teléfono <i>(opcional)</i></span><input id="acc-phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="+56 9"></label>
+      <p class="form-error" id="account-error" role="alert" hidden></p>
+    </div>
+    <footer class="sheet-foot">
+      <button class="btn-solid" type="submit" id="account-save">Crear cuenta</button>
+      <button class="link-btn" type="button" id="account-logout" hidden>Borrar mis datos de este dispositivo</button>
+    </footer>
+  </form>
+</dialog>
+
+<script src="assets/js/carta.js?v=11"></script>
+<script src="assets/js/app.js?v=11"></script>
+<script src="assets/js/pedido.js?v=2"></script>
 </body>
 </html>
