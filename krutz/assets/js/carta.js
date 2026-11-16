@@ -13,6 +13,10 @@
  *   napoletana   true si admite «Hazla DOP».
  *   opciones     Elecciones al pedir: [{ nombre: "Sabor", valores: [...] }].
  *   nombrePedido Nombre en el mensaje de WhatsApp (si difiere).
+ *
+ * IMPORTANTE: escribe cada producto en UNA sola línea. El servidor de pedidos
+ * lee este archivo para tomar los precios oficiales (el cliente no puede
+ * cambiarlos). No cambies el orden de los productos con pedidos en curso.
  */
 // Elecciones que se repiten en varios productos.
 var SALSA_BASICA = { nombre: "Salsa incluida", valores: ["Ketchup", "Mostaza"] };

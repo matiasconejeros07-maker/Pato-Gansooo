@@ -321,7 +321,7 @@
   function lineasPedido() {
     return pedido.lineas.map(function (l) {
       var p = productos[l.id];
-      return { id: l.id, cant: l.cant, nombre: nombreDe(p), detalle: detalleDe(l), unitario: unitario(l), subtotal: unitario(l) * l.cant };
+      return { id: l.id, cant: l.cant, elecciones: l.elecciones || [], dop: !!l.dop, nombre: nombreDe(p), detalle: detalleDe(l), subtotal: unitario(l) * l.cant };
     });
   }
 
@@ -389,12 +389,13 @@
     enviarServidor({
       accion: "pedido",
       cliente: cuenta,
-      lineas: lineas,
+      lineas: lineas.map(function (l) { return { id: l.id, cant: l.cant, elecciones: l.elecciones, dop: l.dop }; }),
       total: total,
       comentario: (pedido.comentario || "").trim(),
       web: $("hp-web") ? $("hp-web").value : ""
     }).then(function (j) {
-      recibo = { numero: j.numero, fecha: j.fecha || new Date().toLocaleString("es-CL"), lineas: lineas, total: total };
+      // El comprobante muestra lo que calculó el servidor con la carta oficial.
+      recibo = { numero: j.numero, fecha: j.fecha || new Date().toLocaleString("es-CL"), lineas: j.lineas || lineas, total: j.total != null ? j.total : total };
       pedido = { lineas: [], comentario: "" };
       comentario.value = "";
       persistir();

@@ -18,6 +18,8 @@ var HOJA_CLIENTES = "Clientes";
 var PREFIJO = "KR-";
 var ZONA = "America/Santiago";
 var ESPERA_ENTRE_PEDIDOS_SEG = 45; // mismo RUT
+// Carta oficial publicada: los precios SIEMPRE se toman de aquí, nunca del cliente.
+var CARTA_URL = "https://matiasconejeros07-maker.github.io/Pato-Gansooo/krutz/assets/js/carta.js";
 
 var COLS_PEDIDOS = ["N° pedido", "Fecha", "Nombre", "RUT", "Teléfono", "Pedido", "Comentarios", "Total", "WhatsApp", "Estado"];
 var COLS_CLIENTES = ["RUT", "Nombre", "Teléfono", "Creado", "Último pedido", "N° pedidos"];
@@ -51,9 +53,10 @@ function doPost(e) {
 
 function registrarPedido_(body) {
   var cliente = validarCliente_(body.cliente);
-  var lineas = validarLineas_(body.lineas);
+  var lineas = validarLineas_(body.lineas, catalogo_());
   var total = lineas.reduce(function (a, l) { return a + l.subtotal; }, 0);
-  if (Number(body.total) !== total) throw publico_("El total no coincide. Recarga la página.");
+  // Si la página del cliente mostraba otro total (precios antiguos o manipulados), no se acepta.
+  if (Number(body.total) !== total) throw publico_("Los precios de la carta se actualizaron. Recarga la página y vuelve a pedir.");
   var comentario = texto_(body.comentario, 500);
 
   // Evita pedidos duplicados por doble toque.
@@ -94,7 +97,10 @@ function registrarPedido_(body) {
   if (estado !== "Enviado") estado += correoRespaldo_(numero, mensaje);
   marcarEstado_(numero, estado);
 
-  return { ok: true, numero: numero, fecha: fecha };
+  return {
+    ok: true, numero: numero, fecha: fecha, total: total,
+    lineas: lineas.map(function (l) { return { cant: l.cant, nombre: l.nombre, detalle: l.detalle, subtotal: l.subtotal }; })
+  };
 }
 
 function lineaTexto_(l) {
@@ -174,16 +180,97 @@ function validarCliente_(c) {
   return { nombre: nombre, rut: rut, telefono: tel };
 }
 
-function validarLineas_(lineas) {
+// Cada línea llega solo con: id del producto, cantidad, opciones elegidas y si es «Hazla DOP».
+// Nombre, precio y opciones válidas salen de la carta oficial.
+function validarLineas_(lineas, cat) {
   if (!Array.isArray(lineas) || !lineas.length || lineas.length > 60) throw publico_("El pedido está vacío.");
   return lineas.map(function (l) {
-    var cant = Number(l.cant), unitario = Number(l.unitario);
+    var p = cat.productos[String(l && l.id)];
+    if (!p) throw publico_("La carta cambió. Recarga la página y vuelve a pedir.");
+    var cant = Number(l.cant);
     if (!(cant >= 1 && cant <= 50 && cant % 1 === 0)) throw publico_("Cantidad no válida.");
-    if (!(unitario >= 0 && unitario <= 500000 && unitario % 1 === 0)) throw publico_("Precio no válido.");
-    var nombre = texto_(l.nombre, 80);
-    if (!nombre) throw publico_("Producto no válido.");
-    return { cant: cant, nombre: nombre, detalle: texto_(l.detalle, 160), unitario: unitario, subtotal: cant * unitario };
+
+    var elegidas = Array.isArray(l.elecciones) ? l.elecciones.map(function (e) { return String(e); }) : [];
+    if (elegidas.length !== p.opciones.length) throw publico_("Falta elegir una opción en " + p.nombre + ".");
+    var detalle = p.opciones.map(function (g, i) {
+      if (g.valores.indexOf(elegidas[i].replace(g.nombre + ": ", "")) < 0 || elegidas[i].indexOf(g.nombre + ": ") !== 0)
+        throw publico_("Opción no válida en " + p.nombre + ".");
+      return elegidas[i];
+    });
+
+    var dop = l.dop === true;
+    if (dop && !p.napoletana) throw publico_(p.nombre + " no tiene opción DOP.");
+    var unitario = p.precio + (dop ? cat.dop : 0);
+    if (dop) detalle.push("Hazla DOP (+" + pesos_(cat.dop) + ")");
+    return { cant: cant, nombre: p.nombre, detalle: detalle.join(" · "), unitario: unitario, subtotal: cant * unitario };
   });
+}
+
+/* ---------- Carta oficial ---------- */
+
+function catalogo_() {
+  var cache = CacheService.getScriptCache();
+  var guardado = cache.get("catalogo");
+  if (guardado) return JSON.parse(guardado);
+  var url = PropertiesService.getScriptProperties().getProperty("CARTA_URL") || CARTA_URL;
+  var r = UrlFetchApp.fetch(url + "?t=" + Date.now(), { muteHttpExceptions: true });
+  if (r.getResponseCode() !== 200) throw publico_("No pudimos leer la carta. Intenta de nuevo en un minuto.");
+  var cat = parsearCarta_(r.getContentText());
+  cache.put("catalogo", JSON.stringify(cat), 300); // 5 minutos
+  return cat;
+}
+
+// Lee carta.js como texto (sin ejecutarlo). Requiere un producto por línea.
+function parsearCarta_(js) {
+  var STR = '"((?:[^"\\\\]|\\\\.)*)"';
+  function cadena(t) { return JSON.parse('"' + t + '"'); }
+  function valores(t) {
+    var out = [], re = new RegExp(STR, "g"), m;
+    while ((m = re.exec(t))) out.push(cadena(m[1]));
+    return out;
+  }
+  var reGrupo = new RegExp("\\{\\s*nombre:\\s*" + STR + "[^\\[]*?valores:\\s*\\[([^\\]]*)\\]", "g");
+  function grupos(t) {
+    var out = [], m;
+    reGrupo.lastIndex = 0;
+    while ((m = reGrupo.exec(t))) out.push({ nombre: cadena(m[1]), valores: valores(m[2]) });
+    return out;
+  }
+
+  var constantes = {}, productos = {}, dop = null, categoria = null, idx = 0, enCategorias = false, enNapo = false;
+  js.split("\n").forEach(function (linea) {
+    var t = linea.trim(), m;
+    if ((m = t.match(/^var\s+([A-Z_]+)\s*=\s*(\{.*\});?$/))) { constantes[m[1]] = grupos(m[2])[0]; return; }
+    if (/^napoletana:\s*\{/.test(t)) { enNapo = true; return; }
+    if (enNapo && (m = t.match(/^precio:\s*(\d+)/))) { dop = Number(m[1]); enNapo = false; return; }
+    if (/^categorias:\s*\[/.test(t)) { enCategorias = true; return; }
+    if (!enCategorias) return;
+    if ((m = t.match(/^id:\s*"([^"]+)"/))) { categoria = m[1]; idx = 0; return; }
+    if (!categoria || !(m = t.match(new RegExp("^\\{\\s*nombre:\\s*" + STR + "(.*)$")))) return;
+    var resto = m[2];
+    var pr = resto.match(/^,\s*(?:nombrePedido:\s*"(?:[^"\\]|\\.)*",\s*)?precio:\s*(\d+)/);
+    if (!pr) throw new Error("Producto sin precio: " + t);
+    var np = resto.match(new RegExp("^,\\s*nombrePedido:\\s*" + STR));
+    var op = [], mo = resto.match(/opciones:\s*\[(.*)\]\s*\},?$/);
+    if (mo) {
+      var interior = mo[1];
+      (interior.match(/(^|[\s,])([A-Z_]+)(?=[\s,]|$)/g) || []).forEach(function (k) {
+        var g = constantes[k.replace(/[\s,]/g, "")];
+        if (!g) throw new Error("Opción desconocida: " + k);
+        op.push(g);
+      });
+      op = op.concat(grupos(interior));
+    }
+    productos[categoria + "-" + idx] = {
+      nombre: np ? cadena(np[1]) : cadena(m[1]),
+      precio: Number(pr[1]),
+      napoletana: /[,{]\s*napoletana:\s*true/.test(resto),
+      opciones: op
+    };
+    idx++;
+  });
+  if (!dop || !Object.keys(productos).length) throw new Error("No se pudo leer la carta");
+  return { productos: productos, dop: dop };
 }
 
 function rut_(t) {

@@ -90,6 +90,8 @@ Así la URL sigue siendo la misma.
   en Meta y un número dedicado, y solo hay que reemplazar la función `enviarWhatsApp_`.
 - **Datos personales**: el RUT y el teléfono quedan solo en tu cuenta de Google. No compartas la planilla
   y úsalos solo para gestionar pedidos. Al crear su cuenta, el cliente acepta esto.
-- **Precios**: el servidor revisa que el total cuadre con las líneas del pedido, pero los precios vienen de la página.
-  Cobra según tu carta, como siempre.
+- **Precios a prueba de cambios**: el cliente nunca escribe ni envía el mensaje, y la página solo manda
+  qué productos eligió y cuántos. El servidor toma nombres, precios y opciones válidas de la carta oficial publicada
+  (`assets/js/carta.js`) y rechaza cualquier pedido con precios, opciones o totales que no calcen.
+  Si cambias precios en la carta, el servidor los toma en máximo 5 minutos.
 - Un mismo RUT no puede enviar dos pedidos en menos de 45 segundos (evita duplicados por doble toque).
